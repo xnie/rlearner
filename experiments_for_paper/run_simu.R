@@ -18,8 +18,9 @@ p=6
 sigma=0.1
 k=2
 eta=0.1
-alg='U'
+alg='R'
 NREP=50
+rs=TRUE
 
 
 if (setup == 1) {
@@ -61,7 +62,7 @@ results.list = lapply(1:NREP, function(iter) {
 
     if (alg == 'R') {
 
-        est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = TRUE, standardize = FALSE)
+        est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = FALSE, standardize = FALSE, rs=rs)
 
     } else if (alg == 'S') {
 

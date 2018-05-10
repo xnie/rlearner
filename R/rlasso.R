@@ -8,6 +8,7 @@
 #' @param lambda.choice
 #' @param standardize
 #' @param constant.effect
+#' @param rs
 #'
 #' @return
 #' @export rlasso
@@ -18,7 +19,8 @@ rlasso = function(X, Y, W,
                   nfolds=NULL,
                   lambda.choice=c("lambda.1se", "lambda.min"),
                   standardize = FALSE,
-                  constant.effect = TRUE) {
+                  constant.effect = TRUE,
+                  rs = FALSE) {
     # standardize in glmnet
     if (standardize){
       X.scl = X
@@ -49,16 +51,34 @@ rlasso = function(X, Y, W,
 
     Y.tilde = Y - y.hat
 
-    if (constant.effect){
-      X.scl.tilde = cbind(as.numeric(W - w.hat) * cbind(1, X.scl))
-      X.scl.pred = cbind(1, X.scl)
-      penalty.factor = c(0, rep(1, pobs))
+    if (rs){
+
+      if (constant.effect){
+        X.scl.tilde = cbind(as.numeric(W - w.hat) * cbind(1, X.scl), X.scl)
+        X.scl.pred = cbind(1, X.scl, X.scl * 0)
+        penalty.factor = c(0, rep(1, 2 * pobs))
+      }
+      else{
+        X.scl.tilde = cbind(as.numeric(W - w.hat) * X.scl, X.scl)
+        X.scl.pred = cbind(X.scl, X.scl * 0)
+        penalty.factor = rep(1, 2 * pobs)
+      }
+
     }
     else{
-      X.scl.tilde = cbind(as.numeric(W - w.hat) * X.scl)
-      X.scl.pred =  X.scl
-      penalty.factor = rep(1, pobs)
+
+      if (constant.effect){
+        X.scl.tilde = cbind(as.numeric(W - w.hat) * cbind(1, X.scl))
+        X.scl.pred = cbind(1, X.scl)
+        penalty.factor = c(0, rep(1, pobs))
+      }
+      else{
+        X.scl.tilde = cbind(as.numeric(W - w.hat) * X.scl)
+        X.scl.pred =  X.scl
+        penalty.factor = rep(1, pobs)
+      }
     }
+
 
     tau.fit = cv.glmnet(X.scl.tilde, Y.tilde, foldid = foldid,
                              alpha = alpha,
