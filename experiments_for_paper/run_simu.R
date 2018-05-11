@@ -44,6 +44,56 @@ if (setup == 1) {
         list(X=X, b=b, tau=tau, e=e)
     }
 
+} else if (setup == 3) { # RCT
+
+    get.params = function() {
+        X = matrix(rnorm(n*p), n, p)
+        b = pmax(0, X[,1] + X[,2], X[,3]) + pmax(0, X[,4] + X[,5])
+        e = 0.5
+        tau = X[,1] + log(1 + exp(X[,2]))
+        list(X=X, b=b, tau=tau, e=e)
+    }
+
+} else if (setup == 4) { # RCT + big tau + simple baseline
+
+    get.params = function() {
+        X = matrix(rnorm(n*p), n, p)
+        b = (X[,1] + X[,2]) / 2
+        e = 0.5
+        tau = 3 * pmax(X[,2] + X[,3], 0)
+        list(X=X, b=b, tau=tau, e=e)
+    }
+
+} else if (setup == 5) { # treat/control imbalance; complicated baseline+ treatment
+
+    get.params = function() {
+        X = matrix(rnorm(n*p), n, p)
+        b = sin(pi * X[,1] * X[,2]) + (X[,3] + X[,4])^2
+        e = 1/(1 + exp(-X[,4]) + exp(-X[,5]))
+        tau = 3 * pmax(X[,2] + X[3,] + X[,5], 0)
+        list(X=X, b=b, tau=tau, e=e)
+    }
+
+} else if (setup == 6) { # easy e, complicated baseline
+
+    get.params = function() {
+        X = matrix(rnorm(n*p), n, p)
+        b = sqrt(pmax(0, X[,1] + X[,2], X[,3]))
+        e = 1/(1 + exp(-X[,1]-X[,2]))
+        tau = (X[1,] + X[2,])/2
+        list(X=X, b=b, tau=tau, e=e)
+    }
+
+} else if (setup == 7) { # T; make e hat easy or not?
+
+    get.params = function() {
+        X = matrix(rnorm(n*p), n, p)
+        b = (pmax(X[,1] + X[,2] + X[,3], 0) + pmax(X[,4] + X[,5], 0)) / 2
+        e = 1/(1 + exp(-X[,1]) + exp(-X[,2]))
+        tau = pmax(X[,1] + X[,2] + X[,3], 0) - pmax(X[,4] + X[,5], 0)
+        list(X=X, b=b, tau=tau, e=e)
+    }
+
 } else {
 
     stop("bad setup")
