@@ -6,7 +6,7 @@ pvals=(6 12)
 sigmavals=(0.1 1.0 2.0 5.0 10.0)
 kvals=(2 3 4 5)
 etavals=(0.1 0.2)
-algvals=('R', 'X', 'S', 'T', 'U', 'RS')
+algvals=('R' 'X' 'S' 'T' 'U' 'RS')
 
 # setup = as.numeric(args[1])
 # n = as.numeric(args[2])
@@ -42,9 +42,11 @@ do
     alg=${algvals[$i7]}
 
     fnm="logging/progress-$setup-$n-$p-$sigma-$k-$eta-$alg-$reps.out"
-    echo $fnm
+    #echo $fnm
 
-    R CMD BATCH --no-save --no-restore "--args $setup $n $p $sigma $k $eta $alg $reps" run_simu.R $fnm &
+    Rscript run_simu.R $setup $n $p $sigma $k $eta $alg $reps 2>&1 | tee $fnm &
+    #echo "Rscript run_simu.R $setup $n $p $sigma $k $eta $alg $reps 2>&1 | tee $fnm"
+    #R CMD BATCH --no-save --no-restore "--args $setup $n $p $sigma $k $eta $alg $reps" run_simu.R $fnm &
 done
 done
 done

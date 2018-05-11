@@ -11,17 +11,18 @@ k = as.numeric(args[5])
 eta = as.numeric(args[6])
 alg = as.character(args[7])
 NREP = as.numeric(args[8])
-
-#setup = 2
-#n=500
-#p=6
-#sigma=0.1
-#k=2
-#eta=0.1
-#alg='R'
-#NREP=50
-
-
+#
+#
+# #setup = 2
+# #n=500
+# #p=6
+# #sigma=0.1
+# #k=2
+# #eta=0.1
+# #alg='R'
+# #NREP=50
+#
+#
 if (setup == 1) {
 
     get.params = function() {
@@ -55,9 +56,9 @@ if (setup == 1) {
 
 results.list = lapply(1:NREP, function(iter) {
     params = get.params()
-    W = rbern(n, params$e)
+    W = Rlab::rbern(n, params$e)
     Y = params$b + (W - 0.5) * params$tau + sigma * rnorm(n)
-    X.ns = do.call(cbind, lapply(1:p, function(col){matrix(ns(params$X[,col],df=7),n,7)}))
+    X.ns = do.call(cbind, lapply(1:p, function(col){matrix(splines::ns(params$X[,col],df=7),n,7)}))
 
     if (alg == 'R') {
 
@@ -93,7 +94,6 @@ results.list = lapply(1:NREP, function(iter) {
     print(est.mse)
     return(est.mse)
 })
-
 results = unlist(results.list, use.names=FALSE)
 print(mean(results))
 print(sd(results))
