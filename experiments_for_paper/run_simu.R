@@ -2,25 +2,24 @@ rm(list = ls())
 
 library(rlearner)
 
-# args=(commandArgs(TRUE))
-# setup = as.numeric(args[1])
-# n = as.numeric(args[2])
-# p = as.numeric(args[3])
-# sigma = as.numeric(args[4])
-# k = as.numeric(args[5])
-# eta = as.numeric(args[6])
-# alg = as.numeric(args[7])
-# NREP = as.numeric(args[8])
+args=(commandArgs(TRUE))
+setup = as.numeric(args[1])
+n = as.numeric(args[2])
+p = as.numeric(args[3])
+sigma = as.numeric(args[4])
+k = as.numeric(args[5])
+eta = as.numeric(args[6])
+alg = as.character(args[7])
+NREP = as.numeric(args[8])
 
-setup = 1
-n=500
-p=6
-sigma=0.1
-k=2
-eta=0.1
-alg='R'
-NREP=50
-rs=TRUE
+#setup = 2
+#n=500
+#p=6
+#sigma=0.1
+#k=2
+#eta=0.1
+#alg='R'
+#NREP=50
 
 
 if (setup == 1) {
@@ -62,7 +61,11 @@ results.list = lapply(1:NREP, function(iter) {
 
     if (alg == 'R') {
 
-        est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = FALSE, standardize = FALSE, rs=rs)
+        est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = TRUE, standardize = FALSE, rs=FALSE)
+
+    } else if (alg == 'RS') {
+
+        est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = TRUE, standardize = FALSE, rs=TRUE)
 
     } else if (alg == 'S') {
 
@@ -95,5 +98,5 @@ results = unlist(results.list, use.names=FALSE)
 print(mean(results))
 print(sd(results))
 
-#fnm = paste("results/output", alg, setup, n, p, sigma, k, eta, NREP, "full.csv", sep="-")
-#write.csv(results, file=fnm)
+fnm = paste("results/output", alg, setup, n, p, sigma, k, eta, NREP, "full.csv", sep="-")
+write.csv(results, file=fnm)

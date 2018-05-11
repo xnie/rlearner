@@ -24,8 +24,7 @@ rlasso = function(X, Y, W,
     # standardize in glmnet
     if (standardize){
       X.scl = X
-    }
-    else{
+    } else{
       X.scl = scale(X)
       X.scl = X.scl[,!is.na(colSums(X.scl))]
     }
@@ -68,6 +67,9 @@ rlasso = function(X, Y, W,
     else{
 
       if (constant.effect){
+        #X.scl.tilde.c = cbind(as.numeric(W - w.hat) * cbind(1, X.scl))
+        #X.scl.pred.c = cbind(1, X.scl)
+        #penalty.factor.c = c(0, rep(1, pobs))
         X.scl.tilde = cbind(as.numeric(W - w.hat) * cbind(1, X.scl))
         X.scl.pred = cbind(1, X.scl)
         penalty.factor = c(0, rep(1, pobs))
@@ -80,13 +82,21 @@ rlasso = function(X, Y, W,
     }
 
 
+    #tau.fit.c = cv.glmnet(X.scl.tilde.c, Y.tilde, foldid = foldid,
+    #                         alpha = alpha,
+    #                         penalty.factor = penalty.factor.c,
+    #                         standardize = standardize)
+
     tau.fit = cv.glmnet(X.scl.tilde, Y.tilde, foldid = foldid,
                              alpha = alpha,
                              penalty.factor = penalty.factor,
                              standardize = standardize)
 
     tau.beta = as.vector(t(coef(tau.fit, s=lambda.choice)[-1]))
+    #tau.beta.c = as.vector(t(coef(tau.fit.c, s=lambda.choice)[-1]))
+
     tau.hat = X.scl.pred %*% tau.beta
+    #tau.hat.c = X.scl.pred.c %*% tau.beta.c
 
     return(list(tau.hat = tau.hat, y.hat = y.hat, w.hat = w.hat, tau.beta = tau.beta))
 }
