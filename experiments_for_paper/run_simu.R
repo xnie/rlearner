@@ -53,24 +53,21 @@ if (setup == 1) {
         tau = X[,1] + log(1 + exp(X[,2]))
         list(X=X, b=b, tau=tau, e=e)
     }
-
-} else if (setup == 4) { # RCT + big tau + simple baseline
-
-    get.params = function() {
-        X = matrix(rnorm(n*p), n, p)
-        b = (X[,1] + X[,2]) / 2
-        e = 0.5
-        tau = 3 * pmax(X[,2] + X[,3], 0)
-        list(X=X, b=b, tau=tau, e=e)
-    }
+    
+} else if (setup == 4) { # constant treatment
+    
+    X = matrix(rnorm(n * p), n, p)
+    e = 1 / (1 + exp(-X[,2] - X[,3]))
+    tau = rep(1, n)
+    b = 2 * pmax(X[,1] + X[,2] + X[,3], 0)
 
 } else if (setup == 5) { # treat/control imbalance; complicated baseline+ treatment
 
     get.params = function() {
         X = matrix(rnorm(n*p), n, p)
         b = sin(pi * X[,1] * X[,2]) + (X[,3] + X[,4])^2
-        e = 1/(1 + exp(-X[,4]) + exp(-X[,5]))
-        tau = 3 * pmax(X[,2] + X[3,] + X[,5], 0)
+        e = 0.2
+        tau = pmax(X[3,] + X[,5], 0)
         list(X=X, b=b, tau=tau, e=e)
     }
 
@@ -79,7 +76,7 @@ if (setup == 1) {
     get.params = function() {
         X = matrix(rnorm(n*p), n, p)
         b = sqrt(pmax(0, X[,1] + X[,2], X[,3]))
-        e = 1/(1 + exp(-X[,1]-X[,2]))
+        e = 1/(1 + exp(-X[,2]))
         tau = (X[1,] + X[2,])/2
         list(X=X, b=b, tau=tau, e=e)
     }
