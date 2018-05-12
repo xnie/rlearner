@@ -5,11 +5,11 @@ library(rlearner)
 start.time <- Sys.time()
 
 args=(commandArgs(TRUE))
-setup = as.numeric(args[1])
-n = as.numeric(args[2])
-p = as.numeric(args[3])
-sigma = as.numeric(args[4])
-alg = as.character(args[5])
+alg = as.character(args[1])
+setup = as.numeric(args[2])
+n = as.numeric(args[3])
+p = as.numeric(args[4])
+sigma = as.numeric(args[5])
 NREP = as.numeric(args[6])
 #
 #setup = 2

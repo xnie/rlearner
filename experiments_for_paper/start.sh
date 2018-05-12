@@ -26,11 +26,11 @@ do
     sigma=${sigmavals[$i4]}
     alg=${algvals[$i5]}
 
-    fnm="logging/progress-$setup-$n-$p-$sigma-$alg-$reps.out"
+    fnm="logging/progress-$alg-$setup-$n-$p-$sigma-$reps.out"
     #echo $fnm
 
-    Rscript run_simu.R $setup $n $p $sigma $alg $reps 2>&1 | tee $fnm &
-    #echo "Rscript run_simu.R $setup $n $p $sigma $alg $reps 2>&1 | tee $fnm"
+    Rscript run_simu.R $alg $setup $n $p $sigma $reps 2>&1 | tee $fnm &
+    #echo "Rscript run_simu.R $alg $setup $n $p $sigma $reps 2>&1 | tee $fnm"
     #R CMD BATCH --no-save --no-restore "--args $setup $n $p $sigma $k $eta $alg $reps" run_simu.R $fnm &
 done
 done
