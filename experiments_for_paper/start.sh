@@ -20,6 +20,11 @@ for ((i4=0; i4<${#sigmavals[@]} ;i4++))
 do
 for ((i5=0; i5<${#algvals[@]} ;i5++))
 do
+    while [ `jobs | wc -l` -ge 100 ]
+    do
+          sleep 5
+    done
+
     setup=${setupvals[$i1]}
     n=${nvals[$i2]}
     p=${pvals[$i3]}
