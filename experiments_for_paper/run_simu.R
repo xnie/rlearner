@@ -2,6 +2,8 @@ rm(list = ls())
 
 library(rlearner)
 
+start.time <- Sys.time()
+
 args=(commandArgs(TRUE))
 setup = as.numeric(args[1])
 n = as.numeric(args[2])
@@ -163,6 +165,9 @@ results.list = lapply(1:NREP, function(iter) {
 results = unlist(results.list, use.names=FALSE)
 print(mean(results))
 print(sd(results))
+end.time <- Sys.time()
+time.taken <- end.time - start.time
+print(time.taken)
 
 fnm = paste("results/output", alg, setup, n, p, sigma, NREP, "full.csv", sep="-")
 write.csv(results, file=fnm)
