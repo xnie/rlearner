@@ -7,27 +7,22 @@ setup = as.numeric(args[1])
 n = as.numeric(args[2])
 p = as.numeric(args[3])
 sigma = as.numeric(args[4])
-k = as.numeric(args[5])
-eta = as.numeric(args[6])
-alg = as.character(args[7])
-NREP = as.numeric(args[8])
+alg = as.character(args[5])
+NREP = as.numeric(args[6])
 #
-#
-# #setup = 2
-# #n=500
-# #p=6
-# #sigma=0.1
-# #k=2
-# #eta=0.1
-# #alg='R'
-# #NREP=50
-#
-#
+#setup = 2
+#n=500
+#p=6
+#sigma=2
+#alg='U'
+#NREP=5
+
+
 if (setup == 1) {
 
     get.params = function() {
         X = matrix(runif(n*p, min=0, max=1), n, p)
-        b = 10 * sin(pi * X[,1] * X[,2]) + 20 * (X[,3] - 0.5)^2 + 10 * X[,4] + 5 * X[,5]
+        b = sin(pi * X[,1] * X[,2]) + 2 * (X[,3] - 0.5)^2 + X[,4] + 0.5 * X[,5]
         e = sin(pi * X[,1] * X[,2])
         tau = (X[,1] + X[,2]) / 2
         list(X=X, b=b, tau=tau, e=e)
@@ -37,8 +32,10 @@ if (setup == 1) {
 
     get.params = function() {
         X = matrix(rnorm(n*p), n, p)
+        k=3
         rowm = rowMeans(X[,1:k] * sqrt(k))
         b = pmax(0, rowm)
+        eta = 0.1
         e = pmax(eta, pmin(0.5 * (1 + sign(rowm) * rowm^2), 1-eta))
         tau = sin(2 * pi * X[,1])
         list(X=X, b=b, tau=tau, e=e)
@@ -47,27 +44,30 @@ if (setup == 1) {
 } else if (setup == 3) { # RCT
 
     get.params = function() {
-        X = matrix(rnorm(n*p), n, p)
+        X = matrix(rnorm(n * p), n, p)
         b = pmax(0, X[,1] + X[,2], X[,3]) + pmax(0, X[,4] + X[,5])
         e = 0.5
         tau = X[,1] + log(1 + exp(X[,2]))
         list(X=X, b=b, tau=tau, e=e)
     }
-    
-} else if (setup == 4) { # constant treatment
-    
-    X = matrix(rnorm(n * p), n, p)
-    e = 1 / (1 + exp(-X[,2] - X[,3]))
-    tau = rep(1, n)
-    b = 2 * pmax(X[,1] + X[,2] + X[,3], 0)
+
+} else if (setup == 4) { # constant treatment effect
+
+    get.params = function() {
+      X = matrix(rnorm(n * p), n, p)
+      b = 2 * log(1 + exp(X[,1] + X[,2] + X[,3]))
+      e = 1/(1 + exp(X[,2] + X[,3]))
+      tau = rep(1, n)
+      list(X=X, b=b, tau=tau, e=e)
+    }
 
 } else if (setup == 5) { # treat/control imbalance; complicated baseline+ treatment
 
     get.params = function() {
-        X = matrix(rnorm(n*p), n, p)
+        X = matrix(rnorm(n * p), n, p)
         b = sin(pi * X[,1] * X[,2]) + (X[,3] + X[,4])^2
         e = 0.2
-        tau = pmax(X[3,] + X[,5], 0)
+        tau = log(1 + exp(X[,3] + X[,5]))
         list(X=X, b=b, tau=tau, e=e)
     }
 
@@ -77,17 +77,27 @@ if (setup == 1) {
         X = matrix(rnorm(n*p), n, p)
         b = sqrt(pmax(0, X[,1] + X[,2], X[,3]))
         e = 1/(1 + exp(-X[,2]))
-        tau = (X[1,] + X[2,])/2
+        tau = (X[,1] + X[,2])/2
         list(X=X, b=b, tau=tau, e=e)
     }
 
-} else if (setup == 7) { # T; make e hat easy or not?
+} else if (setup == 7) { # T
 
     get.params = function() {
         X = matrix(rnorm(n*p), n, p)
         b = (pmax(X[,1] + X[,2] + X[,3], 0) + pmax(X[,4] + X[,5], 0)) / 2
         e = 1/(1 + exp(-X[,1]) + exp(-X[,2]))
         tau = pmax(X[,1] + X[,2] + X[,3], 0) - pmax(X[,4] + X[,5], 0)
+        list(X=X, b=b, tau=tau, e=e)
+    }
+
+} else if (setup == 8) { # setup 1 originally from the first paper draft
+
+    get.params = function() {
+        X = matrix(runif(n*p, min=0, max=1), n, p)
+        b = 10 * sin(pi * X[,1] * X[,2]) + 20 * (X[,3] - 0.5)^2 + 10 * X[,4] + 5 * X[,5]
+        e = sin(pi * X[,1] * X[,2])
+        tau = (X[,1] + X[,2]) / 2
         list(X=X, b=b, tau=tau, e=e)
     }
 
@@ -109,15 +119,23 @@ results.list = lapply(1:NREP, function(iter) {
 
     if (alg == 'R') {
 
-        est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = TRUE, standardize = FALSE, rs=FALSE)
+        est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = TRUE, rs=FALSE)
 
     } else if (alg == 'RS') {
 
-        est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = TRUE, standardize = FALSE, rs=TRUE)
+        est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = TRUE, rs=TRUE)
+
+    } else if (alg == 'Rnc') {
+
+        est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = FALSE, rs=FALSE)
+
+    } else if (alg == 'RSnc') {
+
+        est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = FALSE, rs=TRUE)
 
     } else if (alg == 'S') {
 
-        est <- slasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = TRUE, standardize = FALSE)
+        est <- slasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = TRUE)
 
     } else if (alg == 'T') {
 
@@ -125,11 +143,12 @@ results.list = lapply(1:NREP, function(iter) {
 
     } else if (alg == 'X') {
 
-        est <- xlasso(X.ns, Y, W, lambda.choice = "lambda.min")
+        xlasso.fit <- xlasso(X.ns, Y, W, lambda.choice = "lambda.min")
+        est <- list(tau.hat=predict(xlasso.fit)) # TODO
 
     } else if (alg == 'U') {
 
-        est <- ulasso(X.ns, Y, W, lambda.choice = "lambda.min", cutoff=0)
+        est <- ulasso(X.ns, Y, W, lambda.choice = "lambda.min", cutoff=0.05)
 
     } else {
 
@@ -145,5 +164,5 @@ results = unlist(results.list, use.names=FALSE)
 print(mean(results))
 print(sd(results))
 
-fnm = paste("results/output", alg, setup, n, p, sigma, k, eta, NREP, "full.csv", sep="-")
+fnm = paste("results/output", alg, setup, n, p, sigma, NREP, "full.csv", sep="-")
 write.csv(results, file=fnm)

@@ -18,7 +18,7 @@ xlasso = function(X, Y, W,
                   nfolds.1=NULL,
                   nfolds.0=NULL,
                   nfolds.W=NULL,
-                  lambda.choice=c("lambda.1se", "lambda.min")){
+                  lambda.choice=c("lambda.min", "lambda.1se")) {
 
   lambda.choice = match.arg(lambda.choice)
 
@@ -51,8 +51,8 @@ xlasso = function(X, Y, W,
   foldid.0 = sample(rep(seq(nfolds.0), length = nobs.0))
   foldid.W = sample(rep(seq(nfolds.W), length = nobs))
 
-  t.1.fit = cv.glmnet(X.1, Y.1, foldid = foldid.1)
-  t.0.fit = cv.glmnet(X.0, Y.0, foldid = foldid.0)
+  t.1.fit = glmnet::cv.glmnet(X.1, Y.1, foldid = foldid.1)
+  t.0.fit = glmnet::cv.glmnet(X.0, Y.0, foldid = foldid.0)
 
   y.1.pred = predict(t.1.fit, newx=X, s=lambda.choice)
   y.0.pred = predict(t.0.fit, newx=X, s=lambda.choice)
@@ -60,16 +60,37 @@ xlasso = function(X, Y, W,
   D.1 = Y.1 - y.0.pred[W==1]
   D.0 = y.1.pred[W==0] - Y.0
 
-  x.1.fit = cv.glmnet(X.1, D.1, foldid = foldid.1)
-  x.0.fit = cv.glmnet(X.0, D.0, foldid = foldid.0)
+  x.1.fit = glmnet::cv.glmnet(X.1, D.1, foldid = foldid.1)
+  x.0.fit = glmnet::cv.glmnet(X.0, D.0, foldid = foldid.0)
 
   tau.1.pred = predict(x.1.fit, newx=X, s=lambda.choice)
   tau.0.pred = predict(x.0.fit, newx=X, s=lambda.choice)
 
-  w.fit = cv.glmnet(X, W, foldid=foldid.W, keep=TRUE, family="binomial", type.measure = "auc", alpha = alpha)
+  w.fit = glmnet::cv.glmnet(X, W, foldid=foldid.W, keep=TRUE, family="binomial", type.measure = "auc", alpha = alpha)
   w.hat = w.fit$fit.preval[, w.fit$lambda == w.fit$lambda.min]
 
   tau.hat = tau.1.pred * (1-w.hat) + tau.0.pred * w.hat
 
-  return(list(tau.hat = tau.hat))
+  ret = list(x.1.fit = x.1.fit, x.0.fit = x.0.fit, w.fit = w.fit, tau.hat = tau.hat, w.hat = w.hat)
+
+  class(ret) <- "xlasso"
+  ret
+
+}
+
+predict.xlasso <- function(object,
+                           newx=NULL,
+                           s=c("lambda.min", "lambda.1se"),
+                           ...) {
+  lambda.choice = match.arg(s)
+  if (!is.null(newx)) {
+    tau.1.pred = predict(object$x.1.fit, newx=newx, s=lambda.choice)
+    tau.0.pred = predict(object$x.0.fit, newx=newx, s=lambda.choice)
+    w.hat = predict(object$w.fit, newx=newx, s=lambda.choice, type="response")
+    tau.hat = tau.1.pred * (1-w.hat) + tau.0.pred * w.hat
+  }
+  else {
+    tau.hat = object$tau.hat
+  }
+  return(tau.hat)
 }
