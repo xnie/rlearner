@@ -12,11 +12,11 @@ p = as.numeric(args[4])
 sigma = as.numeric(args[5])
 NREP = as.numeric(args[6])
 #
-#setup = 2
+#setup = 1
 #n=500
-#p=6
-#sigma=2
-#alg='U'
+#p=12
+#sigma=12.0
+#alg='R'
 #NREP=5
 
 
@@ -109,9 +109,9 @@ if (setup == 1) {
 
 }
     #params = get.params()
-    #W = rbern(n, params$e)
+    #W = Rlab::rbern(n, params$e)
     #Y = params$b + (W - 0.5) * params$tau + sigma * rnorm(n)
-    #X.ns = do.call(cbind, lapply(1:p, function(col){matrix(ns(params$X[,col],df=7),n,7)}))
+    #X.ns = do.call(cbind, lapply(1:p, function(col){matrix(splines::ns(params$X[,col],df=7),n,7)}))
 
 results.list = lapply(1:NREP, function(iter) {
     params = get.params()

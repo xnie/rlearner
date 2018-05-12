@@ -31,10 +31,11 @@ ulasso = function(X, Y, W,
   foldid = sample(rep(seq(nfolds), length = length(W)))
 
   y.fit = glmnet::cv.glmnet(X, Y, foldid=foldid, keep=TRUE, alpha = alpha)
-  y.hat = y.fit$fit.preval[, y.fit$lambda == y.fit$lambda.min]
+  y.hat = y.fit$fit.preval[,!is.na(colSums(y.fit$fit.preval))][, y.fit$lambda == y.fit$lambda.min]
 
   w.fit = glmnet::cv.glmnet(X, W, foldid=foldid, keep=TRUE, family="binomial", type.measure = "auc", alpha = alpha)
-  w.hat = w.fit$fit.preval[, w.fit$lambda == w.fit$lambda.min]
+  w.hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.min]
+
   w.hat.thresh = pmax(cutoff, pmin(1 - cutoff, w.hat))
 
   Y.tilde = Y - y.hat

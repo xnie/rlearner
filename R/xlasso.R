@@ -67,7 +67,8 @@ xlasso = function(X, Y, W,
   tau.0.pred = predict(x.0.fit, newx=X, s=lambda.choice)
 
   w.fit = glmnet::cv.glmnet(X, W, foldid=foldid.W, keep=TRUE, family="binomial", type.measure = "auc", alpha = alpha)
-  w.hat = w.fit$fit.preval[, w.fit$lambda == w.fit$lambda.min]
+  w.hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.min]
+
 
   tau.hat = tau.1.pred * (1-w.hat) + tau.0.pred * w.hat
 
