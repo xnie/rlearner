@@ -12,13 +12,13 @@ p = as.numeric(args[4])
 sigma = as.numeric(args[5])
 NREP = as.numeric(args[6])
 #
-#setup = 1
+#setup = 8
 #n=500
-#p=12
-#sigma=12.0
-#alg='R'
-#NREP=5
-
+#p=6
+#sigma=5.0
+#alg='RSncoracle'
+#NREP=20
+#print(alg)
 
 if (setup == 1) {
 
@@ -135,6 +135,30 @@ results.list = lapply(1:NREP, function(iter) {
 
         est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = FALSE, rs=TRUE)
 
+    } else if (alg == 'Roracle') {
+
+        w.hat.oracle = params$e
+        y.hat.oracle = params$b + (params$e-0.5) * params$tau
+        est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = TRUE, rs=FALSE, w.hat=w.hat.oracle, y.hat=y.hat.oracle)
+
+    } else if (alg == 'RSoracle') {
+
+        w.hat.oracle = params$e
+        y.hat.oracle = params$b + (params$e-0.5) * params$tau
+        est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = TRUE, rs=TRUE, w.hat=w.hat.oracle, y.hat=y.hat.oracle)
+
+    } else if (alg == 'Rncoracle') {
+
+        w.hat.oracle = params$e
+        y.hat.oracle = params$b + (params$e-0.5) * params$tau
+        est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = FALSE, rs=FALSE, w.hat=w.hat.oracle, y.hat=y.hat.oracle)
+
+    } else if (alg == 'RSncoracle') {
+
+        w.hat.oracle = params$e
+        y.hat.oracle = params$b + (params$e-0.5) * params$tau
+        est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = FALSE, rs=TRUE, w.hat=w.hat.oracle, y.hat=y.hat.oracle)
+
     } else if (alg == 'S') {
 
         est <- slasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = TRUE)
@@ -159,7 +183,7 @@ results.list = lapply(1:NREP, function(iter) {
     }
 
     est.mse = mean((est$tau.hat - params$tau)^2)
-    print(est.mse)
+    #print(est.mse)
     return(est.mse)
 })
 results = unlist(results.list, use.names=FALSE)

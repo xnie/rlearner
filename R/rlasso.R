@@ -18,7 +18,9 @@ rlasso = function(X, Y, W,
                   nfolds=NULL,
                   lambda.choice=c("lambda.min","lambda.1se"),
                   constant.effect = TRUE,
-                  rs = FALSE) {
+                  rs = FALSE,
+                  w.hat = NULL,
+                  y.hat = NULL) {
 
     X.scl = scale(X)
     X.scl = X.scl[,!is.na(colSums(X.scl))]
@@ -35,11 +37,15 @@ rlasso = function(X, Y, W,
     # fold ID for cross-validation; balance treatment assignments
     foldid = sample(rep(seq(nfolds), length = length(W)))
 
-    y.fit = glmnet::cv.glmnet(X, Y, foldid=foldid, keep=TRUE, alpha = alpha)
-    y.hat = y.fit$fit.preval[,!is.na(colSums(y.fit$fit.preval))][, y.fit$lambda == y.fit$lambda.min]
+    if (is.null(y.hat)){
+      y.fit = glmnet::cv.glmnet(X, Y, foldid=foldid, keep=TRUE, alpha = alpha)
+      y.hat = y.fit$fit.preval[,!is.na(colSums(y.fit$fit.preval))][, y.fit$lambda == y.fit$lambda.min]
+    }
 
-    w.fit = glmnet::cv.glmnet(X, W, foldid=foldid, keep=TRUE, family="binomial", type.measure = "auc", alpha = alpha)
-    w.hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.min]
+    if (is.null(w.hat)){
+      w.fit = glmnet::cv.glmnet(X, W, foldid=foldid, keep=TRUE, family="binomial", type.measure = "auc", alpha = alpha)
+      w.hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.min]
+    }
 
     Y.tilde = Y - y.hat
 
