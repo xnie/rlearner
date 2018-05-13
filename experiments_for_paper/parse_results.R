@@ -5,6 +5,7 @@ library(data.table)
 filenames = list.files("results", pattern="*", full.names=TRUE)
 
 param.names = c("alg", "setup", "n", "p", "sigma")
+setup.values = c(1,2,3,4,5,6,7,8)
 nms = c("S", "T", "X", "R", "RS") # add RSnc, Rnc, oracle
 
 raw = data.frame(t(sapply(filenames, function(fnm) {
@@ -25,14 +26,14 @@ rownames(raw) = 1:nrow(raw)
 
 
 names(raw) = c(param.names,
-               "mse.mean",
-               "mse.sd")
+               "mean",
+               "sd")
 
 options(stringsAsFactors = FALSE)
 raw = data.frame(apply(raw, 1:2, as.character))
 
-raw = raw[!duplicated(raw[,1:5])] # can remove this line later
-raw = dcast(setDT(raw), setup + n + p + sigma ~ alg, value.var=c("mse.mean", "mse.sd"))
+#raw = raw[!duplicated(raw[,1:5])] # can remove this line later
+raw = dcast(setDT(raw), setup + n + p + sigma ~ alg, value.var=c("mean", "sd"))
 
 raw = raw[order(as.numeric(raw$sigma)),]
 raw = raw[order(as.numeric(raw$p)),]
@@ -42,13 +43,23 @@ rownames(raw) = 1:nrow(raw)
 
 write.csv(raw, file="output.csv")
 
-#tab.all = cbind("", raw[,1 + c(2, 3, 5, 6, 10, 14, 7, 11, 15, 8, 12, 16, 9, 13, 17)])
-#rmse.idx = c(5, 8, 11)
-#for(iter in 1:nrow(tab.all)) {
-#	best.idx = rmse.idx[which(as.numeric(tab.all[iter,rmse.idx]) == min(as.numeric(tab.all[iter,rmse.idx])))]
-#	tab.all[iter,best.idx] = paste("\\bf", tab.all[iter,best.idx])
-#}
-#
-#xtab.all = xtable(tab.all, align=c("r", "|", "|", "c", "|", rep("c", 3), "|", "|", rep("c", 3), "|", rep("c", 3), "|", rep("c", 3), "|", rep("c", 3)))
-#print(xtab.all, include.rownames = FALSE, include.colnames = TRUE, sanitize.text.function = identity,
-#      hline.after = c(-1, -1, 0, 8, 16, 24, 32, 32), file = "simulation_results.tex")
+# get a dataframe for each setup
+raw.by.setup = lapply(c(setup.values), function(x) raw[raw$setup==x, ])
+
+for (i in setup.values){
+  tab.setup = cbind("", raw.by.setup[[i]][,-1])
+  mse.idx = 1 + c(4:9)
+  for(iter in 1:nrow(tab.setup)) {
+  	best.idx = mse.idx[which(as.numeric(tab.setup[iter,..mse.idx]) == min(as.numeric(tab.setup[iter,..mse.idx])))]
+  	for (j in 1:length(best.idx)){
+  	  best.idx.j = best.idx[j]
+    	tab.setup[iter,best.idx.j] = paste("\\bf", tab.setup[iter,..best.idx.j])
+  	}
+  }
+  tab.setup = tab.setup[,-1]
+  print(i)
+  print(tab.setup)
+  xtab.setup = xtable(tab.setup, caption = paste("\\tt setup ", i, sep=""))
+  names(xtab.setup) <- c('n','p','sigma', 'R', 'RS', 'S', 'T', 'U', 'X', 'Rsd', 'RSsd', 'Ssd', 'Tsd', 'Usd', 'Xsd' )
+  print(xtab.setup, include.rownames = FALSE, include.colnames = TRUE, sanitize.text.function = identity, file = paste("tables/simulation_results_setup_", i, ".tex", sep=""))
+}
