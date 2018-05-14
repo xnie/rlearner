@@ -14,11 +14,11 @@ raw = data.frame(t(sapply(filenames, function(fnm) {
 	params = strsplit(fnm, "-")[[1]][2:6]
 
 	mse.mean = mean(output)
-	mse.sd = sd(output)
+	mse.se = sd(output)/sqrt(length(output))
 
 	c(params,
 	  mse=sprintf("%.2f", round(mse.mean, 2)),
-	  sd=sprintf("%.2f", round(mse.sd, 2)))
+	  se=sprintf("%.2f", round(mse.se, 2)))
 })))
 
 
@@ -27,13 +27,13 @@ rownames(raw) = 1:nrow(raw)
 
 names(raw) = c(param.names,
                "mean",
-               "sd")
+               "se")
 
 options(stringsAsFactors = FALSE)
 raw = data.frame(apply(raw, 1:2, as.character))
 
 #raw = raw[!duplicated(raw[,1:5])] # can remove this line later
-raw = dcast(setDT(raw), setup + n + p + sigma ~ alg, value.var=c("mean", "sd"))
+raw = dcast(setDT(raw), setup + n + p + sigma ~ alg, value.var=c("mean", "se"))
 
 raw = raw[order(as.numeric(raw$sigma)),]
 raw = raw[order(as.numeric(raw$p)),]
@@ -60,6 +60,6 @@ for (i in setup.values){
   print(i)
   print(tab.setup)
   xtab.setup = xtable(tab.setup, caption = paste("\\tt setup ", i, sep=""))
-  names(xtab.setup) <- c('n','p','sigma', 'R', 'RS', 'S', 'T', 'U', 'X', 'Rsd', 'RSsd', 'Ssd', 'Tsd', 'Usd', 'Xsd' )
+  names(xtab.setup) <- c('n','p','sigma', 'R', 'RS', 'S', 'T', 'U', 'X', 'Rse', 'RSse', 'Sse', 'Tse', 'Use', 'Xse' )
   print(xtab.setup, include.rownames = FALSE, include.colnames = TRUE, sanitize.text.function = identity, file = paste("tables/simulation_results_setup_", i, ".tex", sep=""))
 }

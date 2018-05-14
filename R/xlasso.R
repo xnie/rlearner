@@ -72,8 +72,17 @@ xlasso = function(X, Y, W,
 
   tau.hat = tau.1.pred * (1-w.hat) + tau.0.pred * w.hat
 
-  ret = list(x.1.fit = x.1.fit, x.0.fit = x.0.fit, w.fit = w.fit, tau.hat = tau.hat, w.hat = w.hat)
-
+  ret = list(t.1.fit = t.1.fit,
+             t.0.fit = t.0.fit,
+             x.1.fit = x.1.fit,
+             x.0.fit = x.0.fit,
+             w.fit = w.fit,
+             y.1.pred = y.1.pred,
+             y.0.pred = y.0.pred,
+             tau.1.pred = tau.1.pred,
+             tau.0.pred = tau.0.pred,
+             w.hat = w.hat,
+             tau.hat = tau.hat)
   class(ret) <- "xlasso"
   ret
 
@@ -83,11 +92,11 @@ predict.xlasso <- function(object,
                            newx=NULL,
                            s=c("lambda.min", "lambda.1se"),
                            ...) {
-  lambda.choice = match.arg(s)
+  s = match.arg(s)
   if (!is.null(newx)) {
-    tau.1.pred = predict(object$x.1.fit, newx=newx, s=lambda.choice)
-    tau.0.pred = predict(object$x.0.fit, newx=newx, s=lambda.choice)
-    w.hat = predict(object$w.fit, newx=newx, s=lambda.choice, type="response")
+    tau.1.pred = predict(object$x.1.fit, newx=newx, s=s)
+    tau.0.pred = predict(object$x.0.fit, newx=newx, s=s)
+    w.hat = predict(object$w.fit, newx=newx, s=s, type="response")
     tau.hat = tau.1.pred * (1-w.hat) + tau.0.pred * w.hat
   }
   else {

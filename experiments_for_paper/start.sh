@@ -3,10 +3,9 @@
 setupvals=(1 2 3 4 5 6 7 8)
 nvals=(500 1000)
 pvals=(6 12)
-sigmavals=(0.1 1.0 5.0 10.0)
-algvals=('R' 'X' 'S' 'T' 'U' 'RS')
-# 'Rnc' 'RSnc'
-
+sigmavals=(0.5 1.0 2.0 4.0)
+algvals=('R' 'X' 'S' 'T' 'U' 'RS' 'oracle')
+lambdachoice='lambda.min'
 
 reps=200
 
@@ -20,7 +19,7 @@ for ((i4=0; i4<${#sigmavals[@]} ;i4++))
 do
 for ((i5=0; i5<${#algvals[@]} ;i5++))
 do
-    while [ `jobs | wc -l` -ge 100 ]
+    while [ `pgrep -c R` -ge 100 ]
     do
           sleep 5
     done
@@ -31,11 +30,11 @@ do
     sigma=${sigmavals[$i4]}
     alg=${algvals[$i5]}
 
-    fnm="logging/progress-$alg-$setup-$n-$p-$sigma-$reps.out"
+    fnm="logging/progress-$alg-$setup-$n-$p-$sigma-$reps-$lambdachoice.out"
     #echo $fnm
 
-    Rscript run_simu.R $alg $setup $n $p $sigma $reps 2>&1 | tee $fnm &
-    #echo "Rscript run_simu.R $alg $setup $n $p $sigma $reps 2>&1 | tee $fnm"
+    #Rscript run_simu.R $alg $setup $n $p $sigma $reps $lambdachoice 2>&1 | tee $fnm &
+    echo "Rscript run_simu.R $alg $setup $n $p $sigma $reps $lambdachoice 2>&1 | tee $fnm &"
     #R CMD BATCH --no-save --no-restore "--args $setup $n $p $sigma $k $eta $alg $reps" run_simu.R $fnm &
 done
 done

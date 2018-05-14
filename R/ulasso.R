@@ -16,7 +16,7 @@ ulasso = function(X, Y, W,
                   alpha = 1,
                   nfolds=NULL,
                   lambda.choice=c("lambda.min", "lambda.1se"),
-                  cutoff=0){
+                  cutoff=0.05){
 
   lambda.choice = match.arg(lambda.choice)
 
@@ -30,10 +30,10 @@ ulasso = function(X, Y, W,
   # fold ID for cross-validation; balance treatment assignments
   foldid = sample(rep(seq(nfolds), length = length(W)))
 
-  y.fit = glmnet::cv.glmnet(X, Y, foldid=foldid, keep=TRUE, alpha = alpha)
+  y.fit = glmnet::cv.glmnet(X, Y, nfolds=10, keep=TRUE, alpha = alpha)
   y.hat = y.fit$fit.preval[,!is.na(colSums(y.fit$fit.preval))][, y.fit$lambda == y.fit$lambda.min]
 
-  w.fit = glmnet::cv.glmnet(X, W, foldid=foldid, keep=TRUE, family="binomial", type.measure = "auc", alpha = alpha)
+  w.fit = glmnet::cv.glmnet(X, W, nfolds=10, keep=TRUE, family="binomial", type.measure = "auc", alpha = alpha)
   w.hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.min]
 
   w.hat.thresh = pmax(cutoff, pmin(1 - cutoff, w.hat))
@@ -43,8 +43,30 @@ ulasso = function(X, Y, W,
 
   U = Y.tilde / W.tilde
 
-  tau.fit = glmnet::cv.glmnet(X, U, foldid = foldid, alpha = alpha)
-  tau.hat = predict(tau.fit, newx = X)
+  tau.fit = glmnet::cv.glmnet(X, U, nfolds= 10, alpha = alpha)
+  tau.hat = predict(tau.fit, newx = X, s=lambda.choice)
 
-  return(list(tau.hat = tau.hat))
+  ret = list(tau.fit = tau.fit,
+             w.fit = w.fit,
+             y.fit = y.fit,
+             w.hat = w.hat,
+             y.hat = y.hat,
+             tau.hat = tau.hat)
+  class(ret) <- "ulasso"
+  ret
+
+}
+
+predict.ulasso <- function(object,
+                           newx=NULL,
+                           s=c("lambda.min", "lambda.1se"),
+                           ...) {
+  s = match.arg(s)
+  if (!is.null(newx)) {
+    tau.hat = predict(object$tau.fit, newx=newx, s=s)
+  }
+  else {
+    tau.hat = object$tau.hat
+  }
+  return(tau.hat)
 }

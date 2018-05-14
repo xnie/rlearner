@@ -11,13 +11,15 @@ n = as.numeric(args[3])
 p = as.numeric(args[4])
 sigma = as.numeric(args[5])
 NREP = as.numeric(args[6])
+lambda.choice = as.character(args[7])
 #
-#setup = 8
+#setup=8
 #n=500
 #p=6
-#sigma=5.0
-#alg='RSncoracle'
-#NREP=20
+#sigma=0.1
+#alg='T'
+#NREP=10
+#lambda.choice="lambda.min"
 #print(alg)
 
 if (setup == 1) {
@@ -111,70 +113,72 @@ if (setup == 1) {
     #params = get.params()
     #W = Rlab::rbern(n, params$e)
     #Y = params$b + (W - 0.5) * params$tau + sigma * rnorm(n)
+    ##write.csv(params$X, file="X.csv")
+    ##write.csv(W, file="W.csv")
+    ##write.csv(Y, file="Y.csv")
+    ##write.csv(params$b, file="b.csv")
+    ##write.csv(params$e, file="e.csv")
+    ##write.csv(params$tau, file="tau.csv")
+    ##print(params$tau[1:20])
     #X.ns = do.call(cbind, lapply(1:p, function(col){matrix(splines::ns(params$X[,col],df=7),n,7)}))
 
 results.list = lapply(1:NREP, function(iter) {
-    params = get.params()
-    W = Rlab::rbern(n, params$e)
-    Y = params$b + (W - 0.5) * params$tau + sigma * rnorm(n)
-    X.ns = do.call(cbind, lapply(1:p, function(col){matrix(splines::ns(params$X[,col],df=7),n,7)}))
+    #X = as.matrix(read.csv('X.csv', header=TRUE, sep=","))[,-1]
+    #Y = as.matrix(read.csv('Y.csv', header=TRUE, sep=","))[,-1]
+    #W = as.matrix(read.csv('W.csv', header=TRUE, sep=","))[,-1]
+    #b = as.matrix(read.csv('b.csv', header=TRUE, sep=","))[,-1]
+    #tau = as.matrix(read.csv('tau.csv', header=TRUE, sep=","))[,-1]
+    #e = as.matrix(read.csv('e.csv', header=TRUE, sep=","))[,-1]
+    #params = list(X=X, b=b, tau=tau, e=e)
+
+    params.train = get.params()
+    W.train = Rlab::rbern(n, params.train$e)
+    Y.train = params.train$b + (W.train - 0.5) * params.train$tau + sigma * rnorm(n)
+
+    params.test = get.params()
+    W.test = Rlab::rbern(n, params.test$e)
+    Y.test = params.test$b + (W.test - 0.5) * params.test$tau + sigma * rnorm(n)
+
+    X.ns = do.call(cbind, lapply(1:p, function(col){matrix(splines::ns(rbind(params.train$X, params.test$X)[,col],df=7), 2*n, 7)}))
+    X.ns.train = X.ns[1:n,]
+    X.ns.test = X.ns[(n+1):(2*n),]
 
     if (alg == 'R') {
 
-        est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = TRUE, rs=FALSE)
+        r.fit <- rlasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice, rs=FALSE)
+        tau.hat <- predict(r.fit, newx=X.ns.test)
 
     } else if (alg == 'RS') {
 
-        est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = TRUE, rs=TRUE)
+        rs.fit <- rlasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice, rs=TRUE)
+        tau.hat <- predict(rs.fit, newx=X.ns.test)
 
-    } else if (alg == 'Rnc') {
+    } else if (alg == 'oracle') {
 
-        est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = FALSE, rs=FALSE)
-
-    } else if (alg == 'RSnc') {
-
-        est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = FALSE, rs=TRUE)
-
-    } else if (alg == 'Roracle') {
-
-        w.hat.oracle = params$e
-        y.hat.oracle = params$b + (params$e-0.5) * params$tau
-        est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = TRUE, rs=FALSE, w.hat=w.hat.oracle, y.hat=y.hat.oracle)
-
-    } else if (alg == 'RSoracle') {
-
-        w.hat.oracle = params$e
-        y.hat.oracle = params$b + (params$e-0.5) * params$tau
-        est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = TRUE, rs=TRUE, w.hat=w.hat.oracle, y.hat=y.hat.oracle)
-
-    } else if (alg == 'Rncoracle') {
-
-        w.hat.oracle = params$e
-        y.hat.oracle = params$b + (params$e-0.5) * params$tau
-        est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = FALSE, rs=FALSE, w.hat=w.hat.oracle, y.hat=y.hat.oracle)
-
-    } else if (alg == 'RSncoracle') {
-
-        w.hat.oracle = params$e
-        y.hat.oracle = params$b + (params$e-0.5) * params$tau
-        est <- rlasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = FALSE, rs=TRUE, w.hat=w.hat.oracle, y.hat=y.hat.oracle)
+        w.hat.oracle = params.train$e
+        y.hat.oracle = params.train$b + (params.train$e-0.5) * params.train$tau
+        oracle.fit <- rlasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice, rs=FALSE, w.hat=w.hat.oracle, y.hat=y.hat.oracle)
+        tau.hat <- predict(oracle.fit, newx=X.ns.test)
 
     } else if (alg == 'S') {
 
-        est <- slasso(X.ns, Y, W, lambda.choice = "lambda.min", constant.effect = TRUE)
+        s.fit <- slasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice)
+        tau.hat <- predict(s.fit, newx=X.ns.test)
 
     } else if (alg == 'T') {
 
-        est <- tlasso(X.ns, Y, W, lambda.choice = "lambda.min")
+        t.fit <- tlasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice)
+        tau.hat <- predict(t.fit, newx=X.ns.test, s=lambda.choice)
 
     } else if (alg == 'X') {
 
-        xlasso.fit <- xlasso(X.ns, Y, W, lambda.choice = "lambda.min")
-        est <- list(tau.hat=predict(xlasso.fit)) # TODO
+        x.fit <- xlasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice)
+        tau.hat <- predict(x.fit, newx=X.ns.test, s=lambda.choice)
 
     } else if (alg == 'U') {
 
-        est <- ulasso(X.ns, Y, W, lambda.choice = "lambda.min", cutoff=0.05)
+        u.fit <- ulasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice, cutoff=0.05)
+        tau.hat <- predict(u.fit, newx=X.ns.test, s=lambda.choice)
 
     } else {
 
@@ -182,8 +186,8 @@ results.list = lapply(1:NREP, function(iter) {
 
     }
 
-    est.mse = mean((est$tau.hat - params$tau)^2)
-    #print(est.mse)
+    est.mse = mean((tau.hat - params.test$tau)^2)
+    print(est.mse)
     return(est.mse)
 })
 results = unlist(results.list, use.names=FALSE)
@@ -193,5 +197,5 @@ end.time <- Sys.time()
 time.taken <- end.time - start.time
 print(time.taken)
 
-fnm = paste("results/output", alg, setup, n, p, sigma, NREP, "full.csv", sep="-")
+fnm = paste("results/output", alg, setup, n, p, sigma, NREP, lambda.choice, "full.csv", sep="-")
 write.csv(results, file=fnm)

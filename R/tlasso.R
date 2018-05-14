@@ -51,5 +51,28 @@ tlasso = function(X, Y, W,
 
   tau.hat = y.1.pred - y.0.pred
 
-  return(list(tau.hat = tau.hat))
+  ret = list(t.1.fit = t.1.fit,
+             t.0.fit = t.0.fit,
+             y.1.pred = y.1.pred,
+             y.0.pred = y.0.pred,
+             tau.hat = tau.hat)
+  class(ret) <- "tlasso"
+  ret
+}
+
+predict.tlasso <- function(object,
+                           newx=NULL,
+                           s=c("lambda.min", "lambda.1se"),
+                           ...) {
+  s = match.arg(s)
+
+  if (!is.null(newx)) {
+    y.1.pred = predict(object$t.1.fit, newx=newx, s=s)
+    y.0.pred = predict(object$t.0.fit, newx=newx, s=s)
+    tau.hat = y.1.pred - y.0.pred
+  }
+  else {
+    tau.hat = object$tau.hat
+  }
+  return(tau.hat)
 }

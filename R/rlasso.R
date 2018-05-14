@@ -6,7 +6,6 @@
 #' @param alpha
 #' @param nfolds
 #' @param lambda.choice
-#' @param constant.effect
 #' @param rs
 #'
 #' @return
@@ -17,7 +16,6 @@ rlasso = function(X, Y, W,
                   alpha = 1,
                   nfolds=NULL,
                   lambda.choice=c("lambda.min","lambda.1se"),
-                  constant.effect = TRUE,
                   rs = FALSE,
                   w.hat = NULL,
                   y.hat = NULL) {
@@ -41,40 +39,33 @@ rlasso = function(X, Y, W,
       y.fit = glmnet::cv.glmnet(X, Y, foldid=foldid, keep=TRUE, alpha = alpha)
       y.hat = y.fit$fit.preval[,!is.na(colSums(y.fit$fit.preval))][, y.fit$lambda == y.fit$lambda.min]
     }
+    else {
+      y.fit = NULL
+    }
 
     if (is.null(w.hat)){
       w.fit = glmnet::cv.glmnet(X, W, foldid=foldid, keep=TRUE, family="binomial", type.measure = "auc", alpha = alpha)
       w.hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.min]
+    }
+    else{
+      w.fit = NULL
     }
 
     Y.tilde = Y - y.hat
 
     if (rs){
 
-      if (constant.effect){
-        X.scl.tilde = cbind(as.numeric(W - w.hat) * cbind(1, X.scl), X.scl)
-        X.scl.pred = cbind(1, X.scl, X.scl * 0)
-        penalty.factor = c(0, rep(1, 2 * pobs))
-      }
-      else{
-        X.scl.tilde = cbind(as.numeric(W - w.hat) * X.scl, X.scl)
-        X.scl.pred = cbind(X.scl, X.scl * 0)
-        penalty.factor = rep(1, 2 * pobs)
-      }
+      X.scl.tilde = cbind(as.numeric(W - w.hat) * cbind(1, X.scl), X.scl)
+      X.scl.pred = cbind(1, X.scl, X.scl * 0)
+      penalty.factor = c(0, rep(1, 2 * pobs))
 
     }
     else{
 
-      if (constant.effect){
-        X.scl.tilde = cbind(as.numeric(W - w.hat) * cbind(1, X.scl))
-        X.scl.pred = cbind(1, X.scl)
-        penalty.factor = c(0, rep(1, pobs))
-      }
-      else{
-        X.scl.tilde = cbind(as.numeric(W - w.hat) * X.scl)
-        X.scl.pred =  X.scl
-        penalty.factor = rep(1, pobs)
-      }
+      X.scl.tilde = cbind(as.numeric(W - w.hat) * cbind(1, X.scl))
+      X.scl.pred = cbind(1, X.scl)
+      penalty.factor = c(0, rep(1, pobs))
+
     }
 
 
@@ -88,5 +79,35 @@ rlasso = function(X, Y, W,
 
     tau.hat = X.scl.pred %*% tau.beta
 
-    return(list(tau.hat = tau.hat, y.hat = y.hat, w.hat = w.hat, tau.beta = tau.beta))
+    ret = list(tau.fit = tau.fit,
+               tau.beta = tau.beta,
+               w.fit = w.fit,
+               y.fit = y.fit,
+               w.hat = w.hat,
+               y.hat = y.hat,
+               tau.hat = tau.hat,
+               rs = rs)
+    class(ret) <- "rlasso"
+    ret
+
+}
+
+predict.rlasso <- function(object,
+                           newx=NULL,
+                           ...) {
+  newx.scl = scale(newx)
+  newx.scl = newx.scl[,!is.na(colSums(newx.scl))]
+  if (!is.null(newx)) {
+    if (object$rs){
+      newx.scl.pred = cbind(1, newx.scl, newx.scl * 0)
+    }
+    else{
+      newx.scl.pred = cbind(1, newx.scl)
+    }
+    tau.hat = newx.scl.pred %*% object$tau.beta # TODO: make this more robust?
+  }
+  else {
+    tau.hat = object$tau.hat
+  }
+  return(tau.hat)
 }
