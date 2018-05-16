@@ -16,11 +16,13 @@ lambda.choice = as.character(args[7])
 #setup=8
 #n=500
 #p=6
-#sigma=0.1
-#alg='T'
+#sigma=5
+#alg='S'
 #NREP=10
 #lambda.choice="lambda.min"
 #print(alg)
+
+penalty.search=TRUE
 
 if (setup == 1) {
 
@@ -129,16 +131,20 @@ results.list = lapply(1:NREP, function(iter) {
     #b = as.matrix(read.csv('b.csv', header=TRUE, sep=","))[,-1]
     #tau = as.matrix(read.csv('tau.csv', header=TRUE, sep=","))[,-1]
     #e = as.matrix(read.csv('e.csv', header=TRUE, sep=","))[,-1]
-    #params = list(X=X, b=b, tau=tau, e=e)
+    #params.test = list(X=X, b=b, tau=tau, e=e)
+    #X.ns.train = do.call(cbind, lapply(1:p, function(col){matrix(splines::ns(X[,col],df=7), n, 7)}))
+    #X.ns.test = X.ns.train
+    #W.train = W
+    #Y.train = Y
 
     params.train = get.params()
     W.train = Rlab::rbern(n, params.train$e)
     Y.train = params.train$b + (W.train - 0.5) * params.train$tau + sigma * rnorm(n)
-
+#
     params.test = get.params()
     W.test = Rlab::rbern(n, params.test$e)
     Y.test = params.test$b + (W.test - 0.5) * params.test$tau + sigma * rnorm(n)
-
+#
     X.ns = do.call(cbind, lapply(1:p, function(col){matrix(splines::ns(rbind(params.train$X, params.test$X)[,col],df=7), 2*n, 7)}))
     X.ns.train = X.ns[1:n,]
     X.ns.test = X.ns[(n+1):(2*n),]
@@ -150,7 +156,7 @@ results.list = lapply(1:NREP, function(iter) {
 
     } else if (alg == 'RS') {
 
-        rs.fit <- rlasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice, rs=TRUE)
+        rs.fit <- rlasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice, rs=TRUE, penalty.search=penalty.search)
         tau.hat <- predict(rs.fit, newx=X.ns.test)
 
     } else if (alg == 'oracle') {
@@ -162,8 +168,9 @@ results.list = lapply(1:NREP, function(iter) {
 
     } else if (alg == 'S') {
 
-        s.fit <- slasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice)
+        s.fit <- slasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice, penalty.search=penalty.search)
         tau.hat <- predict(s.fit, newx=X.ns.test)
+        #tau.hat <- predict(s.fit)
 
     } else if (alg == 'T') {
 

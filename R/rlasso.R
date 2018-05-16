@@ -18,7 +18,8 @@ rlasso = function(X, Y, W,
                   lambda.choice=c("lambda.min","lambda.1se"),
                   rs = FALSE,
                   w.hat = NULL,
-                  y.hat = NULL) {
+                  y.hat = NULL,
+                  penalty.search=FALSE) {
 
     X.scl = scale(X)
     X.scl = X.scl[,!is.na(colSums(X.scl))]
@@ -57,18 +58,58 @@ rlasso = function(X, Y, W,
 
       X.scl.tilde = cbind(as.numeric(W - w.hat) * cbind(1, X.scl), X.scl)
       X.scl.pred = cbind(1, X.scl, X.scl * 0)
-      penalty.factor = c(0, rep(1, 2 * pobs))
 
+      if(penalty.search){
+        search.range = 5
+        cvm.min = Inf
+        last.best = NULL
+        for (l in 0:2){
+          updated = FALSE
+
+          for (i in 1:search.range){
+
+            if (l==0){
+              penalty.factor = c(0, rep(10^(i- ceiling(search.range/2.0)), pobs), rep(1,pobs))
+            }
+            else{
+              penalty.factor = c(0, rep(10^(last.best - 10^(-l+1) + 20.0/search.range*10^(-l)*i), pobs), rep(1,pobs))
+            }
+            rs.fit <- glmnet::cv.glmnet(x=X.scl.tilde, y=Y, foldid=foldid, penalty.factor=penalty.factor, standardize=FALSE)
+            rs.fit.cvm = rs.fit$cvm[rs.fit$lambda == rs.fit$lambda.min]
+            if (rs.fit.cvm < cvm.min){
+              cvm.min = rs.fit.cvm
+              rs.fit.best = rs.fit
+              if (l==0){
+                best.i = i - ceiling(search.range/2.0)
+              }
+              else{
+                best.i = i
+              }
+              best.penalty.factor= penalty.factor
+              updated = TRUE
+            }
+          }
+
+          if (l==0){
+            last.best = best.i
+          }
+          else{
+            if (updated){
+              last.best = last.best - 10^(-l+1) + 20.0/search.range*10^(-l)*best.i
+            }
+          }
+        }
+        penalty.factor = best.penalty.factor
+      }
+      else{
+        penalty.factor = c(0, rep(1, 2 * pobs))
+      }
     }
     else{
-
       X.scl.tilde = cbind(as.numeric(W - w.hat) * cbind(1, X.scl))
       X.scl.pred = cbind(1, X.scl)
       penalty.factor = c(0, rep(1, pobs))
-
     }
-
-
 
     tau.fit = glmnet::cv.glmnet(X.scl.tilde, Y.tilde, foldid = foldid,
                              alpha = alpha,
