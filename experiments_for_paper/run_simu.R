@@ -12,6 +12,17 @@ p = as.numeric(args[4])
 sigma = as.numeric(args[5])
 NREP = as.numeric(args[6])
 lambda.choice = as.character(args[7])
+penalty.search=FALSE
+
+if (alg=="RSP"){
+    alg = "RS"
+    penalty.search=TRUE
+}
+if (alg=="SP"){
+    alg = "S"
+    penalty.search=TRUE
+}
+print(penalty.search)
 #
 #setup=8
 #n=500
@@ -22,7 +33,6 @@ lambda.choice = as.character(args[7])
 #lambda.choice="lambda.min"
 #print(alg)
 
-penalty.search=TRUE
 
 if (setup == 1) {
 
@@ -204,5 +214,5 @@ end.time <- Sys.time()
 time.taken <- end.time - start.time
 print(time.taken)
 
-fnm = paste("results/output", alg, setup, n, p, sigma, NREP, lambda.choice, "full.csv", sep="-")
+fnm = paste("results/output", as.character(args[1]), setup, n, p, sigma, NREP, lambda.choice, "full.csv", sep="-") # TODO bad style
 write.csv(results, file=fnm)
