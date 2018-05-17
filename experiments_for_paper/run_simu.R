@@ -4,25 +4,25 @@ library(rlearner)
 
 start.time <- Sys.time()
 
-#args=(commandArgs(TRUE))
-#alg = as.character(args[1])
-#setup = as.numeric(args[2])
-#n = as.numeric(args[3])
-#p = as.numeric(args[4])
-#sigma = as.numeric(args[5])
-#NREP = as.numeric(args[6])
-#lambda.choice = as.character(args[7])
+args=(commandArgs(TRUE))
+alg = as.character(args[1])
+setup = as.numeric(args[2])
+n = as.numeric(args[3])
+p = as.numeric(args[4])
+sigma = as.numeric(args[5])
+NREP = as.numeric(args[6])
+lambda.choice = as.character(args[7])
 #
-setup=8
-n=500
-p=6
-sigma=0.1
-alg='Xmd'
-NREP=10
-lambda.choice="lambda.min"
-print(alg)
-alg.print = alg
+#setup=8
+#n=500
+#p=6
+#sigma=0.1
+#alg='Xmd'
+#NREP=10
+#lambda.choice="lambda.min"
+#print(alg)
 
+alg.print = alg
 penalty.search=FALSE
 w.measure = "auc"
 pilot.lambda.choice = "lambda.min"
@@ -224,5 +224,5 @@ end.time <- Sys.time()
 time.taken <- end.time - start.time
 print(time.taken)
 
-fnm = paste("results_local/output", alg.print, setup, n, p, sigma, NREP, lambda.choice, "full.csv", sep="-")
+fnm = paste("results/output", alg.print, setup, n, p, sigma, NREP, lambda.choice, "full.csv", sep="-")
 write.csv(results, file=fnm)
