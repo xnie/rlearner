@@ -4,8 +4,7 @@ setupvals=(1 2 3 4 5 6 7 8)
 nvals=(500 1000)
 pvals=(6 12)
 sigmavals=(0.5 1.0 2.0 4.0)
-#algvals=('R' 'X' 'S' 'T' 'U' 'RS' 'oracle')
-algvals=('RSP')
+algvals=('R' 'X' 'S' 'T' 'U' 'RS' 'oracle')
 lambdachoice='lambda.min'
 
 reps=200
@@ -34,8 +33,8 @@ do
     fnm="logging/progress-$alg-$setup-$n-$p-$sigma-$reps-$lambdachoice.out"
     #echo $fnm
 
-    Rscript run_simu.R $alg $setup $n $p $sigma $reps $lambdachoice 2>&1 | tee $fnm &
-    #echo "Rscript run_simu.R $alg $setup $n $p $sigma $reps $lambdachoice 2>&1 | tee $fnm &"
+    #Rscript run_simu.R $alg $setup $n $p $sigma $reps $lambdachoice 2>&1 | tee $fnm &
+    echo "Rscript run_simu.R $alg $setup $n $p $sigma $reps $lambdachoice 2>&1 | tee $fnm &"
     #R CMD BATCH --no-save --no-restore "--args $setup $n $p $sigma $k $eta $alg $reps" run_simu.R $fnm &
 done
 done

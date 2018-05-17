@@ -18,9 +18,15 @@ xlasso = function(X, Y, W,
                   nfolds.1=NULL,
                   nfolds.0=NULL,
                   nfolds.W=NULL,
-                  lambda.choice=c("lambda.min", "lambda.1se")) {
+                  lambda.choice=c("lambda.min", "lambda.1se"),
+                  w.measure=c("deviance","auc"),
+                  pilot.lambda.choice=c("lambda.min","lambda.1se")){
+
 
   lambda.choice = match.arg(lambda.choice)
+  w.measure = match.arg(w.measure)
+  pilot.lambda.measure = match.arg(pilot.lambda.choice)
+
 
   X.1 = X[which(W==1),]
   X.0 = X[which(W==0),]
@@ -66,9 +72,13 @@ xlasso = function(X, Y, W,
   tau.1.pred = predict(x.1.fit, newx=X, s=lambda.choice)
   tau.0.pred = predict(x.0.fit, newx=X, s=lambda.choice)
 
-  w.fit = glmnet::cv.glmnet(X, W, foldid=foldid.W, keep=TRUE, family="binomial", type.measure = "auc", alpha = alpha)
-  w.hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.min]
-
+  w.fit = glmnet::cv.glmnet(X, W, foldid=foldid.W, keep=TRUE, family="binomial", type.measure = w.measure, alpha = alpha)
+  if (pilot.lambda.choice == "lambda.min"){
+    w.hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.min]
+  }
+  else{
+    w.hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.1se]
+  }
 
   tau.hat = tau.1.pred * (1-w.hat) + tau.0.pred * w.hat
 

@@ -19,12 +19,16 @@ rlasso = function(X, Y, W,
                   rs = FALSE,
                   w.hat = NULL,
                   y.hat = NULL,
-                  penalty.search=FALSE) {
+                  penalty.search=FALSE,
+                  w.measure=c("deviance","auc"),
+                  pilot.lambda.choice=c("lambda.min","lambda.1se")){
 
     X.scl = scale(X)
     X.scl = X.scl[,!is.na(colSums(X.scl))]
 
     lambda.choice = match.arg(lambda.choice)
+    w.measure = match.arg(w.measure)
+    pilot.lambda.measure = match.arg(pilot.lambda.choice)
 
     nobs = nrow(X.scl)
     pobs = ncol(X.scl)
@@ -38,15 +42,25 @@ rlasso = function(X, Y, W,
 
     if (is.null(y.hat)){
       y.fit = glmnet::cv.glmnet(X, Y, foldid=foldid, keep=TRUE, alpha = alpha)
-      y.hat = y.fit$fit.preval[,!is.na(colSums(y.fit$fit.preval))][, y.fit$lambda == y.fit$lambda.min]
+      if (pilot.lambda.choice == "lambda.min"){
+        y.hat = y.fit$fit.preval[,!is.na(colSums(y.fit$fit.preval))][, y.fit$lambda == y.fit$lambda.min]
+      }
+      else{
+        y.hat = y.fit$fit.preval[,!is.na(colSums(y.fit$fit.preval))][, y.fit$lambda == y.fit$lambda.1se]
+      }
     }
     else {
       y.fit = NULL
     }
 
     if (is.null(w.hat)){
-      w.fit = glmnet::cv.glmnet(X, W, foldid=foldid, keep=TRUE, family="binomial", type.measure = "auc", alpha = alpha)
-      w.hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.min]
+      w.fit = glmnet::cv.glmnet(X, W, foldid=foldid, keep=TRUE, family="binomial", type.measure = w.measure, alpha = alpha)
+      if (pilot.lambda.choice == "lambda.min"){
+        w.hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.min]
+      }
+      else{
+        w.hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.1se]
+      }
     }
     else{
       w.fit = NULL

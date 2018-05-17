@@ -4,38 +4,48 @@ library(rlearner)
 
 start.time <- Sys.time()
 
-args=(commandArgs(TRUE))
-alg = as.character(args[1])
-setup = as.numeric(args[2])
-n = as.numeric(args[3])
-p = as.numeric(args[4])
-sigma = as.numeric(args[5])
-NREP = as.numeric(args[6])
-lambda.choice = as.character(args[7])
-penalty.search=FALSE
-
-if (alg=="RSP"){
-    alg = "RS"
-    penalty.search=TRUE
-}
-if (alg=="SP"){
-    alg = "S"
-    penalty.search=TRUE
-}
-print(penalty.search)
+#args=(commandArgs(TRUE))
+#alg = as.character(args[1])
+#setup = as.numeric(args[2])
+#n = as.numeric(args[3])
+#p = as.numeric(args[4])
+#sigma = as.numeric(args[5])
+#NREP = as.numeric(args[6])
+#lambda.choice = as.character(args[7])
 #
-#setup=8
-#n=500
-#p=6
-#sigma=5
-#alg='S'
-#NREP=10
-#lambda.choice="lambda.min"
-#print(alg)
+setup=8
+n=500
+p=6
+sigma=0.1
+alg='Xmd'
+NREP=10
+lambda.choice="lambda.min"
+print(alg)
+alg.print = alg
 
+penalty.search=FALSE
+w.measure = "auc"
+pilot.lambda.choice = "lambda.min"
+
+if (nchar(alg) > 1) {
+  if (substr(alg,nchar(alg),nchar(alg)) == "a"){
+    w.measure = "auc"
+  } else if (substr(alg, nchar(alg), nchar(alg)) == "d"){
+    w.measure = "deviance"
+  }
+  if (substr(alg,nchar(alg)-1, nchar(alg)-1) == "1"){
+    pilot.lambda.choice = "lambda.1se"
+  } else if (substr(alg, nchar(alg)-1, nchar(alg)-1) == "m"){
+    pilot.lambda.choice = "lambda.min"
+  }
+  if (substr(alg, nchar(alg), nchar(alg)) == "a" | substr(alg,nchar(alg), nchar(alg)) == "d"){
+    alg = substr(alg, 1, nchar(alg)-2)
+  }
+}
+print(w.measure)
+print(pilot.lambda.choice)
 
 if (setup == 1) {
-
     get.params = function() {
         X = matrix(runif(n*p, min=0, max=1), n, p)
         b = sin(pi * X[,1] * X[,2]) + 2 * (X[,3] - 0.5)^2 + X[,4] + 0.5 * X[,5]
@@ -161,12 +171,12 @@ results.list = lapply(1:NREP, function(iter) {
 
     if (alg == 'R') {
 
-        r.fit <- rlasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice, rs=FALSE)
+        r.fit <- rlasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice, rs=FALSE, w.measure = w.measure, pilot.lambda.choice = pilot.lambda.choice)
         tau.hat <- predict(r.fit, newx=X.ns.test)
 
     } else if (alg == 'RS') {
 
-        rs.fit <- rlasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice, rs=TRUE, penalty.search=penalty.search)
+        rs.fit <- rlasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice, rs=TRUE, w.measure=w.measure, penalty.search=penalty.search, pilot.lambda.choice=pilot.lambda.choice)
         tau.hat <- predict(rs.fit, newx=X.ns.test)
 
     } else if (alg == 'oracle') {
@@ -189,7 +199,7 @@ results.list = lapply(1:NREP, function(iter) {
 
     } else if (alg == 'X') {
 
-        x.fit <- xlasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice)
+        x.fit <- xlasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice, w.measure = w.measure, pilot.lambda.choice = pilot.lambda.choice)
         tau.hat <- predict(x.fit, newx=X.ns.test, s=lambda.choice)
 
     } else if (alg == 'U') {
@@ -214,5 +224,5 @@ end.time <- Sys.time()
 time.taken <- end.time - start.time
 print(time.taken)
 
-fnm = paste("results/output", as.character(args[1]), setup, n, p, sigma, NREP, lambda.choice, "full.csv", sep="-") # TODO bad style
+fnm = paste("results_local/output", alg.print, setup, n, p, sigma, NREP, lambda.choice, "full.csv", sep="-")
 write.csv(results, file=fnm)
