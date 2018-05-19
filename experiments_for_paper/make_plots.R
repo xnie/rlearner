@@ -1,38 +1,17 @@
 rm(list = ls())
 library(ggplot2)
 
-log = TRUE# log-log plots
+log = TRUE # log-log plots
 
 tab = read.csv("output.csv", header=TRUE)
-algs = c("SP",  "T", "Xmd", "U", "Rmd", "RSmd", "oracle")
-choice.ext = c(".1se", ".min")
+algs = c("S",  "T", "X", "U", "R", "RS", "oracle")
 setups = c(1:7)
 num.per.setup = 16
-ext.best <- rep(NA,length(algs))
 
 cols=c(1:6)
 
-for (i in 1:length(algs)){
-  alg = algs[i]
-  ext.best.alg = NA
-  mse.best.alg = Inf
-  for (ext in choice.ext) {
-    data = tab[1:(num.per.setup*length(setups)), paste0(alg, ext)]
-    logged = log(as.numeric(data))
-    mse = mean(logged)
-    if (mse < mse.best.alg){
-      mse.best.alg = mse
-      ext.best.alg = ext
-    }
-  }
-  ext.best[[i]] = paste0(alg, ext.best.alg)
-}
-ext.best[[5]] = "Rmd.min"
-ext.best[[6]] = "RSmd.min"
-
-
 for (setup in setups){
-  data = tab[(1 + (setup-1)*16):(setup*16),ext.best]
+  data = tab[(1 + (setup-1)*16):(setup*16),algs]
   colnames(data) = c("s", "t", "x", "u", "r", "rs", "oracle")
   lograt = log(data[,1:6]/data[,7])
 
@@ -49,9 +28,7 @@ for (setup in setups){
 
 
   if(log){
-    #ylim.maxmin = max(unlist(lapply(c(1:6), function(i) min(log(data[,i])))))
     ylim = range(c(log(unlist(data[,1:6]))))
-    #ylim[2] <- ylim.maxmin+legend$rect$h
     ylim[2] <- ylim[2]+legend$rect$h
     if (setup==4){
       ylim[2] <- ylim[2] + 2.6
@@ -91,16 +68,3 @@ for (setup in setups){
   par = pardef
   dev.off()
 }
-
-
-#fvec1 = factor(c(rep("S", nrow(lograt1)),
-#                 rep("T", nrow(lograt1)),
-#                 rep("X", nrow(lograt1)),
-#                 rep("R", nrow(lograt1))),
-#               levels = c("S", "T", "X", "R"))
-#
-#df1 = data.frame(ratio=unlist(lograt1),
-#                 label=fvec1)
-#
-#ggplot(df1, aes(x = label, y = ratio)) + geom_boxplot()
-#

@@ -13,10 +13,9 @@ raw = data.frame(t(sapply(filenames, function(fnm) {
   params = strsplit(fnm, "-")[[1]][2:6]
 
   mse.mean = mean(output)
-  alg = paste(params[1], lc, sep='.')
 
   c(params,
-    mse=sprintf("%.8f", round(mse.mean, 8))) # change back to 2!
+    mse=sprintf("%.8f", round(mse.mean, 8)))
 })))
 
 rownames(raw) = 1:nrow(raw)
@@ -32,11 +31,12 @@ raw = raw[order(as.numeric(raw$p)),]
 raw = raw[order(as.numeric(raw$n)),]
 raw = raw[order(as.numeric(raw$setup)),]
 rownames(raw) = 1:nrow(raw)
-raw <- data[c("setup", "n", "p", "sigma", "S", "T", "X", "U", "R", "RS", "oracle")]
+raw <- raw[,c("setup", "n", "p", "sigma", "S", "T", "X", "U", "R", "RS", "oracle")]
 
 raw.round = raw
-raw.round[,5:11] <-round(raw[,5:11],2)
-
+for (col in (5:11)){
+  raw.round[,col] <- round(as.numeric(unlist(raw[,..col])),2)
+}
 raw = data.frame(apply(raw, 1:2, as.character))
 raw.round = data.frame(apply(raw.round, 1:2, as.character))
 
@@ -60,7 +60,7 @@ for (i in setup.values){
   tab.setup = tab.setup[,-1]
   print(i)
   print(tab.setup)
-  xtab.setup = xtable(tab.setup, caption = paste("\\tt setup ", i, sep=""))
-  names(xtab.setup) <- c('n','p','$\sigma$', "S", "T", "X", "U", "R", "RS", "oracle")
+  xtab.setup = xtable(tab.setup, caption = paste0("\\tt Mean squared error (MSE) from Setup ", i, ". Results are averaged across 500 runs and rounded to two decimal places."), align="ccccccccccc", label=paste0("table:setup",i))
+  names(xtab.setup) <- c('n','p','$\\sigma$', "S", "T", "X", "U", "R", "RS", "oracle")
   print(xtab.setup, include.rownames = FALSE, include.colnames = TRUE, sanitize.text.function = identity, file = paste("tables/simulation_results_setup_", i, ".tex", sep=""))
 }

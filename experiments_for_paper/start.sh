@@ -3,7 +3,7 @@
 setupvals=(1 2 3 4 5 6 7)
 nvals=(500 1000)
 pvals=(6 12)
-sigmavals=(0.5 1.0) #2.0 4.0)
+sigmavals=(0.5 1.0 2.0 4.0)
 algvals=('R' 'RS' 'T' 'X' 'U' 'oracle' 'S')
 
 reps=500

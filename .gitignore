@@ -7,7 +7,6 @@
 *.toc
 *.nav
 *.snm
-*.pdf
 *.DS_Store
 *.RData
 *.Rapp.history
