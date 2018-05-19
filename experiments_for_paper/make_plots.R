@@ -1,7 +1,7 @@
 rm(list = ls())
 library(ggplot2)
 
-log = FALSE# log-log plots
+log = TRUE# log-log plots
 
 tab = read.csv("output.csv", header=TRUE)
 algs = c("SP",  "T", "Xmd", "U", "Rmd", "RSmd", "oracle")
@@ -27,6 +27,8 @@ for (i in 1:length(algs)){
   }
   ext.best[[i]] = paste0(alg, ext.best.alg)
 }
+ext.best[[5]] = "Rmd.min"
+ext.best[[6]] = "RSmd.min"
 
 
 for (setup in setups){

@@ -11,7 +11,6 @@ n = as.numeric(args[3])
 p = as.numeric(args[4])
 sigma = as.numeric(args[5])
 NREP = as.numeric(args[6])
-lambda.choice = as.character(args[7])
 #
 #setup=8
 #n=500
@@ -19,31 +18,7 @@ lambda.choice = as.character(args[7])
 #sigma=0.1
 #alg='Xmd'
 #NREP=10
-#lambda.choice="lambda.min"
 #print(alg)
-
-alg.print = alg
-penalty.search=FALSE
-w.measure = "auc"
-pilot.lambda.choice = "lambda.min"
-
-if (nchar(alg) > 1) {
-  if (substr(alg,nchar(alg),nchar(alg)) == "a"){
-    w.measure = "auc"
-  } else if (substr(alg, nchar(alg), nchar(alg)) == "d"){
-    w.measure = "deviance"
-  }
-  if (substr(alg,nchar(alg)-1, nchar(alg)-1) == "1"){
-    pilot.lambda.choice = "lambda.1se"
-  } else if (substr(alg, nchar(alg)-1, nchar(alg)-1) == "m"){
-    pilot.lambda.choice = "lambda.min"
-  }
-  if (substr(alg, nchar(alg), nchar(alg)) == "a" | substr(alg,nchar(alg), nchar(alg)) == "d"){
-    alg = substr(alg, 1, nchar(alg)-2)
-  }
-}
-print(w.measure)
-print(pilot.lambda.choice)
 
 if (setup == 1) {
     get.params = function() {
@@ -117,95 +92,62 @@ if (setup == 1) {
         list(X=X, b=b, tau=tau, e=e)
     }
 
-} else if (setup == 8) { # setup 1 originally from the first paper draft
-
-    get.params = function() {
-        X = matrix(runif(n*p, min=0, max=1), n, p)
-        b = 10 * sin(pi * X[,1] * X[,2]) + 20 * (X[,3] - 0.5)^2 + 10 * X[,4] + 5 * X[,5]
-        e = sin(pi * X[,1] * X[,2])
-        tau = (X[,1] + X[,2]) / 2
-        list(X=X, b=b, tau=tau, e=e)
-    }
-
 } else {
 
     stop("bad setup")
 
 }
-    #params = get.params()
-    #W = Rlab::rbern(n, params$e)
-    #Y = params$b + (W - 0.5) * params$tau + sigma * rnorm(n)
-    ##write.csv(params$X, file="X.csv")
-    ##write.csv(W, file="W.csv")
-    ##write.csv(Y, file="Y.csv")
-    ##write.csv(params$b, file="b.csv")
-    ##write.csv(params$e, file="e.csv")
-    ##write.csv(params$tau, file="tau.csv")
-    ##print(params$tau[1:20])
-    #X.ns = do.call(cbind, lapply(1:p, function(col){matrix(splines::ns(params$X[,col],df=7),n,7)}))
 
 results.list = lapply(1:NREP, function(iter) {
-    #X = as.matrix(read.csv('X.csv', header=TRUE, sep=","))[,-1]
-    #Y = as.matrix(read.csv('Y.csv', header=TRUE, sep=","))[,-1]
-    #W = as.matrix(read.csv('W.csv', header=TRUE, sep=","))[,-1]
-    #b = as.matrix(read.csv('b.csv', header=TRUE, sep=","))[,-1]
-    #tau = as.matrix(read.csv('tau.csv', header=TRUE, sep=","))[,-1]
-    #e = as.matrix(read.csv('e.csv', header=TRUE, sep=","))[,-1]
-    #params.test = list(X=X, b=b, tau=tau, e=e)
-    #X.ns.train = do.call(cbind, lapply(1:p, function(col){matrix(splines::ns(X[,col],df=7), n, 7)}))
-    #X.ns.test = X.ns.train
-    #W.train = W
-    #Y.train = Y
 
     params.train = get.params()
     W.train = Rlab::rbern(n, params.train$e)
     Y.train = params.train$b + (W.train - 0.5) * params.train$tau + sigma * rnorm(n)
-#
+
     params.test = get.params()
     W.test = Rlab::rbern(n, params.test$e)
     Y.test = params.test$b + (W.test - 0.5) * params.test$tau + sigma * rnorm(n)
-#
+
     X.ns = do.call(cbind, lapply(1:p, function(col){matrix(splines::ns(rbind(params.train$X, params.test$X)[,col],df=7), 2*n, 7)}))
     X.ns.train = X.ns[1:n,]
     X.ns.test = X.ns[(n+1):(2*n),]
 
     if (alg == 'R') {
 
-        r.fit <- rlasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice, rs=FALSE, w.measure = w.measure, pilot.lambda.choice = pilot.lambda.choice)
+        r.fit <- rlasso(X.ns.train, Y.train, W.train, lambda.choice = "lambda.min", rs=FALSE)
         tau.hat <- predict(r.fit, newx=X.ns.test)
 
     } else if (alg == 'RS') {
 
-        rs.fit <- rlasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice, rs=TRUE, w.measure=w.measure, penalty.search=penalty.search, pilot.lambda.choice=pilot.lambda.choice)
+        rs.fit <- rlasso(X.ns.train, Y.train, W.train, lambda.choice = "lambda.min", rs=TRUE)
         tau.hat <- predict(rs.fit, newx=X.ns.test)
 
     } else if (alg == 'oracle') {
 
         w.hat.oracle = params.train$e
         y.hat.oracle = params.train$b + (params.train$e-0.5) * params.train$tau
-        oracle.fit <- rlasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice, rs=FALSE, w.hat=w.hat.oracle, y.hat=y.hat.oracle)
+        oracle.fit <- rlasso(X.ns.train, Y.train, W.train, lambda.choice = "lambda.min", rs=FALSE, w.hat=w.hat.oracle, y.hat=y.hat.oracle)
         tau.hat <- predict(oracle.fit, newx=X.ns.test)
 
     } else if (alg == 'S') {
 
-        s.fit <- slasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice, penalty.search=penalty.search)
+        s.fit <- slasso(X.ns.train, Y.train, W.train, lambda.choice = "lambda.min", penalty.search=TRUE)
         tau.hat <- predict(s.fit, newx=X.ns.test)
-        #tau.hat <- predict(s.fit)
 
     } else if (alg == 'T') {
 
-        t.fit <- tlasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice)
-        tau.hat <- predict(t.fit, newx=X.ns.test, s=lambda.choice)
+        t.fit <- tlasso(X.ns.train, Y.train, W.train, lambda.choice = "lambda.min")
+        tau.hat <- predict(t.fit, newx=X.ns.test, s="lambda.min")
 
     } else if (alg == 'X') {
 
-        x.fit <- xlasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice, w.measure = w.measure, pilot.lambda.choice = pilot.lambda.choice)
-        tau.hat <- predict(x.fit, newx=X.ns.test, s=lambda.choice)
+        x.fit <- xlasso(X.ns.train, Y.train, W.train, lambda.choice = "lambda.min")
+        tau.hat <- predict(x.fit, newx=X.ns.test, s="lambda.min")
 
     } else if (alg == 'U') {
 
-        u.fit <- ulasso(X.ns.train, Y.train, W.train, lambda.choice = lambda.choice, cutoff=0.05)
-        tau.hat <- predict(u.fit, newx=X.ns.test, s=lambda.choice)
+        u.fit <- ulasso(X.ns.train, Y.train, W.train, lambda.choice = "lambda.1se", cutoff = 0.05)
+        tau.hat <- predict(u.fit, newx=X.ns.test, s="lambda.1se")
 
     } else {
 
@@ -224,5 +166,5 @@ end.time <- Sys.time()
 time.taken <- end.time - start.time
 print(time.taken)
 
-fnm = paste("results/output", alg.print, setup, n, p, sigma, NREP, lambda.choice, "full.csv", sep="-")
+fnm = paste("results_local/output", alg, setup, n, p, sigma, NREP, "full.csv", sep="-")
 write.csv(results, file=fnm)

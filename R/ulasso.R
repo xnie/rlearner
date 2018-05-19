@@ -1,4 +1,4 @@
-#' U-lasso, as proposed by Kunzel et al 2017
+#' U-lasso
 #'
 #' @param X
 #' @param Y
@@ -33,7 +33,7 @@ ulasso = function(X, Y, W,
   y.fit = glmnet::cv.glmnet(X, Y, nfolds=10, keep=TRUE, alpha = alpha)
   y.hat = y.fit$fit.preval[,!is.na(colSums(y.fit$fit.preval))][, y.fit$lambda == y.fit$lambda.min]
 
-  w.fit = glmnet::cv.glmnet(X, W, nfolds=10, keep=TRUE, family="binomial", type.measure = "auc", alpha = alpha)
+  w.fit = glmnet::cv.glmnet(X, W, nfolds=10, keep=TRUE, family="binomial", type.measure = "deviance", alpha = alpha)
   w.hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.min]
 
   w.hat.thresh = pmax(cutoff, pmin(1 - cutoff, w.hat))

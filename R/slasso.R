@@ -1,4 +1,4 @@
-#' S-lasso
+#' Title
 #'
 #' @param X
 #' @param Y
@@ -6,17 +6,17 @@
 #' @param alpha
 #' @param nfolds
 #' @param lambda.choice
-#' @param constant.effect
+#' @param penalty.search
 #'
 #' @return
-#' @export slasso
+#' @export
 #'
 #' @examples
 slasso = function(X, Y, W,
                   alpha = 1,
-                  nfolds=NULL,
-                  lambda.choice=c("lambda.min", "lambda.1se"),
-                  penalty.search=FALSE) {
+                  nfolds = NULL,
+                  lambda.choice = c("lambda.min", "lambda.1se"),
+                  penalty.search = FALSE) {
 
   X.scl = scale(X)
   X.scl = X.scl[,!is.na(colSums(X.scl))]
@@ -52,7 +52,7 @@ slasso = function(X, Y, W,
         else{
           penalty.factor = c(0, rep(10^(last.best - 10^(-l+1) + 20.0/search.range*10^(-l)*i), pobs), rep(1,pobs))
         }
-        s.fit <- glmnet::cv.glmnet(x=X.scl.tilde, y=Y, foldid=foldid, penalty.factor=penalty.factor, standardize=FALSE)
+        s.fit <- glmnet::cv.glmnet(x = X.scl.tilde, y = Y, foldid = foldid, penalty.factor = penalty.factor, standardize = FALSE, alpha = alpha)
         s.fit.cvm = s.fit$cvm[s.fit$lambda == s.fit$lambda.min]
         s.beta = as.vector(t(coef(s.fit, s=lambda.choice)[-1]))
         if (s.fit.cvm < cvm.min){
@@ -86,7 +86,7 @@ slasso = function(X, Y, W,
 
   s.fit = glmnet::cv.glmnet(X.scl.tilde, Y, foldid = foldid,
                       penalty.factor = penalty.factor,
-                      standardize=FALSE)
+                      standardize = FALSE, alpha = alpha)
 
   s.beta = as.vector(t(coef(s.fit, s=lambda.choice)[-1]))
 

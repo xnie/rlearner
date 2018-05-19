@@ -16,7 +16,7 @@ tlasso = function(X, Y, W,
                   alpha = 1,
                   nfolds.1=NULL,
                   nfolds.0=NULL,
-                  lambda.choice=c("lambda.min", "lambda.1se")){
+                  lambda.choice=c("lambda.min", "lambda.1se")) {
 
   lambda.choice = match.arg(lambda.choice)
 
@@ -43,8 +43,8 @@ tlasso = function(X, Y, W,
   foldid.1 = sample(rep(seq(nfolds.1), length = nobs.1))
   foldid.0 = sample(rep(seq(nfolds.0), length = nobs.0))
 
-  t.1.fit = glmnet::cv.glmnet(X.1, Y.1, foldid = foldid.1)
-  t.0.fit = glmnet::cv.glmnet(X.0, Y.0, foldid = foldid.0)
+  t.1.fit = glmnet::cv.glmnet(X.1, Y.1, foldid = foldid.1, alpha = alpha)
+  t.0.fit = glmnet::cv.glmnet(X.0, Y.0, foldid = foldid.0, alpha = alpha)
 
   y.1.pred = predict(t.1.fit, newx=X, s=lambda.choice)
   y.0.pred = predict(t.0.fit, newx=X, s=lambda.choice)

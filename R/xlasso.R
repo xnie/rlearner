@@ -1,32 +1,25 @@
-#' X-lasso as proposed by Kunzel et al 2017
+#' Title
 #'
 #' @param X
 #' @param Y
 #' @param W
-#' @param alpha
 #' @param nfolds.1
 #' @param nfolds.0
 #' @param nfolds.W
 #' @param lambda.choice
 #'
 #' @return
-#' @export xlasso
+#' @export
 #'
 #' @examples
 xlasso = function(X, Y, W,
-                  alpha = 1,
+                  alpha=1,
                   nfolds.1=NULL,
                   nfolds.0=NULL,
                   nfolds.W=NULL,
-                  lambda.choice=c("lambda.min", "lambda.1se"),
-                  w.measure=c("deviance","auc"),
-                  pilot.lambda.choice=c("lambda.min","lambda.1se")){
-
+                  lambda.choice=c("lambda.min", "lambda.1se")){
 
   lambda.choice = match.arg(lambda.choice)
-  w.measure = match.arg(w.measure)
-  pilot.lambda.measure = match.arg(pilot.lambda.choice)
-
 
   X.1 = X[which(W==1),]
   X.0 = X[which(W==0),]
@@ -57,8 +50,8 @@ xlasso = function(X, Y, W,
   foldid.0 = sample(rep(seq(nfolds.0), length = nobs.0))
   foldid.W = sample(rep(seq(nfolds.W), length = nobs))
 
-  t.1.fit = glmnet::cv.glmnet(X.1, Y.1, foldid = foldid.1)
-  t.0.fit = glmnet::cv.glmnet(X.0, Y.0, foldid = foldid.0)
+  t.1.fit = glmnet::cv.glmnet(X.1, Y.1, foldid = foldid.1, alpha = alpha)
+  t.0.fit = glmnet::cv.glmnet(X.0, Y.0, foldid = foldid.0, alpha = alpha)
 
   y.1.pred = predict(t.1.fit, newx=X, s=lambda.choice)
   y.0.pred = predict(t.0.fit, newx=X, s=lambda.choice)
@@ -66,19 +59,14 @@ xlasso = function(X, Y, W,
   D.1 = Y.1 - y.0.pred[W==1]
   D.0 = y.1.pred[W==0] - Y.0
 
-  x.1.fit = glmnet::cv.glmnet(X.1, D.1, foldid = foldid.1)
-  x.0.fit = glmnet::cv.glmnet(X.0, D.0, foldid = foldid.0)
+  x.1.fit = glmnet::cv.glmnet(X.1, D.1, foldid = foldid.1, alpha = alpha)
+  x.0.fit = glmnet::cv.glmnet(X.0, D.0, foldid = foldid.0, alpha = alpha)
 
   tau.1.pred = predict(x.1.fit, newx=X, s=lambda.choice)
   tau.0.pred = predict(x.0.fit, newx=X, s=lambda.choice)
 
-  w.fit = glmnet::cv.glmnet(X, W, foldid=foldid.W, keep=TRUE, family="binomial", type.measure = w.measure, alpha = alpha)
-  if (pilot.lambda.choice == "lambda.min"){
-    w.hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.min]
-  }
-  else{
-    w.hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.1se]
-  }
+  w.fit = glmnet::cv.glmnet(X, W, foldid=foldid.W, keep=TRUE, family="binomial", type.measure = "deviance", alpha = alpha)
+  w.hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.min]
 
   tau.hat = tau.1.pred * (1-w.hat) + tau.0.pred * w.hat
 

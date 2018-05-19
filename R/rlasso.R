@@ -1,4 +1,4 @@
-#' R-lasso, as proposed by Nie and Wager 2017
+#' Title
 #'
 #' @param X
 #' @param Y
@@ -7,9 +7,11 @@
 #' @param nfolds
 #' @param lambda.choice
 #' @param rs
+#' @param w.hat
+#' @param y.hat
 #'
 #' @return
-#' @export rlasso
+#' @export
 #'
 #' @examples
 rlasso = function(X, Y, W,
@@ -18,17 +20,12 @@ rlasso = function(X, Y, W,
                   lambda.choice=c("lambda.min","lambda.1se"),
                   rs = FALSE,
                   w.hat = NULL,
-                  y.hat = NULL,
-                  penalty.search=FALSE,
-                  w.measure=c("deviance","auc"),
-                  pilot.lambda.choice=c("lambda.min","lambda.1se")){
+                  y.hat = NULL){
 
     X.scl = scale(X)
     X.scl = X.scl[,!is.na(colSums(X.scl))]
 
     lambda.choice = match.arg(lambda.choice)
-    w.measure = match.arg(w.measure)
-    pilot.lambda.measure = match.arg(pilot.lambda.choice)
 
     nobs = nrow(X.scl)
     pobs = ncol(X.scl)
@@ -41,26 +38,16 @@ rlasso = function(X, Y, W,
     foldid = sample(rep(seq(nfolds), length = length(W)))
 
     if (is.null(y.hat)){
-      y.fit = glmnet::cv.glmnet(X, Y, foldid=foldid, keep=TRUE, alpha = alpha)
-      if (pilot.lambda.choice == "lambda.min"){
-        y.hat = y.fit$fit.preval[,!is.na(colSums(y.fit$fit.preval))][, y.fit$lambda == y.fit$lambda.min]
-      }
-      else{
-        y.hat = y.fit$fit.preval[,!is.na(colSums(y.fit$fit.preval))][, y.fit$lambda == y.fit$lambda.1se]
-      }
+      y.fit = glmnet::cv.glmnet(X, Y, foldid = foldid, keep = TRUE, alpha = alpha)
+      y.hat = y.fit$fit.preval[,!is.na(colSums(y.fit$fit.preval))][, y.fit$lambda == y.fit$lambda.min]
     }
     else {
       y.fit = NULL
     }
 
     if (is.null(w.hat)){
-      w.fit = glmnet::cv.glmnet(X, W, foldid=foldid, keep=TRUE, family="binomial", type.measure = w.measure, alpha = alpha)
-      if (pilot.lambda.choice == "lambda.min"){
-        w.hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.min]
-      }
-      else{
-        w.hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.1se]
-      }
+      w.fit = glmnet::cv.glmnet(X, W, foldid = foldid, keep = TRUE, family = "binomial", type.measure = "deviance", alpha = alpha)
+      w.hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.min]
     }
     else{
       w.fit = NULL
@@ -72,57 +59,15 @@ rlasso = function(X, Y, W,
 
       X.scl.tilde = cbind(as.numeric(W - w.hat) * cbind(1, X.scl), X.scl)
       X.scl.pred = cbind(1, X.scl, X.scl * 0)
+      penalty.factor = c(0, rep(1, 2 * pobs))
 
-      if(penalty.search){
-        search.range = 5
-        cvm.min = Inf
-        last.best = NULL
-        for (l in 0:2){
-          updated = FALSE
-
-          for (i in 1:search.range){
-
-            if (l==0){
-              penalty.factor = c(0, rep(10^(i- ceiling(search.range/2.0)), pobs), rep(1,pobs))
-            }
-            else{
-              penalty.factor = c(0, rep(10^(last.best - 10^(-l+1) + 20.0/search.range*10^(-l)*i), pobs), rep(1,pobs))
-            }
-            rs.fit <- glmnet::cv.glmnet(x=X.scl.tilde, y=Y, foldid=foldid, penalty.factor=penalty.factor, standardize=FALSE)
-            rs.fit.cvm = rs.fit$cvm[rs.fit$lambda == rs.fit$lambda.min]
-            if (rs.fit.cvm < cvm.min){
-              cvm.min = rs.fit.cvm
-              rs.fit.best = rs.fit
-              if (l==0){
-                best.i = i - ceiling(search.range/2.0)
-              }
-              else{
-                best.i = i
-              }
-              best.penalty.factor= penalty.factor
-              updated = TRUE
-            }
-          }
-
-          if (l==0){
-            last.best = best.i
-          }
-          else{
-            if (updated){
-              last.best = last.best - 10^(-l+1) + 20.0/search.range*10^(-l)*best.i
-            }
-          }
-        }
-        penalty.factor = best.penalty.factor
-      }
-      else{
-        penalty.factor = c(0, rep(1, 2 * pobs))
-      }
     }
     else{
+
       X.scl.tilde = cbind(as.numeric(W - w.hat) * cbind(1, X.scl))
       X.scl.pred = cbind(1, X.scl)
       penalty.factor = c(0, rep(1, pobs))
+
     }
 
     tau.fit = glmnet::cv.glmnet(X.scl.tilde, Y.tilde, foldid = foldid,
@@ -159,7 +104,7 @@ predict.rlasso <- function(object,
     else{
       newx.scl.pred = cbind(1, newx.scl)
     }
-    tau.hat = newx.scl.pred %*% object$tau.beta # TODO: make this more robust?
+    tau.hat = newx.scl.pred %*% object$tau.beta
   }
   else {
     tau.hat = object$tau.hat
