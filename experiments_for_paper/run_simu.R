@@ -166,5 +166,5 @@ end.time <- Sys.time()
 time.taken <- end.time - start.time
 print(time.taken)
 
-fnm = paste("results_local/output", alg, setup, n, p, sigma, NREP, "full.csv", sep="-")
+fnm = paste("results/output", alg, setup, n, p, sigma, NREP, "full.csv", sep="-")
 write.csv(results, file=fnm)
