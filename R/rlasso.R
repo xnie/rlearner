@@ -1,19 +1,16 @@
-#' Title
+#' R-learner, as proposed by Nie and Wager, 2017
 #'
-#' @param X
-#' @param Y
-#' @param W
-#' @param alpha
-#' @param nfolds
-#' @param lambda.choice
-#' @param rs
-#' @param w.hat
-#' @param y.hat
+#' @param X the input features
+#' @param Y the observed response (real valued)
+#' @param W the treatment variable (0 or 1)
+#' @param alpha tuning parameter for the elastic net
+#' @param nfolds number of folds for cross-fitting
+#' @param lambda.choice how to cross-validate
+#' @param rs whether to use the RS-learner (logical)
+#' @param w.hat user-supplied estimate for E[W|X]
+#' @param y.hat user-supplied estimte for E[Y|X]
 #'
-#' @return
-#' @export
-#'
-#' @examples
+#' @export rlasso
 rlasso = function(X, Y, W,
                   alpha = 1,
                   nfolds=NULL,

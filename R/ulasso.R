@@ -1,17 +1,14 @@
-#' U-lasso
+#' U-learner
 #'
-#' @param X
-#' @param Y
-#' @param W
-#' @param alpha
-#' @param nfolds
-#' @param lambda.choice
-#' @param cutoff
+#' @param X the input features
+#' @param Y the observed response (real valued)
+#' @param W the treatment variable (0 or 1)
+#' @param alpha tuning parameter for the elastic net
+#' @param nfolds number of folds for cross-fitting
+#' @param lambda.choice how to cross-validate
+#' @param cutoff propensity cutoff threshold
 #'
-#' @return
 #' @export ulasso
-#'
-#' @examples
 ulasso = function(X, Y, W,
                   alpha = 1,
                   nfolds=NULL,

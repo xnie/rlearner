@@ -5,61 +5,62 @@ library(data.table)
 filenames = list.files("results", pattern="*", full.names=TRUE)
 
 param.names = c("alg", "setup", "n", "p", "sigma")
-setup.values = c(1,2,3,4,5,6,7,8)
-nms = c("S", "T", "X", "R", "RS") # add RSnc, Rnc, oracle
+setup.values = c(1:7)
 
 raw = data.frame(t(sapply(filenames, function(fnm) {
 
-	output = read.csv(fnm)[,-1]
-	params = strsplit(fnm, "-")[[1]][2:6]
+  output = read.csv(fnm)[,-1]
+  params = strsplit(fnm, "-")[[1]][2:6]
 
-	mse.mean = mean(output)
-	mse.se = sd(output)/sqrt(length(output))
+  mse.mean = mean(output)
+  alg = paste(params[1], lc, sep='.')
 
-	c(params,
-	  mse=sprintf("%.2f", round(mse.mean, 2)),
-	  se=sprintf("%.2f", round(mse.se, 2)))
+  c(params,
+    mse=sprintf("%.8f", round(mse.mean, 8))) # change back to 2!
 })))
 
-
 rownames(raw) = 1:nrow(raw)
-
-
 names(raw) = c(param.names,
-               "mean",
-               "se")
+               "mean")
 
 options(stringsAsFactors = FALSE)
-raw = data.frame(apply(raw, 1:2, as.character))
 
-#raw = raw[!duplicated(raw[,1:5])] # can remove this line later
-raw = dcast(setDT(raw), setup + n + p + sigma ~ alg, value.var=c("mean", "se"))
+raw = dcast(setDT(raw), setup + n + p + sigma ~ alg, value.var=c("mean"))
 
 raw = raw[order(as.numeric(raw$sigma)),]
 raw = raw[order(as.numeric(raw$p)),]
 raw = raw[order(as.numeric(raw$n)),]
 raw = raw[order(as.numeric(raw$setup)),]
 rownames(raw) = 1:nrow(raw)
+raw <- data[c("setup", "n", "p", "sigma", "S", "T", "X", "U", "R", "RS", "oracle")]
 
+raw.round = raw
+raw.round[,5:11] <-round(raw[,5:11],2)
+
+raw = data.frame(apply(raw, 1:2, as.character))
+raw.round = data.frame(apply(raw.round, 1:2, as.character))
+
+# write raw csv output file
 write.csv(raw, file="output.csv")
 
 # get a dataframe for each setup
-raw.by.setup = lapply(c(setup.values), function(x) raw[raw$setup==x, ])
+raw.by.setup = lapply(c(setup.values), function(x) raw.round[raw.round$setup==x, ])
 
+# write to latex tables
 for (i in setup.values){
   tab.setup = cbind("", raw.by.setup[[i]][,-1])
   mse.idx = 1 + c(4:9)
   for(iter in 1:nrow(tab.setup)) {
-  	best.idx = mse.idx[which(as.numeric(tab.setup[iter,..mse.idx]) == min(as.numeric(tab.setup[iter,..mse.idx])))]
-  	for (j in 1:length(best.idx)){
-  	  best.idx.j = best.idx[j]
-    	tab.setup[iter,best.idx.j] = paste("\\bf", tab.setup[iter,..best.idx.j])
-  	}
+    best.idx = mse.idx[which(as.numeric(tab.setup[iter,mse.idx]) == min(as.numeric(tab.setup[iter,mse.idx])))]
+    for (j in 1:length(best.idx)) {
+      best.idx.j = best.idx[j]
+      tab.setup[iter,best.idx.j] = paste("\\bf", tab.setup[iter,best.idx.j])
+    }
   }
   tab.setup = tab.setup[,-1]
   print(i)
   print(tab.setup)
   xtab.setup = xtable(tab.setup, caption = paste("\\tt setup ", i, sep=""))
-  names(xtab.setup) <- c('n','p','sigma', 'R', 'RS', 'S', 'T', 'U', 'X', 'Rse', 'RSse', 'Sse', 'Tse', 'Use', 'Xse' )
+  names(xtab.setup) <- c('n','p','$\sigma$', "S", "T", "X", "U", "R", "RS", "oracle")
   print(xtab.setup, include.rownames = FALSE, include.colnames = TRUE, sanitize.text.function = identity, file = paste("tables/simulation_results_setup_", i, ".tex", sep=""))
 }

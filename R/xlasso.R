@@ -1,17 +1,15 @@
-#' Title
+#' X-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017
 #'
-#' @param X
-#' @param Y
-#' @param W
-#' @param nfolds.1
-#' @param nfolds.0
-#' @param nfolds.W
-#' @param lambda.choice
+#' @param X the input features
+#' @param Y the observed response (real valued)
+#' @param W the treatment variable (0 or 1)
+#' @param alpha tuning parameter for the elastic net
+#' @param nfolds.1 number of folds for learning E[Y|X,W=1]
+#' @param nfolds.0 number of folds for learning E[Y|X,W=0]
+#' @param nfolds.W number of folds for learning E[W|X]
+#' @param lambda.choice how to cross-validate
 #'
-#' @return
-#' @export
-#'
-#' @examples
+#' @export xlasso
 xlasso = function(X, Y, W,
                   alpha=1,
                   nfolds.1=NULL,
