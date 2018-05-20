@@ -92,9 +92,9 @@ rlasso = function(X, Y, W,
 predict.rlasso <- function(object,
                            newx=NULL,
                            ...) {
-  newx.scl = scale(newx)
-  newx.scl = newx.scl[,!is.na(colSums(newx.scl))]
   if (!is.null(newx)) {
+    newx.scl = scale(newx)
+    newx.scl = newx.scl[,!is.na(colSums(newx.scl))]
     if (object$rs){
       newx.scl.pred = cbind(1, newx.scl, newx.scl * 0)
     }

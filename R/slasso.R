@@ -100,11 +100,10 @@ slasso = function(X, Y, W,
 predict.slasso <- function(object,
                            newx=NULL,
                            ...) {
-  newx.scl = scale(newx)
-  newx.scl = newx.scl[,!is.na(colSums(newx.scl))]
-  newx.scl.pred = cbind(1, newx.scl, 0 * newx.scl)
-
   if (!is.null(newx)) {
+    newx.scl = scale(newx)
+    newx.scl = newx.scl[,!is.na(colSums(newx.scl))]
+    newx.scl.pred = cbind(1, newx.scl, 0 * newx.scl)
     tau.hat = 2 * newx.scl.pred %*% object$s.beta
   }
   else {
