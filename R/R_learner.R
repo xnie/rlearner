@@ -1,18 +1,20 @@
-# Make sure that if k_folds_cv = 1 and model specs is a single model that this does the right thing and doesn't do any cv
-# santiize input, including checking for y either real or factor, x having column names, being a matrix
 
 # No scaling or centering needs to be done for the R-learner- 
 # let each model take care of that internally as per its own defaults
 
 #' @export
-R_learner_cv = function(x, w, y, mu_model_specs, p_model_specs, tau_model_specs, p_hat=NULL, m_hat=NULL, 
-	k_folds_cv=5, k_folds_ce=5, economy=T, select_by="best") {
+R_learner_cv = function(x, w, y, tau_model_specs,
+	p_model_specs=NULL, m_model_specs=NULL, 
+	p_hat=NULL, m_hat=NULL, 
+	k_folds_cv=5, k_folds_ce=5, 
+	economy=T, select_by="best") {
+
 	if (is.null(p_hat)) {	
 		p_hat = xval_xfit(x, w, p_model_specs, 
 			k_folds_ce=k_folds_ce, k_folds_cv=k_folds_cv, economy=economy, select_by=select_by)
 	} 
 	if (is.null(m_hat)) {
-		m_hat = xval_xfit(x, y, mu_model_specs, 
+		m_hat = xval_xfit(x, y, m_model_specs, 
 			k_folds_ce=k_folds_ce, k_folds_cv=k_folds_cv, economy=economy, select_by=select_by)
 	}
 

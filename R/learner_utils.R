@@ -51,7 +51,7 @@ learner_cv = function(x, y, model_specs, weights=NULL, k_folds=5, select_by="bes
 		rlang::warn("The oneSE rule uses heuristics set in the caret package to rank models by complexity. See ?caret::oneSE")
 		if(length(model_specs)>1) {
 			rlang::abort("The oneSE rule is only defined when comparing models within a single learning algorithm. It is not always clear how to compare the 'complexity' of the models implicit within two different algorihtms (i.e. LASSO and GBM)")}}
-	model_specs %>% imap(function(settings, method) {
+	model = model_specs %>% imap(function(settings, method) {
 		train_args = list(
 			x = x, y = y, weights = weights, 
 			metric = "wRMSE", maximize=F, # these will be changed if it is a classification problem
@@ -66,35 +66,51 @@ learner_cv = function(x, y, model_specs, weights=NULL, k_folds=5, select_by="bes
 			train_args$metric="wDeviance"} # should be minimized just like wRMSE
 		do.call(train, c(train_args, settings$extra_args))
 	}) %>% pick_model()
+
+	learner = list(model=model)
+	if(is.factor(y)) {
+		learner$positive_class = levels(y)[1]
+	}
+	class(learner) = "learner" 
+	return(learner)
 }
 
+predict.learner = function(object, newdata) {
+	if(object$model$modelType == "Classification") {
+		predict(object$model, newdata=newdata, type="prob")[[object$positive_class]]
+	} else {
+		predict(object$model, newdata=newdata) 
+	}
+}
+
+# get the internal cv predictions (at the optimal hyperparameter value) that were used for hyperparameter selection
+resample_predictions = function(learner) {
+	predictions = learner$model$pred %>% arrange(rowIndex)
+	if(learner$model$modelType == "Classification") {
+		positive_class = learner$positive_class
+		predictions %>% pull(!!positive_class)
+	} else {
+		predictions %>% pull(pred)
+	}
+}
+
+#' Cross-validated cross-estimation. Provides both a "deluxe" version and an "economy" version. The deluxe version 
+#' preserves data-splitting independence relations. The "economy version" leaks information from the held-out folds 
+#' into the predictions on the held-out folds via the hyperparameter selection. Data-splitting independence assumptions 
+#' do not hold and theoretical guarentees do not follow, but the models fit more quickly
 #' @export
 xval_xfit = function(x, y, model_specs, economy=T, weights=NULL, k_folds_ce=5, k_folds_cv=5, select_by="best") {
 	if (economy) {
-		# "Economy" cross-validated cross estimation. Information from the held-out folds leaks into the predictions on the held-out folds
-		# via the hyperparameter selection. Data-splitting independence assumptions do not hold and theoretical guarentees do not follow,
-		# but the models fit more quickly
-		result = learner_cv(x, y, model_specs, weights=weights, k_folds=k_folds_cv, select_by=select_by) %$%
-			pred %>%
-			arrange(rowIndex)
-		if(is.factor(y)) {
-			positive_class = levels(y)[1]
-			result %>% pull(!!positive_class)
-		} else {
-			result %>% pull(pred)
-		}
+		learner_cv(x, y, model_specs, weights=weights, 
+			k_folds=k_folds_cv, select_by=select_by) %>% 
+			resample_predictions()
 	} else {
-		# True cross-validated cross-estimation
 		createFolds(y, k=k_folds_ce) %>%
 		map(function(test_index) {
-			model = learner_cv(x[-test_index,], y[-test_index], model_specs, weights=weights, k_folds=k_folds_cv, select_by=select_by) 
-			if(is.factor(y)) {
-				predict(model, newdata=x[test_index,], type="prob") %>%
-				data.frame(cross_estimate = .$treated, index=test_index)
-			} else {
-				predict(model, newdata=x[test_index,]) %>%
+			learner_cv(x[-test_index,], y[-test_index], model_specs, weights=weights, 
+				k_folds=k_folds_cv, select_by=select_by) %>%
+				predict(newdata=x[test_index,]) %>%
 				data.frame(cross_estimate = ., index=test_index)
-			}
 		}) %>% bind_rows %>% dplyr::arrange(index) %>% dplyr::pull(cross_estimate)
 	}
 }
