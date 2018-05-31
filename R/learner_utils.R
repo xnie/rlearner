@@ -42,7 +42,7 @@ pick_model = function(models) {
 
 # fits models via caret, uses CV to select one, returns it
 # selection should be either "best" or "oneSE"
-learner_cv = function(x, y, model_specs, weights=NULL, k_folds=4, select_by="best") {
+learner_cv = function(x, y, model_specs, weights=NULL, k_folds=5, select_by="best") {
 	# assume that any binary data coming in is in factor form. 
 	# levels(y)[1] should be the name of the positive class (i.e. "treated", or "had_outcome")
 	# for instance, to convert a boolean vector w representing treatement to a factor, use:
@@ -69,7 +69,7 @@ learner_cv = function(x, y, model_specs, weights=NULL, k_folds=4, select_by="bes
 }
 
 #' @export
-xval_xfit = function(x, y, model_specs, economy=T, weights=NULL, k_folds_ce=4, k_folds_cv=4, select_by="best") {
+xval_xfit = function(x, y, model_specs, economy=T, weights=NULL, k_folds_ce=5, k_folds_cv=5, select_by="best") {
 	if (economy) {
 		# "Economy" cross-validated cross estimation. Information from the held-out folds leaks into the predictions on the held-out folds
 		# via the hyperparameter selection. Data-splitting independence assumptions do not hold and theoretical guarentees do not follow,

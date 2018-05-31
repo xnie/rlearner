@@ -3,7 +3,7 @@
 # let each model take care of that internally as per its own defaults
 
 #' @export
-T_learner_cv = function(x, w, y, model_specs, k_folds=4, select_by="best") {
+T_learner_cv = function(x, w, y, model_specs, k_folds=5, select_by="best") {
 	T_learner = levels(w) %>% map(function(condition) {
 		learner_cv(
 			x[w==condition,], y[w==condition], # filters to only include subjects treated under "condition"
