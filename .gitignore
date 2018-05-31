@@ -11,4 +11,5 @@
 *.RData
 *.Rapp.history
 *.Rhistory
+*.ipynb
 .Rproj.user
