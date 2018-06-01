@@ -40,8 +40,6 @@ pick_model = function(models) {
 	}
 }
 
-# fits models via caret, uses CV to select one, returns it
-# selection should be either "best" or "oneSE"
 #' @title Cross-validated supervised learning via caret
 #'
 #' @details
@@ -67,7 +65,7 @@ pick_model = function(models) {
 #' multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some learners: \code{\link[caret]{oneSE}}.
 #' @return 
 #' @examples
-#'  model_specs = list(
+#' model_specs = list(
 #' gbm = list(
 #'     tune_grid = expand.grid(
 #'         n.trees = seq(1,501,20), 
@@ -151,10 +149,64 @@ resample_predictions = function(learner) {
 	}
 }
 
+#' @title Cross-validated cross-estimation via caret
+#'
+#' @details
 #' Cross-validated cross-estimation. Provides both a "deluxe" version and an "economy" version. The deluxe version 
 #' preserves data-splitting independence relations. The "economy version" leaks information from the held-out folds 
 #' into the predictions on the held-out folds via the hyperparameter selection. Data-splitting independence assumptions 
-#' do not hold and theoretical guarentees do not follow, but the models fit more quickly
+#' do not hold and theoretical guarentees do not follow, but the models fit more quickly. Internal cross validation is
+#' performed via \code{\link{learner_cv}}.
+#' @param x a numeric matrix of features
+#' @param y a two-class factor vector for probabilistic classificaton or numeric vector of targets for regression.
+#' If y is a factor, the first factor level is treated as the positive class \eqn{c} such that the predicted probabilities 
+#' are \eqn{P(Y=c|X)}.
+#' @param model_specs a data structure specifying which learning algorithms, hyperparameters should 
+#' be cross validated over, and which additionl arguments should be 
+#' passed to each learner. This should be a list where the names of each element are valid \pkg{caret}
+#' methods (learning algorithms). The list element corresponding to each learning algorithm should itself
+#' be a list of two elements named \code{tune_grid} (hyperparameters) and \code{extra_args}. 
+#' \code{tune_grid} should be a valid \pkg{caret} tune grid of hyperparameters corresponing to the learning algorithm.
+#' \code{extra_args} is a named list of additional arguments to be passed on to the learning algorithm. See example.
+#' @param economy flag that determines if "economy" or "deluxe" cross-validated cross-estimation is performed
+#' @param weights optional case weights
+#' @param k_folds_ce number of cross-estimation folds. Unecessary if \code{economy=T}.
+#' @param k_folds_cv number of cross-validation folds
+#' @param select_by optimization method to use for cross-validation: either \code{"best"} for minimum cross-validation
+#' error or \code{"oneSE"} for the one-standard-error (1-SE) rule. The implementaion of the 1-SE rule for learners with
+#' multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some learners: \code{\link[caret]{oneSE}}.
+#' @return 
+#' @examples
+#' model_specs = list(
+#' gbm = list(
+#'     tune_grid = expand.grid(
+#'         n.trees = seq(1,501,20), 
+#'         interaction.depth=3, 
+#'         shrinkage = 0.1, 
+#'         n.minobsinnode=3),
+#'     extra_args = list(
+#'         verbose=F, 
+#'         bag.fraction=1)),
+#' glmnet = list(
+#'     tune_grid = expand.grid(
+#'        alpha=c(0,0.5,1),
+#'        lambda=exp(seq(-5,2,0.2))),
+#'     extra_args = list())
+#' )
+#' n = 500
+#' x = data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n)) %>% 
+#'     make_matrix
+#' logit_p = (x %*% c(1,1))
+#' p = exp(logit_p)/(1+exp(logit_p))
+#' w = rbinom(n,1,p)==1
+#' w_factor = factor(as.factor(w %>% ifelse("treated", "control")), c("treated", "control"))
+#' tau = (x %*% c(1,1))^2
+#' m = x %*% c(1,-3)
+#' y = (m + tau/2*(2*w-1))[,1]
+#' 
+#' y_hat = xval_xfit(x, y, model_specs) 
+#' w_hat_prob = xval_xfit(x, w, model_specs)
+#' @export
 #' @export
 xval_xfit = function(x, y, model_specs, economy=T, weights=NULL, k_folds_ce=5, k_folds_cv=5, select_by="best") {
 	if (economy) {
