@@ -1,3 +1,4 @@
+#' @include learner_utils.R utils.R
 
 #' @title R-learning for heterogenous treatment effects
 #'
@@ -18,15 +19,14 @@
 #' @param economy flag that determines if "economy" or "deluxe" cross-validated cross-estimation is performed when learning
 #' the models for \eqn{p(x)} and \eqn{m(x)}.
 #' Not needed if both \code{p_hat} and \code{m_hat} are provided.
-#' @param k_folds_ce number of cross-estimation folds to use in estimating \code{p_hat} and \code{m_hat}.
+#' @param k_folds_cf number of cross-estimation folds to use in estimating \code{p_hat} and \code{m_hat}.
 #' Unecessary if \code{economy=T} or if both \code{p_hat} and \code{m_hat} are provided.
-#' @param k_folds_cv number of cross-validation folds to use in hyperparameter optimization for each model.
+#' @param k_folds number of cross-validation folds to use in hyperparameter optimization for each model.
 #' @param select_by optimization method to use for cross-validation in each model: either \code{"best"} for minimum cross-validation
 #' error or \code{"oneSE"} for the one-standard-error (1-SE) rule. The implementaion of the 1-SE rule for learners with
 #' multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some learners. See: \code{\link[caret]{?caret::oneSE}}.
-#' @param p_min If provided, estiamted propensities will be trimmed to have minimum \code{p_min}.
-#' @param p_max If provided, estiamted propensities will be trimmed to have maximum \code{p_max}.
-#' @return 
+#' @param p_min If provided, estimated propensities will be trimmed to have minimum \code{p_min}.
+#' @param p_max If provided, estimated propensities will be trimmed to have maximum \code{p_max}.
 #' @examples
 #' \dontrun{
 #' model_specs = list(
@@ -45,36 +45,28 @@
 #'        lambda=exp(seq(-5,2,0.2))),
 #'     extra_args = list())
 #' )
-#' n = 500
-#' x = data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n)) %>% 
-#'     make_matrix
-#' logit_p = (x %*% c(1,1))
-#' p = exp(logit_p)/(1+exp(logit_p))
-#' w = rbinom(n,1,p)==1
-#' w_factor = factor(as.factor(w %>% ifelse("treated", "control")), c("treated", "control"))
-#' tau = (x %*% c(1,1))^2
-#' m = x %*% c(1,-3)
-#' y = (m + tau/2*(2*w-1))[,1]
+#' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
+#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample 
 #' 
-#' tau_hat_model = R_learner_cv(x, y, model_specs) 
+#' tau_hat_model = R_learner_cv(x, w, y, model_specs) 
 #' tau_hat = predict(tau_hat_model, x)
 #' }
 #' @export
 R_learner_cv = function(x, w, y, tau_model_specs,
 	p_model_specs=NULL, m_model_specs=NULL, 
 	p_hat=NULL, m_hat=NULL, 
-	k_folds_cv=5, k_folds_ce=5, 
+	k_folds=5, k_folds_cf=5, 
 	economy=T, select_by="best",
 	p_min=0, p_max=1) {
 
 	if (is.null(p_hat)) {	
 		p_hat = xval_xfit(x, w, p_model_specs, 
-			k_folds_ce=k_folds_ce, k_folds_cv=k_folds_cv, economy=economy, select_by=select_by) %>%
+			k_folds_cf=k_folds_cf, k_folds=k_folds, economy=economy, select_by=select_by) %>%
 			trim(p_min, p_max)
 	} 
 	if (is.null(m_hat)) {
 		m_hat = xval_xfit(x, y, m_model_specs, 
-			k_folds_ce=k_folds_ce, k_folds_cv=k_folds_cv, economy=economy, select_by=select_by)
+			k_folds_cf=k_folds_cf, k_folds=k_folds, economy=economy, select_by=select_by)
 	}
 
 	if (is.factor(w)) {w = w==levels(w)[1]} # turn factor to a logical (the first factor level should be the "treated")
@@ -83,12 +75,15 @@ R_learner_cv = function(x, w, y, tau_model_specs,
 
 	R_learner = list(
 		model=learner_cv(x, r_pseudo_outcome, tau_model_specs, weights=r_weights, 
-			k_folds=k_folds_cv, select_by=select_by) 
+			k_folds=k_folds, select_by=select_by) 
 		)
 	class(R_learner) = "R_learner"
 	return(R_learner)
 }
 
+#' @title Prediction for R-learner
+#' @param object a R-learner object
+#' @param x a matrix of covariates for which to predict the treatment effect
 #' @export
 predict.R_learner = function(object, x) {
 	predict(object$model, newdata=x)

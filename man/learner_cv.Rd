@@ -5,7 +5,7 @@
 \title{Cross-validated supervised learning}
 \usage{
 learner_cv(x, y, model_specs, weights = NULL, k_folds = 5,
-  select_by = "best")
+  select_by = "best", p_min = 0, p_max = 1)
 }
 \arguments{
 \item{x}{a numeric matrix of features}
@@ -28,7 +28,11 @@ be a list of two elements named \code{tune_grid} (hyperparameters) and \code{ext
 
 \item{select_by}{optimization method to use for cross-validation: either \code{"best"} for minimum cross-validation
 error or \code{"oneSE"} for the one-standard-error (1-SE) rule. The implementaion of the 1-SE rule for learners with
-multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some learners: \code{\link[caret]{oneSE}}.}
+multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some learners. See: \code{\link[caret]{?caret::oneSE}}.}
+
+\item{p_min}{If provided, probabilities at prediction time will be trimmed to have minimum \code{p_min}. Used for the X-learner.}
+
+\item{p_max}{If provided, probabilities at prediction time will be trimmed to have maximum \code{p_max}. Used for the X-learner.}
 }
 \details{
 This is a wrapper around \pkg{caret}'s train function, simplifying the interface
@@ -54,16 +58,7 @@ glmnet = list(
        lambda=exp(seq(-5,2,0.2))),
     extra_args = list())
 )
-n = 500
-x = data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n)) \%>\% 
-    make_matrix
-logit_p = (x \%*\% c(1,1))
-p = exp(logit_p)/(1+exp(logit_p))
-w = rbinom(n,1,p)==1
-w_factor = factor(as.factor(w \%>\% ifelse("treated", "control")), c("treated", "control"))
-tau = (x \%*\% c(1,1))^2
-m = x \%*\% c(1,-3)
-y = (m + tau/2*(2*w-1))[,1]
+c(x, w, y, ...) \%<-\% toy_data_simulation(500) # draw a sample 
 
 best_model_y = learner_cv(x, y, model_specs) 
 y_hat = predict(best_model_y, x)

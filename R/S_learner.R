@@ -1,3 +1,4 @@
+#' @include learner_utils.R utils.R
 
 #' @export
 S_learner_cv = function(x, w, y, model_specs, k_folds=5, select_by="best") {

@@ -1,12 +1,59 @@
+#' @include learner_utils.R utils.R
 
-
+#' @title X-learning for heterogenous treatment effects
+#'
+#' @param x a numeric matrix of \strong{covariates}
+#' @param w a two-class factor vector of \strong{treatments}. The first factor level is treated as the positive class \eqn{w=1}
+#' @param y a numeric vector of \strong{outcomes}
+#' @param tau_model_specs specification for the model of \eqn{\tau(x) = E[Y(1) - Y(0)|X=x]}. See \code{\link{learner_cv}}.
+#' @param p_model_specs specification for the model of \eqn{p(x) = E[W|X=x]}. See \code{\link{learner_cv}}.
+#' Not needed if \code{p_hat} is provided.
+#' @param mu0_hat_1 a numeric vector of estimates of the outcome under control for the treated observations.
+#' The X-learner will estimate these values internally if not provided.
+#' @param mu1_hat_0 a numeric vector of estimates of the outcome under treatment for the control observations.
+#' The X-learner will estimate these values internally if not provided.
+#' @param mu_model_specs specification for the models of \eqn{m_w(x) = E[Y|W=w,X=x]}. See \code{\link{learner_cv}}.
+#' Not needed if \code{mu0_hat_0} and \code{mu0_hat_1} are provided.
+#' @param k_folds number of cross-validation folds to use in hyperparameter optimization for each model.
+#' @param select_by optimization method to use for cross-validation in each model: either \code{"best"} for minimum cross-validation
+#' error or \code{"oneSE"} for the one-standard-error (1-SE) rule. The implementaion of the 1-SE rule for learners with
+#' multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some learners. See: \code{\link[caret]{?caret::oneSE}}.
+#' @param p_min If provided, estimated propensities will be trimmed to have minimum \code{p_min}.
+#' @param p_max If provided, estimated propensities will be trimmed to have maximum \code{p_max}.
+#' @examples
+#' \dontrun{
+#' model_specs = list(
+#' gbm = list(
+#'     tune_grid = expand.grid(
+#'         n.trees = seq(1,501,20), 
+#'         interaction.depth=3, 
+#'         shrinkage = 0.1, 
+#'         n.minobsinnode=3),
+#'     extra_args = list(
+#'         verbose=F, 
+#'         bag.fraction=1)),
+#' glmnet = list(
+#'     tune_grid = expand.grid(
+#'        alpha=c(0,0.5,1),
+#'        lambda=exp(seq(-5,2,0.2))),
+#'     extra_args = list())
+#' )
+#' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
+#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample 
+#' 
+#' tau_hat_model = X_learner_cv(x, w, y, model_specs) 
+#' tau_hat = predict(tau_hat_model, x)
+#' }
+#' @export
 X_learner_cv = function(x, w, y, tau_model_specs,
 	p_model_specs, mu_model_specs=NULL, 
 	mu0_hat_1=NULL, mu1_hat_0=NULL,
-	k_folds=5, select_by="best") {
+	k_folds=5, select_by="best",
+	p_min=0, p_max=1) {
 	
 	p_hat_model = learner_cv(x, w, p_model_specs, 
-		k_folds=k_folds, select_by=select_by)
+		k_folds=k_folds, select_by=select_by,
+		p_min = p_min, p_max=p_max)
 
 	w = w==levels(w)[1]
 
@@ -38,7 +85,11 @@ X_learner_cv = function(x, w, y, tau_model_specs,
 	return(X_learner)
 }
 
-predict.X_learner = function(object, x, p_min=0, p_max=1) {
+#' @title Prediction for X-learner
+#' @param object a X-learner object
+#' @param x a matrix of covariates for which to predict the treatment effect
+#' @export
+predict.X_learner = function(object, x) {
 	object %>% purrr::map(function(model) {
 		predict(model, x)
 	}) %->%	c(p_hat, tau0_hat, tau1_hat)

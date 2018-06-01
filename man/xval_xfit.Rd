@@ -2,10 +2,10 @@
 % Please edit documentation in R/learner_utils.R
 \name{xval_xfit}
 \alias{xval_xfit}
-\title{Cross-validated cross-estimation}
+\title{Cross-validated cross-fitting}
 \usage{
-xval_xfit(x, y, model_specs, economy = T, weights = NULL, k_folds_ce = 5,
-  k_folds_cv = 5, select_by = "best")
+xval_xfit(x, y, model_specs, economy = T, weights = NULL, k_folds_cf = 5,
+  k_folds = 5, select_by = "best")
 }
 \arguments{
 \item{x}{a numeric matrix of features}
@@ -26,13 +26,13 @@ be a list of two elements named \code{tune_grid} (hyperparameters) and \code{ext
 
 \item{weights}{optional case weights}
 
-\item{k_folds_ce}{number of cross-estimation folds. Unecessary if \code{economy=T}.}
+\item{k_folds_cf}{number of cross-fitting folds. Unecessary if \code{economy=T}.}
 
-\item{k_folds_cv}{number of cross-validation folds}
+\item{k_folds}{number of cross-validation folds}
 
 \item{select_by}{optimization method to use for cross-validation: either \code{"best"} for minimum cross-validation
 error or \code{"oneSE"} for the one-standard-error (1-SE) rule. The implementaion of the 1-SE rule for learners with
-multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some learners: \code{\link[caret]{oneSE}}.}
+multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some learners. See: \code{\link[caret]{?caret::oneSE}}.}
 }
 \details{
 Provides both a "deluxe" version and an "economy" version. The deluxe version 
@@ -59,16 +59,8 @@ glmnet = list(
        lambda=exp(seq(-5,2,0.2))),
     extra_args = list())
 )
-n = 500
-x = data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n)) \%>\% 
-    make_matrix
-logit_p = (x \%*\% c(1,1))
-p = exp(logit_p)/(1+exp(logit_p))
-w = rbinom(n,1,p)==1
-w_factor = factor(as.factor(w \%>\% ifelse("treated", "control")), c("treated", "control"))
-tau = (x \%*\% c(1,1))^2
-m = x \%*\% c(1,-3)
-y = (m + tau/2*(2*w-1))[,1]
+library(zeallot) # imports the \%<-\% operator, which is syntactic sugar that performs multiple assignment out of a list
+c(x, w, y, ...) \%<-\% toy_data_simulation(500) # draw a sample 
 
 y_hat = xval_xfit(x, y, model_specs) 
 w_hat_prob = xval_xfit(x, w, model_specs)

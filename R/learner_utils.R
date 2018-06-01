@@ -1,11 +1,4 @@
-#' @import magrittr
-#' @import caret
-#' @import zeallot
-#' @import dplyr
-#' @import tidyr
-#' @import purrr
-
-# All of these functions are fancy wrappers around calls to caret
+#' @include utils.R
 
 # https://topepo.github.io/caret/model-training-and-tuning.html#alternate-performance-metrics
 summary_metrics = function(data, lev=NULL, model=NULL) {
@@ -63,7 +56,8 @@ pick_model = function(models) {
 #' @param select_by optimization method to use for cross-validation: either \code{"best"} for minimum cross-validation
 #' error or \code{"oneSE"} for the one-standard-error (1-SE) rule. The implementaion of the 1-SE rule for learners with
 #' multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some learners. See: \code{\link[caret]{?caret::oneSE}}.
-#' @return 
+#' @param p_min If provided, probabilities at prediction time will be trimmed to have minimum \code{p_min}. Used for the X-learner.
+#' @param p_max If provided, probabilities at prediction time will be trimmed to have maximum \code{p_max}. Used for the X-learner.
 #' @examples
 #' \dontrun{
 #' model_specs = list(
@@ -82,16 +76,7 @@ pick_model = function(models) {
 #'        lambda=exp(seq(-5,2,0.2))),
 #'     extra_args = list())
 #' )
-#' n = 500
-#' x = data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n)) %>% 
-#'     make_matrix
-#' logit_p = (x %*% c(1,1))
-#' p = exp(logit_p)/(1+exp(logit_p))
-#' w = rbinom(n,1,p)==1
-#' w_factor = factor(as.factor(w %>% ifelse("treated", "control")), c("treated", "control"))
-#' tau = (x %*% c(1,1))^2
-#' m = x %*% c(1,-3)
-#' y = (m + tau/2*(2*w-1))[,1]
+#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample 
 #' 
 #' best_model_y = learner_cv(x, y, model_specs) 
 #' y_hat = predict(best_model_y, x)
@@ -99,13 +84,14 @@ pick_model = function(models) {
 #' w_hat_prob = predict(best_model_w, x)
 #' }
 #' @export
-learner_cv = function(x, y, model_specs, weights=NULL, k_folds=5, select_by="best") {
+learner_cv = function(x, y, model_specs, weights=NULL, k_folds=5, select_by="best", p_min=0, p_max=1) {
 	# assume that any binary data coming in is in factor form. 
 	# levels(y)[1] should be the name of the positive class (i.e. "treated", or "had_outcome")
 	# for instance, to convert a boolean vector w representing treatement to a factor, use:
 	# factor(as.factor(w %>% ifelse("treated", "control")), c("treated", "control"))
 	if ((select_by=="oneSE") & (length(model_specs)>1)) {
-		rlang::abort("The oneSE rule is only defined when comparing models within a single learning algorithm. It is not always clear how to compare the 'complexity' of the models implicit within two different algorihtms (i.e. LASSO and GBM)")}}
+		rlang::abort("The oneSE rule is only defined when comparing models within a single learning algorithm. It is not always clear how to compare the 'complexity' of the models implicit within two different algorihtms (i.e. LASSO and GBM)")
+	}
 	model = model_specs %>% purrr::imap(function(settings, method) {
 		train_args = list(
 			x = x, y = y, weights = weights, 
@@ -125,6 +111,8 @@ learner_cv = function(x, y, model_specs, weights=NULL, k_folds=5, select_by="bes
 	learner = list(model=model)
 	if(is.factor(y)) {
 		learner$positive_class = levels(y)[1]
+		learner$p_min = p_min
+		learner$p_max = p_max
 	}
 	class(learner) = "learner" 
 	return(learner)
@@ -132,7 +120,8 @@ learner_cv = function(x, y, model_specs, weights=NULL, k_folds=5, select_by="bes
 
 predict.learner = function(object, newdata) {
 	if(object$model$modelType == "Classification") {
-		predict(object$model, newdata=newdata, type="prob")[[object$positive_class]]
+		predict(object$model, newdata=newdata, type="prob")[[object$positive_class]] %>%
+			trim(object$p_min, object$p_max)
 	} else {
 		predict(object$model, newdata=newdata) 
 	}
@@ -148,7 +137,7 @@ resample_predictions = function(learner) {
 	}
 }
 
-#' @title Cross-validated cross-estimation
+#' @title Cross-validated cross-fitting
 #'
 #' @details
 #' Provides both a "deluxe" version and an "economy" version. The deluxe version 
@@ -169,12 +158,11 @@ resample_predictions = function(learner) {
 #' \code{extra_args} is a named list of additional arguments to be passed on to the learning algorithm. See example.
 #' @param economy flag that determines if "economy" or "deluxe" cross-validated cross-estimation is performed
 #' @param weights optional case weights
-#' @param k_folds_ce number of cross-estimation folds. Unecessary if \code{economy=T}.
-#' @param k_folds_cv number of cross-validation folds
+#' @param k_folds_cf number of cross-fitting folds. Unecessary if \code{economy=T}.
+#' @param k_folds number of cross-validation folds
 #' @param select_by optimization method to use for cross-validation: either \code{"best"} for minimum cross-validation
 #' error or \code{"oneSE"} for the one-standard-error (1-SE) rule. The implementaion of the 1-SE rule for learners with
 #' multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some learners. See: \code{\link[caret]{?caret::oneSE}}.
-#' @return 
 #' @examples
 #' \dontrun{
 #' model_specs = list(
@@ -193,31 +181,23 @@ resample_predictions = function(learner) {
 #'        lambda=exp(seq(-5,2,0.2))),
 #'     extra_args = list())
 #' )
-#' n = 500
-#' x = data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n)) %>% 
-#'     make_matrix
-#' logit_p = (x %*% c(1,1))
-#' p = exp(logit_p)/(1+exp(logit_p))
-#' w = rbinom(n,1,p)==1
-#' w_factor = factor(as.factor(w %>% ifelse("treated", "control")), c("treated", "control"))
-#' tau = (x %*% c(1,1))^2
-#' m = x %*% c(1,-3)
-#' y = (m + tau/2*(2*w-1))[,1]
+#' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
+#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample 
 #' 
 #' y_hat = xval_xfit(x, y, model_specs) 
 #' w_hat_prob = xval_xfit(x, w, model_specs)
 #' }
 #' @export
-xval_xfit = function(x, y, model_specs, economy=T, weights=NULL, k_folds_ce=5, k_folds_cv=5, select_by="best") {
+xval_xfit = function(x, y, model_specs, economy=T, weights=NULL, k_folds_cf=5, k_folds=5, select_by="best") {
 	if (economy) {
 		learner_cv(x, y, model_specs, weights=weights, 
-			k_folds=k_folds_cv, select_by=select_by) %>% 
+			k_folds=k_folds, select_by=select_by) %>% 
 			resample_predictions()
 	} else {
-		caret::createFolds(y, k=k_folds_ce) %>%
+		caret::createFolds(y, k=k_folds_cf) %>%
 		purrr::map(function(test_index) {
 			learner_cv(x[-test_index,], y[-test_index], model_specs, weights=weights, 
-				k_folds=k_folds_cv, select_by=select_by) %>%
+				k_folds=k_folds, select_by=select_by) %>%
 				predict(newdata=x[test_index,]) %>%
 				data.frame(cross_estimate = ., index=test_index)
 		}) %>% dplyr::bind_rows() %>% dplyr::arrange(index) %>% dplyr::pull(cross_estimate)
