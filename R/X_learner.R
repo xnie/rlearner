@@ -46,7 +46,7 @@
 #' }
 #' @export
 X_learner_cv = function(x, w, y, tau_model_specs,
-	p_model_specs, mu_model_specs=NULL, 
+	p_model_specs=tau_model_specs, mu_model_specs=tau_model_specs, 
 	mu0_hat_1=NULL, mu1_hat_0=NULL,
 	k_folds=5, select_by="best",
 	p_min=0, p_max=1) {
@@ -93,6 +93,6 @@ predict.X_learner = function(object, x) {
 	object %>% purrr::map(function(model) {
 		predict(model, x)
 	}) %->%	c(p_hat, tau0_hat, tau1_hat)
-	p_hat = trim(p_hat, p_min, p_max)
+	p_hat = trim(p_hat, object$p_hat_model$p_min, object$p_hat_model$p_max)
 	return(p_hat*tau0_hat + (1-p_hat)*tau1_hat)
 }

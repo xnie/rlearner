@@ -53,7 +53,7 @@
 #' }
 #' @export
 R_learner_cv = function(x, w, y, tau_model_specs,
-	p_model_specs=NULL, m_model_specs=NULL, 
+	p_model_specs=tau_model_specs, m_model_specs=tau_model_specs, 
 	p_hat=NULL, m_hat=NULL, 
 	k_folds=5, k_folds_cf=5, 
 	economy=T, select_by="best",
@@ -69,7 +69,7 @@ R_learner_cv = function(x, w, y, tau_model_specs,
 			k_folds_cf=k_folds_cf, k_folds=k_folds, economy=economy, select_by=select_by)
 	}
 
-	if (is.factor(w)) {w = w==levels(w)[1]} # turn factor to a logical (the first factor level should be the "treated")
+	w = w==levels(w)[1] # turn factor to a logical (the first factor level should be the "treated")
 	r_pseudo_outcome = (y - m_hat)/(w - p_hat)
 	r_weights = (w - p_hat)^2
 
