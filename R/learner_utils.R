@@ -51,7 +51,7 @@ learner_cv = function(x, y, model_specs, weights=NULL, k_folds=5, select_by="bes
 		rlang::warn("The oneSE rule uses heuristics set in the caret package to rank models by complexity. See ?caret::oneSE")
 		if(length(model_specs)>1) {
 			rlang::abort("The oneSE rule is only defined when comparing models within a single learning algorithm. It is not always clear how to compare the 'complexity' of the models implicit within two different algorihtms (i.e. LASSO and GBM)")}}
-	model = model_specs %>% imap(function(settings, method) {
+	model = model_specs %>% purrr::imap(function(settings, method) {
 		train_args = list(
 			x = x, y = y, weights = weights, 
 			metric = "wRMSE", maximize=F, # these will be changed if it is a classification problem
@@ -64,7 +64,7 @@ learner_cv = function(x, y, model_specs, weights=NULL, k_folds=5, select_by="bes
 		if(is.factor(y)) {
 			train_args$trControl$classProbs=T
 			train_args$metric="wDeviance"} # should be minimized just like wRMSE
-		do.call(train, c(train_args, settings$extra_args))
+		do.call(caret::train, c(train_args, settings$extra_args))
 	}) %>% pick_model()
 
 	learner = list(model=model)
@@ -106,11 +106,11 @@ xval_xfit = function(x, y, model_specs, economy=T, weights=NULL, k_folds_ce=5, k
 			resample_predictions()
 	} else {
 		createFolds(y, k=k_folds_ce) %>%
-		map(function(test_index) {
+		purrr::map(function(test_index) {
 			learner_cv(x[-test_index,], y[-test_index], model_specs, weights=weights, 
 				k_folds=k_folds_cv, select_by=select_by) %>%
 				predict(newdata=x[test_index,]) %>%
 				data.frame(cross_estimate = ., index=test_index)
-		}) %>% bind_rows %>% dplyr::arrange(index) %>% dplyr::pull(cross_estimate)
+		}) %>% dplyr::bind_rows() %>% dplyr::arrange(index) %>% dplyr::pull(cross_estimate)
 	}
 }

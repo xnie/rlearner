@@ -25,9 +25,8 @@ S_learner_cv = function(x, w, y, model_specs, k_folds=5, select_by="best") {
 #' @export
 predict.S_learner = function(object, x) {
 	x = predict(object$standardization, x) # standardize the new data using the same standardization as with the training data
-	list(0, 1) %>% 
-		map(function(w) {
-			predict(object$model, newdata=cbind(x, (w-0.5)*x, (w-0.5)))
-		}) %->% c(mu0_hat, mu1_hat)
+	list(0, 1) %>% purrr::map(function(w) {
+		predict(object$model, newdata=cbind(x, (w-0.5)*x, (w-0.5)))
+	}) %->% c(mu0_hat, mu1_hat)
 	return(mu1_hat - mu0_hat)
 }

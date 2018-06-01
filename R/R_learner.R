@@ -13,7 +13,7 @@ R_learner_cv = function(x, w, y, tau_model_specs,
 	if (is.null(p_hat)) {	
 		p_hat = xval_xfit(x, w, p_model_specs, 
 			k_folds_ce=k_folds_ce, k_folds_cv=k_folds_cv, economy=economy, select_by=select_by) %>%
-			threshold(p_min, p_max)
+			trim(p_min, p_max)
 	} 
 	if (is.null(m_hat)) {
 		m_hat = xval_xfit(x, y, m_model_specs, 
