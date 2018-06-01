@@ -1,9 +1,9 @@
-# sanitize input to xval_xfit
-
 #' @import magrittr
 #' @import caret
 #' @import zeallot
-#' @import tidyverse
+#' @import dplyr
+#' @import tidyr
+#' @import purrr
 
 # All of these functions are fancy wrappers around calls to caret
 
@@ -18,7 +18,7 @@ summary_metrics = function(data, lev=NULL, model=NULL) {
 	} else {
 		positive_class = levels(y)[1]
 		y = y==positive_class # convert y to a logical
-		p = data %>% pull(!!positive_class) # the column of probabilities will be called whatever is in levels(y)[1] since y is a factor 
+		p = data[[positive_class]] # the column of probabilities will be called whatever is in levels(y)[1] since y is a factor 
 		c(wDeviance = -sum(weights*(y*log(p) + (1-y)*log(1-p)))/sum(weights)) # from the weighted bernoulli log-likelihood
 	}
 }
@@ -29,7 +29,7 @@ pick_model = function(models) {
 	if(length(models)==1) {
 		return(models[[1]])
 	} else {
-		best_model_name = resamples(models)$values %>% # each row is a fold, columns are (model x metric)
+		best_model_name = caret::resamples(models)$values %>% # each row is a fold, columns are (model x metric)
 		    tidyr::gather(model_metric, value, -Resample) %>% 
 		    tidyr::separate(model_metric, c("model","metric"), sep="~") %>%
 		    dplyr::group_by(model) %>%
@@ -40,7 +40,7 @@ pick_model = function(models) {
 	}
 }
 
-#' @title Cross-validated supervised learning via caret
+#' @title Cross-validated supervised learning
 #'
 #' @details
 #' This is a wrapper around \pkg{caret}'s train function, simplifying the interface
@@ -52,7 +52,7 @@ pick_model = function(models) {
 #' If y is a factor, the first factor level is treated as the positive class \eqn{c} such that the predicted probabilities 
 #' are \eqn{P(Y=c|X)}.
 #' @param model_specs a data structure specifying which learning algorithms, hyperparameters should 
-#' be cross validated over, and which additionl arguments should be 
+#' be cross validated over, and which additional arguments should be 
 #' passed to each learner. This should be a list where the names of each element are valid \pkg{caret}
 #' methods (learning algorithms). The list element corresponding to each learning algorithm should itself
 #' be a list of two elements named \code{tune_grid} (hyperparameters) and \code{extra_args}. 
@@ -62,9 +62,10 @@ pick_model = function(models) {
 #' @param k_folds number of cross-validation folds
 #' @param select_by optimization method to use for cross-validation: either \code{"best"} for minimum cross-validation
 #' error or \code{"oneSE"} for the one-standard-error (1-SE) rule. The implementaion of the 1-SE rule for learners with
-#' multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some learners: \code{\link[caret]{oneSE}}.
+#' multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some learners. See: \code{\link[caret]{?caret::oneSE}}.
 #' @return 
 #' @examples
+#' \dontrun{
 #' model_specs = list(
 #' gbm = list(
 #'     tune_grid = expand.grid(
@@ -96,16 +97,15 @@ pick_model = function(models) {
 #' y_hat = predict(best_model_y, x)
 #' best_model_w = learner_cv(x, w, model_specs)
 #' w_hat_prob = predict(best_model_w, x)
+#' }
 #' @export
 learner_cv = function(x, y, model_specs, weights=NULL, k_folds=5, select_by="best") {
 	# assume that any binary data coming in is in factor form. 
 	# levels(y)[1] should be the name of the positive class (i.e. "treated", or "had_outcome")
 	# for instance, to convert a boolean vector w representing treatement to a factor, use:
 	# factor(as.factor(w %>% ifelse("treated", "control")), c("treated", "control"))
-	if(select_by=="oneSE") {
-		rlang::warn("The oneSE rule uses heuristics set in the caret package to rank models by complexity. See ?caret::oneSE")
-		if(length(model_specs)>1) {
-			rlang::abort("The oneSE rule is only defined when comparing models within a single learning algorithm. It is not always clear how to compare the 'complexity' of the models implicit within two different algorihtms (i.e. LASSO and GBM)")}}
+	if ((select_by=="oneSE") & (length(model_specs)>1)) {
+		rlang::abort("The oneSE rule is only defined when comparing models within a single learning algorithm. It is not always clear how to compare the 'complexity' of the models implicit within two different algorihtms (i.e. LASSO and GBM)")}}
 	model = model_specs %>% purrr::imap(function(settings, method) {
 		train_args = list(
 			x = x, y = y, weights = weights, 
@@ -140,21 +140,20 @@ predict.learner = function(object, newdata) {
 
 # get the internal cv predictions (at the optimal hyperparameter value) that were used for hyperparameter selection
 resample_predictions = function(learner) {
-	predictions = learner$model$pred %>% arrange(rowIndex)
+	predictions = learner$model$pred %>% dplyr::arrange(rowIndex)
 	if(learner$model$modelType == "Classification") {
-		positive_class = learner$positive_class
-		predictions %>% pull(!!positive_class)
+		predictions[[learner$positive_class]]
 	} else {
-		predictions %>% pull(pred)
+		predictions %>% dplyr::pull(pred)
 	}
 }
 
-#' @title Cross-validated cross-estimation via caret
+#' @title Cross-validated cross-estimation
 #'
 #' @details
-#' Cross-validated cross-estimation. Provides both a "deluxe" version and an "economy" version. The deluxe version 
+#' Provides both a "deluxe" version and an "economy" version. The deluxe version 
 #' preserves data-splitting independence relations. The "economy version" leaks information from the held-out folds 
-#' into the predictions on the held-out folds via the hyperparameter selection. Data-splitting independence assumptions 
+#' into the predictions on the held-out folds via the hyperparameter selection: data-splitting independence assumptions 
 #' do not hold and theoretical guarentees do not follow, but the models fit more quickly. Internal cross validation is
 #' performed via \code{\link{learner_cv}}.
 #' @param x a numeric matrix of features
@@ -162,7 +161,7 @@ resample_predictions = function(learner) {
 #' If y is a factor, the first factor level is treated as the positive class \eqn{c} such that the predicted probabilities 
 #' are \eqn{P(Y=c|X)}.
 #' @param model_specs a data structure specifying which learning algorithms, hyperparameters should 
-#' be cross validated over, and which additionl arguments should be 
+#' be cross validated over, and which additional arguments should be 
 #' passed to each learner. This should be a list where the names of each element are valid \pkg{caret}
 #' methods (learning algorithms). The list element corresponding to each learning algorithm should itself
 #' be a list of two elements named \code{tune_grid} (hyperparameters) and \code{extra_args}. 
@@ -174,9 +173,10 @@ resample_predictions = function(learner) {
 #' @param k_folds_cv number of cross-validation folds
 #' @param select_by optimization method to use for cross-validation: either \code{"best"} for minimum cross-validation
 #' error or \code{"oneSE"} for the one-standard-error (1-SE) rule. The implementaion of the 1-SE rule for learners with
-#' multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some learners: \code{\link[caret]{oneSE}}.
+#' multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some learners. See: \code{\link[caret]{?caret::oneSE}}.
 #' @return 
 #' @examples
+#' \dontrun{
 #' model_specs = list(
 #' gbm = list(
 #'     tune_grid = expand.grid(
@@ -206,7 +206,7 @@ resample_predictions = function(learner) {
 #' 
 #' y_hat = xval_xfit(x, y, model_specs) 
 #' w_hat_prob = xval_xfit(x, w, model_specs)
-#' @export
+#' }
 #' @export
 xval_xfit = function(x, y, model_specs, economy=T, weights=NULL, k_folds_ce=5, k_folds_cv=5, select_by="best") {
 	if (economy) {
@@ -214,7 +214,7 @@ xval_xfit = function(x, y, model_specs, economy=T, weights=NULL, k_folds_ce=5, k
 			k_folds=k_folds_cv, select_by=select_by) %>% 
 			resample_predictions()
 	} else {
-		createFolds(y, k=k_folds_ce) %>%
+		caret::createFolds(y, k=k_folds_ce) %>%
 		purrr::map(function(test_index) {
 			learner_cv(x[-test_index,], y[-test_index], model_specs, weights=weights, 
 				k_folds=k_folds_cv, select_by=select_by) %>%

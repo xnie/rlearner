@@ -2,6 +2,7 @@ Package: rlearner
 Title: R-learner for Hetereogeneous Treatment Effect Estimation
 Version: 0.0.0.1
 Authors@R: person("Stefan", "Wager", email = "swager@stanford.edu", role = c("aut"))
+	   person("Alejandro", "Schuler", email = "aschuler@stanford.edu", role = c("aut"))
            person("Xinkun", "Nie", email = "xinkun@stanford.edu", role = c("aut", "cre"))
 Description: R-learner for quasi-oracle estimation of hetereogeneous treatment effects
 Depends: R (>= 3.4.0) 
