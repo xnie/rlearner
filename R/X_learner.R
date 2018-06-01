@@ -38,9 +38,10 @@ X_learner_cv = function(x, w, y, tau_model_specs,
 	return(X_learner)
 }
 
-predict.X_learner = function(object, x) {
+predict.X_learner = function(object, x, p_min=0, p_max=1) {
 	object %>% map(function(model) {
 		predict(model, x)
 	}) %->%	c(p_hat, tau0_hat, tau1_hat)
+	p_hat = threshold(p_hat, p_min, p_max)
 	return(p_hat*tau0_hat + (1-p_hat)*tau1_hat)
 }
