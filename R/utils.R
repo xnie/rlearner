@@ -34,12 +34,12 @@ toy_data_simulation = function(n) {
 	x = stats::model.matrix(~.-1, data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n))) 
 	logit_p = (x %*% c(1,1))
 	p = exp(logit_p)/(1+exp(logit_p))
-	w = rbinom(n,1,p)==1
-	w_factor = factor(as.factor(w %>% ifelse("treated", "control")), c("treated", "control"))
+	w_bool = rbinom(n,1,p)==1
+	w = factor(as.factor(w_bool %>% ifelse("treated", "control")), c("treated", "control"))
 	tau = (x %*% c(1,1))^2
 	m = x %*% c(1,-3)
 	mu1 = m + tau/2
 	mu0 = m - tau/2
-	y = (m + tau/2*(2*w-1))[,1] + rnorm(n)
-	list(x, w_factor, y, p, m, mu0, mu1, tau)
+	y = (m + tau/2*(2*w_bool-1))[,1] + rnorm(n)
+	list(x, w, y, p, m, mu0, mu1, tau)
 }
