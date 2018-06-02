@@ -1,163 +1,225 @@
 rm(list = ls())
 
 library(rlearner)
+library(causalLearning)
 
 start.time <- Sys.time()
 
-args=(commandArgs(TRUE))
-alg = as.character(args[1])
-setup = as.numeric(args[2])
-n = as.numeric(args[3])
-p = as.numeric(args[4])
-sigma = as.numeric(args[5])
-NREP = as.numeric(args[6])
+#args=(commandArgs(TRUE))
+#alg = as.character(args[1])
+#learner = as.character(args[2])
+#setup = as.character(args[3])
+#n = as.numeric(args[4])
+#p = as.numeric(args[5])
+#sigma = as.numeric(args[6])
+#NREP = as.numeric(args[7])
 #
-#setup=8
-#n=500
-#p=6
-#sigma=0.1
-#alg='Xmd'
-#NREP=10
-#print(alg)
+setup='C'
+n=500
+p=6
+sigma=0.1
+alg='RS'
+NREP=10
+learner='lasso'
+print(alg)
 
-if (setup == 1) {
-    get.params = function() {
-        X = matrix(runif(n*p, min=0, max=1), n, p)
-        b = sin(pi * X[,1] * X[,2]) + 2 * (X[,3] - 0.5)^2 + X[,4] + 0.5 * X[,5]
-        e = sin(pi * X[,1] * X[,2])
-        tau = (X[,1] + X[,2]) / 2
-        list(X=X, b=b, tau=tau, e=e)
-    }
+if (setup == 'A') {
+  get.params = function() {
+    X = matrix(runif(n*p, min=0, max=1), n, p)
+    b = sin(pi * X[,1] * X[,2]) + 2 * (X[,3] - 0.5)^2 + X[,4] + 0.5 * X[,5]
+    e = sin(pi * X[,1] * X[,2])
+    tau = (X[,1] + X[,2]) / 2
+    list(X=X, b=b, tau=tau, e=e)
+  }
 
-} else if (setup == 2) {
+} else if (setup == 'B') { # RCT
 
-    get.params = function() {
-        X = matrix(rnorm(n*p), n, p)
-        k=3
-        rowm = rowMeans(X[,1:k] * sqrt(k))
-        b = pmax(0, rowm)
-        eta = 0.1
-        e = pmax(eta, pmin(0.5 * (1 + sign(rowm) * rowm^2), 1-eta))
-        tau = sin(2 * pi * X[,1])
-        list(X=X, b=b, tau=tau, e=e)
-    }
+  get.params = function() {
+    X = matrix(rnorm(n * p), n, p)
+    b = pmax(0, X[,1] + X[,2], X[,3]) + pmax(0, X[,4] + X[,5])
+    e = 0.5
+    tau = X[,1] + log(1 + exp(X[,2]))
+    list(X=X, b=b, tau=tau, e=e)
+  }
 
-} else if (setup == 3) { # RCT
+} else if (setup == 'C') { # constant treatment effect
 
-    get.params = function() {
-        X = matrix(rnorm(n * p), n, p)
-        b = pmax(0, X[,1] + X[,2], X[,3]) + pmax(0, X[,4] + X[,5])
-        e = 0.5
-        tau = X[,1] + log(1 + exp(X[,2]))
-        list(X=X, b=b, tau=tau, e=e)
-    }
+  get.params = function() {
+    X = matrix(rnorm(n * p), n, p)
+    b = 2 * log(1 + exp(X[,1] + X[,2] + X[,3]))
+    e = 1/(1 + exp(X[,2] + X[,3]))
+    tau = rep(1, n)
+    list(X=X, b=b, tau=tau, e=e)
+  }
 
-} else if (setup == 4) { # constant treatment effect
 
-    get.params = function() {
-      X = matrix(rnorm(n * p), n, p)
-      b = 2 * log(1 + exp(X[,1] + X[,2] + X[,3]))
-      e = 1/(1 + exp(X[,2] + X[,3]))
-      tau = rep(1, n)
-      list(X=X, b=b, tau=tau, e=e)
-    }
+} else if (setup == 'D') { # T
 
-} else if (setup == 5) { # treat/control imbalance; complicated baseline+ treatment
+  get.params = function() {
+    X = matrix(rnorm(n*p), n, p)
+    b = (pmax(X[,1] + X[,2] + X[,3], 0) + pmax(X[,4] + X[,5], 0)) / 2
+    e = 1/(1 + exp(-X[,1]) + exp(-X[,2]))
+    tau = pmax(X[,1] + X[,2] + X[,3], 0) - pmax(X[,4] + X[,5], 0)
+    list(X=X, b=b, tau=tau, e=e)
+  }
+} else if (setup == 'E') {
 
-    get.params = function() {
-        X = matrix(rnorm(n * p), n, p)
-        b = sin(pi * X[,1] * X[,2]) + (X[,3] + X[,4])^2
-        e = 0.2
-        tau = log(1 + exp(X[,3] + X[,5]))
-        list(X=X, b=b, tau=tau, e=e)
-    }
+  get.params = function() {
+    X = matrix(rnorm(n*p), n, p)
+    k=3
+    rowm = rowMeans(X[,1:k] * sqrt(k))
+    b = pmax(0, rowm)
+    eta = 0.1
+    e = pmax(eta, pmin(0.5 * (1 + sign(rowm) * rowm^2), 1-eta))
+    tau = sin(2 * pi * X[,1])
+    list(X=X, b=b, tau=tau, e=e)
+  }
+} else if (setup == 'F') { # treat/control imbalance; complicated baseline+ treatment
 
-} else if (setup == 6) { # easy e, complicated baseline
-
-    get.params = function() {
-        X = matrix(rnorm(n*p), n, p)
-        b = sqrt(pmax(0, X[,1] + X[,2], X[,3]))
-        e = 1/(1 + exp(-X[,2]))
-        tau = (X[,1] + X[,2])/2
-        list(X=X, b=b, tau=tau, e=e)
-    }
-
-} else if (setup == 7) { # T
-
-    get.params = function() {
-        X = matrix(rnorm(n*p), n, p)
-        b = (pmax(X[,1] + X[,2] + X[,3], 0) + pmax(X[,4] + X[,5], 0)) / 2
-        e = 1/(1 + exp(-X[,1]) + exp(-X[,2]))
-        tau = pmax(X[,1] + X[,2] + X[,3], 0) - pmax(X[,4] + X[,5], 0)
-        list(X=X, b=b, tau=tau, e=e)
-    }
+  get.params = function() {
+    X = matrix(rnorm(n * p), n, p)
+    b = sin(pi * X[,1] * X[,2]) + (X[,3] + X[,4])^2
+    e = 0.2
+    tau = log(1 + exp(X[,3] + X[,5]))
+    list(X=X, b=b, tau=tau, e=e)
+  }
 
 } else {
 
-    stop("bad setup")
+  stop("bad setup")
 
 }
+make_matrix = function(x) stats::model.matrix(~.-1, x)
+
 
 results.list = lapply(1:NREP, function(iter) {
 
-    params.train = get.params()
-    W.train = Rlab::rbern(n, params.train$e)
-    Y.train = params.train$b + (W.train - 0.5) * params.train$tau + sigma * rnorm(n)
+  params.train = get.params()
+  W.train = rbinom(n,1,params.train$e)==1
+  W.train.factor = factor(as.factor(W.train %>% ifelse("treated", "control")), c("treated", "control"))
 
-    params.test = get.params()
-    W.test = Rlab::rbern(n, params.test$e)
-    Y.test = params.test$b + (W.test - 0.5) * params.test$tau + sigma * rnorm(n)
+  Y.train = params.train$b + (W.train - 0.5) * params.train$tau + sigma * rnorm(n)
 
+  params.test = get.params()
+  W.test = rbinom(n,1,params.test$e)==1
+  W.test.factor = factor(as.factor(W.test %>% ifelse("treated", "control")), c("treated", "control"))
+  Y.test = params.test$b + (W.test - 0.5) * params.test$tau + sigma * rnorm(n)
+
+  if (learner == "lasso") {
     X.ns = do.call(cbind, lapply(1:p, function(col){matrix(splines::ns(rbind(params.train$X, params.test$X)[,col],df=7), 2*n, 7)}))
-    X.ns.train = X.ns[1:n,]
-    X.ns.test = X.ns[(n+1):(2*n),]
+    dim.ns = dim(X.ns)[2]
+    X.ns = stats::model.matrix(~.*.-1, data.frame(X.ns)) # pairwise interaction (not including squared term for each column)
+    X.ns.sq = do.call(cbind, lapply(1:dim.ns, function(col){matrix(X.ns[,col]^2)})) # squared term for each column
+    X.ns = data.frame(cbind(X.ns, X.ns.sq)) %>% make_matrix
 
-    if (alg == 'R') {
+    X.train = X.ns[1:n,]
+    X.test = X.ns[(n+1):(2*n),]
+  }
+  else if (learner == "boost") {
+    X.train = data.frame(params.train$X) %>% make_matrix
+    X.test = data.frame(params.test$X) %>% make_matrix
+  }
+  else {
+    stop("learner needs to be lasso or boost.")
+  }
 
-        r.fit <- rlasso(X.ns.train, Y.train, W.train, lambda.choice = "lambda.min", rs=FALSE)
-        tau.hat <- predict(r.fit, newx=X.ns.test)
 
-    } else if (alg == 'RS') {
+  if (learner == "lasso"){
+    model_specs = list(
+      glmnet = list(
+        tune_grid = expand.grid(
+          lambda=exp(seq(-5,2,0.2))),
+        extra_args = list(alpha=1))
+    )
+  } else if (learner == "boost"){
+    model_specs = list(
+      gbm = list(
+          tune_grid = expand.grid(
+              n.trees = seq(1,501,20),
+              interaction.depth=3,
+              shrinkage = 0.1,
+              n.minobsinnode=3),
+          extra_args = list(
+              verbose=F,
+              bag.fraction=0.75))
+    )
+  }
 
-        rs.fit <- rlasso(X.ns.train, Y.train, W.train, lambda.choice = "lambda.min", rs=TRUE)
-        tau.hat <- predict(rs.fit, newx=X.ns.test)
+  if (alg == 'R') {
+    fit = R_learner_cv(
+      X.train, W.train.factor, Y.train,
+      model_specs, model_specs, model_specs,
+      economy=T)
 
-    } else if (alg == 'oracle') {
+  } else if (alg == 'Ro') { # test if new R learner and old R learner implementation produce the same results
 
-        w.hat.oracle = params.train$e
-        y.hat.oracle = params.train$b + (params.train$e-0.5) * params.train$tau
-        oracle.fit <- rlasso(X.ns.train, Y.train, W.train, lambda.choice = "lambda.min", rs=FALSE, w.hat=w.hat.oracle, y.hat=y.hat.oracle)
-        tau.hat <- predict(oracle.fit, newx=X.ns.test)
+    fit <- rlasso(X.train, Y.train, as.numeric(W.train), lambda.choice = "lambda.min", rs=FALSE)
 
-    } else if (alg == 'S') {
-
-        s.fit <- slasso(X.ns.train, Y.train, W.train, lambda.choice = "lambda.min", penalty.search=TRUE)
-        tau.hat <- predict(s.fit, newx=X.ns.test)
-
-    } else if (alg == 'T') {
-
-        t.fit <- tlasso(X.ns.train, Y.train, W.train, lambda.choice = "lambda.min")
-        tau.hat <- predict(t.fit, newx=X.ns.test, s="lambda.min")
-
-    } else if (alg == 'X') {
-
-        x.fit <- xlasso(X.ns.train, Y.train, W.train, lambda.choice = "lambda.min")
-        tau.hat <- predict(x.fit, newx=X.ns.test, s="lambda.min")
-
-    } else if (alg == 'U') {
-
-        u.fit <- ulasso(X.ns.train, Y.train, W.train, lambda.choice = "lambda.1se", cutoff = 0.05)
-        tau.hat <- predict(u.fit, newx=X.ns.test, s="lambda.1se")
-
-    } else {
-
-        stop("bad alg input")
-
+  } else if (alg == 'RS') {
+    if (learner != "lasso"){
+      stop("RS only has lasso implementation.")
     }
 
-    est.mse = mean((tau.hat - params.test$tau)^2)
-    print(est.mse)
-    return(est.mse)
+    fit <- rlasso(X.train, Y.train, as.numeric(W.train), lambda.choice = "lambda.min", rs=TRUE)
+
+  } else if (alg == 'oracleo') { # test if new R learner and old R learner implementation produce the same results
+
+    w.hat.oracle = params.train$e
+    y.hat.oracle = params.train$b + (params.train$e-0.5) * params.train$tau
+
+    fit <- rlasso(X.train, Y.train, as.numeric(W.train), lambda.choice = "lambda.min", rs=FALSE, w.hat = w.hat.oracle, y.hat = y.hat.oracle)
+
+  } else if (alg == 'oracle') {
+
+    w.hat.oracle = params.train$e
+    y.hat.oracle = params.train$b + (params.train$e-0.5) * params.train$tau
+    fit = R_learner_cv(
+      X.train, W.train.factor, Y.train,
+      model_specs, model_specs, model_specs,
+      m_hat = y.hat.oracle, p_hat = w.hat.oracle,
+      economy=T)
+
+  } else if (alg == 'S') {
+
+    fit = S_learner_cv(
+      X.train, W.train.factor, Y.train,
+      model_specs, model_specs, model_specs)
+
+  } else if (alg == 'T') {
+
+    fit = T_learner_cv(
+      X.train, W.train.factor, Y.train,
+      model_specs, model_specs, model_specs)
+
+  } else if (alg == 'X') {
+
+    fit = X_learner_cv(
+      X.train, W.train.factor, Y.train,
+      model_specs, model_specs, model_specs)
+
+  } else if (alg == 'U') {
+
+    fit = U_learner_cv(
+      X.train, W.train.factor, Y.train,
+      model_specs, model_specs, model_specs,
+      economy=T, p_min=0.05, p_max=0.95)
+
+  } else if (alg == 'causalboost') {
+
+    if (learner != "boost") {
+      stop("causalboost is only available for learner=boost")
+    }
+    fit = cv.causalBoosting(X.train, as.numeric(W.train), Y.train)
+
+  } else {
+
+    stop("bad alg input")
+
+  }
+  tau.hat = predict(fit, X.test)
+  est.mse = mean((tau.hat - params.test$tau)^2)
+  print(est.mse)
+  return(est.mse)
 })
 results = unlist(results.list, use.names=FALSE)
 print(mean(results))
@@ -166,5 +228,5 @@ end.time <- Sys.time()
 time.taken <- end.time - start.time
 print(time.taken)
 
-fnm = paste("results/output", alg, setup, n, p, sigma, NREP, "full.csv", sep="-")
+fnm = paste("results/output", alg, learner, setup, n, p, sigma, NREP, "full.csv", sep="-")
 write.csv(results, file=fnm)

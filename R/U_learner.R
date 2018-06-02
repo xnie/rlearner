@@ -6,7 +6,7 @@
 #' @param w a two-class factor vector of \strong{treatments}. The first factor level is treated as the positive class \eqn{w=1}
 #' @param y a numeric vector of \strong{outcomes}
 #' @param tau_model_specs specification for the model of \eqn{\tau(x) = E[Y(1) - Y(0)|X=x]}. See \code{\link{learner_cv}}.
-#' @param p_hat a numeric vector of estimates of the treatment propensity \eqn{p(x) = E[W|X=x]} of each observation. 
+#' @param p_hat a numeric vector of estimates of the treatment propensity \eqn{p(x) = E[W|X=x]} of each observation.
 #' The U-learner will estimate these values internally using cross-validated cross-estimation if \code{p_hat} is not provided.
 #' @param m_hat a numeric vector of estimates of the outcome marginalized over the treatment (\eqn{m(x) = E[Y|X=x]}) for each observation.
 #' The U-learner will estimate these values internally using cross-validated cross-estimation if \code{m_hat} is not provided.
@@ -30,12 +30,12 @@
 #' model_specs = list(
 #' gbm = list(
 #'     tune_grid = expand.grid(
-#'         n.trees = seq(1,501,20), 
-#'         interaction.depth=3, 
-#'         shrinkage = 0.1, 
+#'         n.trees = seq(1,501,20),
+#'         interaction.depth=3,
+#'         shrinkage = 0.1,
 #'         n.minobsinnode=3),
 #'     extra_args = list(
-#'         verbose=F, 
+#'         verbose=F,
 #'         bag.fraction=1)),
 #' glmnet = list(
 #'     tune_grid = expand.grid(
@@ -44,26 +44,26 @@
 #'     extra_args = list())
 #' )
 #' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
-#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample 
-#' 
-#' tau_hat_model = U_learner_cv(x, w, y, model_specs) 
+#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample
+#'
+#' tau_hat_model = U_learner_cv(x, w, y, model_specs)
 #' tau_hat = predict(tau_hat_model, x)
 #' }
 #' @export
 U_learner_cv = function(x, w, y, tau_model_specs,
-	p_model_specs=NULL, m_model_specs=NULL, 
-	p_hat=NULL, m_hat=NULL, 
-	k_folds=5, k_folds_cf=5, 
+	p_model_specs=NULL, m_model_specs=NULL,
+	p_hat=NULL, m_hat=NULL,
+	k_folds=5, k_folds_cf=5,
 	economy=T, select_by="best",
 	p_min=0, p_max=1) {
 
-	if (is.null(p_hat)) {	
-		p_hat = xval_xfit(x, w, p_model_specs, 
+	if (is.null(p_hat)) {
+		p_hat = xval_xfit(x, w, p_model_specs,
 			k_folds_cf=k_folds_cf, k_folds=k_folds, economy=economy, select_by=select_by) %>%
 			trim(p_min, p_max)
-	} 
+	}
 	if (is.null(m_hat)) {
-		m_hat = xval_xfit(x, y, mu_model_specs, 
+		m_hat = xval_xfit(x, y, mu_model_specs,
 			k_folds_cf=k_folds_cf, k_folds=k_folds, economy=economy, select_by=select_by)
 	}
 
@@ -71,8 +71,8 @@ U_learner_cv = function(x, w, y, tau_model_specs,
 	r_pseudo_outcome = (y - m_hat)/(w - p_hat)
 
 	U_learner = list(
-		model=learner_cv(x, r_pseudo_outcome, tau_model_specs, 
-			k_folds=k_folds, select_by=select_by) 
+		model=learner_cv(x, r_pseudo_outcome, tau_model_specs,
+			k_folds=k_folds, select_by=select_by)
 		)
 	class(U_learner) = "U_learner"
 	return(U_learner)

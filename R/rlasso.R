@@ -19,7 +19,10 @@ rlasso = function(X, Y, W,
                   w.hat = NULL,
                   y.hat = NULL){
 
-    X.scl = scale(X)
+    #X.scl = scale(X)
+    #X.scl = X.scl[,!is.na(colSums(X.scl))]
+    standardization = caret::preProcess(X, method=c("center", "scale")) # get the standardization params
+    X.scl = predict(standardization, X)							 # standardize the input
     X.scl = X.scl[,!is.na(colSums(X.scl))]
 
     lambda.choice = match.arg(lambda.choice)
@@ -83,18 +86,29 @@ rlasso = function(X, Y, W,
                w.hat = w.hat,
                y.hat = y.hat,
                tau.hat = tau.hat,
-               rs = rs)
+               rs = rs,
+               standardization = standardization)
     class(ret) <- "rlasso"
     ret
-
 }
 
+#' Title
+#'
+#' @param object
+#' @param newx
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
 predict.rlasso <- function(object,
                            newx=NULL,
                            ...) {
   if (!is.null(newx)) {
-    newx.scl = scale(newx)
+    newx.scl = predict(object$standardization, newx) # standardize the new data using the same standardization as with the training data
     newx.scl = newx.scl[,!is.na(colSums(newx.scl))]
+
     if (object$rs){
       newx.scl.pred = cbind(1, newx.scl, newx.scl * 0)
     }

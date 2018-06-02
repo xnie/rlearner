@@ -57,6 +57,17 @@ tlasso = function(X, Y, W,
   ret
 }
 
+#' Title
+#'
+#' @param object
+#' @param newx
+#' @param s
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
 predict.tlasso <- function(object,
                            newx=NULL,
                            s=c("lambda.min", "lambda.1se"),
