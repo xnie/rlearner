@@ -99,7 +99,7 @@ rlasso = function(X, Y, W,
 #' @param ...
 #'
 #' @return
-#' @export
+#' @export predict.rlasso
 #'
 #' @examples
 predict.rlasso <- function(object,

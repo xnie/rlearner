@@ -45,7 +45,10 @@ T_learner_cv = function(x, w, y, model_specs, k_folds=5, select_by="best") {
 	return(T_learner)
 }
 
-#' @export
+#' @title Prediction for U-learner
+#' @param object a U-learner object
+#' @param x a matrix of covariates for which to predict the treatment effect
+#' @export predict.T_learner
 predict.T_learner = function(object, x) {
 	object %>% 
 		map(~predict(., newdata=x)) %->% 

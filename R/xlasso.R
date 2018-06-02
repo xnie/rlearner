@@ -84,6 +84,7 @@ xlasso = function(X, Y, W,
 
 }
 
+#' @export predict.xlasso
 predict.xlasso <- function(object,
                            newx=NULL,
                            s=c("lambda.min", "lambda.1se"),

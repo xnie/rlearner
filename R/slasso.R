@@ -97,6 +97,7 @@ slasso = function(X, Y, W,
   ret
 }
 
+#' @export predict.slasso
 predict.slasso <- function(object,
                            newx=NULL,
                            ...) {

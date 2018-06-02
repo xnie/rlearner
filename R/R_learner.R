@@ -84,7 +84,7 @@ R_learner_cv = function(x, w, y, tau_model_specs,
 #' @title Prediction for R-learner
 #' @param object a R-learner object
 #' @param x a matrix of covariates for which to predict the treatment effect
-#' @export
+#' @export predict.R_learner
 predict.R_learner = function(object, x) {
 	predict(object$model, newdata=x)
 }

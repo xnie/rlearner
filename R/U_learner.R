@@ -81,7 +81,7 @@ U_learner_cv = function(x, w, y, tau_model_specs,
 #' @title Prediction for U-learner
 #' @param object a U-learner object
 #' @param x a matrix of covariates for which to predict the treatment effect
-#' @export
+#' @export predict.U_learner
 predict.U_learner = function(object, x) {
 	predict(object$model, newdata=x)
 }

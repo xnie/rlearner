@@ -88,7 +88,7 @@ X_learner_cv = function(x, w, y, tau_model_specs,
 #' @title Prediction for X-learner
 #' @param object a X-learner object
 #' @param x a matrix of covariates for which to predict the treatment effect
-#' @export
+#' @export predict.X_learner
 predict.X_learner = function(object, x) {
 	object %>% purrr::map(function(model) {
 		predict(model, x)

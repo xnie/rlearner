@@ -57,7 +57,10 @@ S_learner_cv = function(x, w, y, model_specs, k_folds=5, select_by="best") {
 	return(S_learner)
 }
 
-#' @export
+#' @title Prediction for U-learner
+#' @param object a U-learner object
+#' @param x a matrix of covariates for which to predict the treatment effect
+#' @export predict.S_learner
 predict.S_learner = function(object, x) {
 	x = predict(object$standardization, x) # standardize the new data using the same standardization as with the training data
 	list(0, 1) %>% purrr::map(function(w) {

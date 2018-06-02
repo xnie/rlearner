@@ -54,6 +54,7 @@ ulasso = function(X, Y, W,
 
 }
 
+#' @export predict.ulasso
 predict.ulasso <- function(object,
                            newx=NULL,
                            s=c("lambda.min", "lambda.1se"),

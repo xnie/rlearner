@@ -65,7 +65,7 @@ tlasso = function(X, Y, W,
 #' @param ...
 #'
 #' @return
-#' @export
+#' @export predict.tlasso
 #'
 #' @examples
 predict.tlasso <- function(object,
