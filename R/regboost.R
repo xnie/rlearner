@@ -1,6 +1,6 @@
 #' @include learner_utils.R utils.R
 
-#' @title R-learning for heterogenous treatment effects
+#' @title reg boost for heterogenous treatment effects
 #'
 #' @details The R-learner estimates heterogenous treatment effects by learning a custom objective function and minimizing it using
 #' any suitable machine learning algorithm.
@@ -52,41 +52,54 @@
 #' tau_hat = predict(tau_hat_model, x)
 #' }
 #' @export
-R_learner_cv = function(x, w, y, tau_model_specs,
-	p_model_specs=tau_model_specs, m_model_specs=tau_model_specs,
-	p_hat=NULL, m_hat=NULL,
-	k_folds=5, k_folds_cf=5,
-	economy=T, select_by="best",
-	p_min=0, p_max=1) {
+regboost = function(x, w, y, tau_model_specs,
+         p_model_specs=tau_model_specs, m_model_specs=tau_model_specs,
+         p_hat=NULL, m_hat=NULL,
+         k_folds=5, k_folds_cf=5,
+         economy=T, select_by="best",
+         p_min=0, p_max=1) {
 
-	if (is.null(p_hat)) {
-		p_hat = xval_xfit(x, w, p_model_specs,
-			k_folds_cf=k_folds_cf, k_folds=k_folds, economy=economy, select_by=select_by) %>%
-			trim(p_min, p_max)
-	}
-	if (is.null(m_hat)) {
-		m_hat = xval_xfit(x, y, m_model_specs,
-			k_folds_cf=k_folds_cf, k_folds=k_folds, economy=economy, select_by=select_by)
-	}
+  if (is.null(p_hat)) {
+    p_hat = xval_xfit(x, w, p_model_specs,
+                      k_folds_cf=k_folds_cf, k_folds=k_folds, economy=economy, select_by=select_by) %>%
+      trim(p_min, p_max)
+  }
+  if (is.null(m_hat)) {
+    m_hat = xval_xfit(x, y, m_model_specs,
+                      k_folds_cf=k_folds_cf, k_folds=k_folds, economy=economy, select_by=select_by)
+  }
 
-	w = w==levels(w)[1] # turn factor to a logical (the first factor level should be the "treated")
-	r_pseudo_outcome = (y - m_hat)/(w - p_hat)
-	r_weights = (w - p_hat)^2
+  w = w==levels(w)[1] # turn factor to a logical (the first factor level should be the "treated")
 
-	R_learner = list(
-		model=learner_cv(x, r_pseudo_outcome, tau_model_specs, weights=r_weights,
-			k_folds=k_folds, select_by=select_by),
-		m_hat=m_hat,
-		p_hat=p_hat
-		)
-	class(R_learner) = "R_learner"
-	return(R_learner)
+  y.tilde = y - m_hat
+  w.tilde = w - p_hat
+  tau.const.fit = lm(y.tilde ~ w.tilde)
+  tau.const = coef(tau.const.fit)["w.tilde"]
+  y.tilde.tilde = y.tilde - w.tilde * tau.const # subtracting out the constant treatment effect
+
+  r_pseudo_outcome = y.tilde.tilde/w.tilde
+  r_weights = w.tilde^2
+
+  regboost = list(
+    model=learner_cv(x, r_pseudo_outcome, tau_model_specs, weights=r_weights,
+                     k_folds=k_folds, select_by=select_by),
+    m_hat=m_hat,
+    p_hat=p_hat,
+    tau.const = tau.const
+  )
+  class(regboost) = "regboost"
+  return(regboost)
 }
 
-#' @title Prediction for R-learner
-#' @param object a R-learner object
-#' @param x a matrix of covariates for which to predict the treatment effect
-#' @export predict.R_learner
-predict.R_learner = function(object, x) {
-	predict(object$model, newdata=x)
+#' Title
+#'
+#' @param object
+#' @param x
+#'
+#' @return
+#' @export
+#'
+#' @examples
+predict.regboost <- function(object, x){
+  object$tau.const + predict(object$model, newdata=x)
 }

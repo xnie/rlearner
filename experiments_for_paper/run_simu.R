@@ -5,23 +5,23 @@ library(causalLearning)
 
 start.time <- Sys.time()
 
-#args=(commandArgs(TRUE))
-#alg = as.character(args[1])
-#learner = as.character(args[2])
-#setup = as.character(args[3])
-#n = as.numeric(args[4])
-#p = as.numeric(args[5])
-#sigma = as.numeric(args[6])
-#NREP = as.numeric(args[7])
+args=(commandArgs(TRUE))
+alg = as.character(args[1])
+learner = as.character(args[2])
+setup = as.character(args[3])
+n = as.numeric(args[4])
+p = as.numeric(args[5])
+sigma = as.numeric(args[6])
+NREP = as.numeric(args[7])
 #
-setup='C'
-n=500
-p=6
-sigma=0.1
-alg='RS'
-NREP=10
-learner='lasso'
-print(alg)
+#setup='C'
+#n=500
+#p=6
+#sigma=0.1
+#alg='regboost'
+#NREP=10
+#learner='boost'
+#print(alg)
 
 if (setup == 'A') {
   get.params = function() {
@@ -51,7 +51,6 @@ if (setup == 'A') {
     tau = rep(1, n)
     list(X=X, b=b, tau=tau, e=e)
   }
-
 
 } else if (setup == 'D') { # T
 
@@ -110,10 +109,9 @@ results.list = lapply(1:NREP, function(iter) {
     dim.ns = dim(X.ns)[2]
     X.ns = stats::model.matrix(~.*.-1, data.frame(X.ns)) # pairwise interaction (not including squared term for each column)
     X.ns.sq = do.call(cbind, lapply(1:dim.ns, function(col){matrix(X.ns[,col]^2)})) # squared term for each column
-    X.ns = data.frame(cbind(X.ns, X.ns.sq)) %>% make_matrix
-
-    X.train = X.ns[1:n,]
-    X.test = X.ns[(n+1):(2*n),]
+    X.ns = cbind(X.ns, X.ns.sq)
+    X.train = data.frame(X.ns[1:n,]) %>% make_matrix
+    X.test = data.frame(X.ns[(n+1):(2*n),]) %>% make_matrix
   }
   else if (learner == "boost") {
     X.train = data.frame(params.train$X) %>% make_matrix
@@ -123,25 +121,32 @@ results.list = lapply(1:NREP, function(iter) {
     stop("learner needs to be lasso or boost.")
   }
 
-
   if (learner == "lasso"){
     model_specs = list(
       glmnet = list(
         tune_grid = expand.grid(
-          lambda=exp(seq(-5,2,0.2))),
-        extra_args = list(alpha=1))
-    )
+          lambda=exp(seq(-5,2,0.2)),
+          alpha=c(1)),
+        extra_args = list()))
   } else if (learner == "boost"){
     model_specs = list(
-      gbm = list(
-          tune_grid = expand.grid(
-              n.trees = seq(1,501,20),
-              interaction.depth=3,
-              shrinkage = 0.1,
-              n.minobsinnode=3),
-          extra_args = list(
-              verbose=F,
-              bag.fraction=0.75))
+      #gbm = list(
+      #    tune_grid = expand.grid(
+      #        n.trees = seq(1,501,20),
+      #        interaction.depth=3,
+      #        shrinkage = 0.1,
+      #        n.minobsinnode=3),
+      #    extra_args = list(
+      #        verbose=F,
+      #        bag.fraction=0.75))
+      xgbTree = list(
+          tune_grid <-  expand.grid(eta = 0.1,
+                                  colsample_bytree=c(0.5,0.7),
+                                  max_depth=c(3,5),
+                                  nrounds=100,
+                                  gamma=1,
+                                  min_child_weight=c(2,5,8)),
+                        extra_args=list())
     )
   }
 
@@ -150,10 +155,27 @@ results.list = lapply(1:NREP, function(iter) {
       X.train, W.train.factor, Y.train,
       model_specs, model_specs, model_specs,
       economy=T)
+    w.hat.oracle = params.train$e
+    y.hat.oracle = params.train$b + (params.train$e-0.5) * params.train$tau
+    #qplot(w.hat.oracle, fit$p_hat)
+    #qplot(y.hat.oracle, fit$m_hat)
 
   } else if (alg == 'Ro') { # test if new R learner and old R learner implementation produce the same results
 
     fit <- rlasso(X.train, Y.train, as.numeric(W.train), lambda.choice = "lambda.min", rs=FALSE)
+
+  } else if (alg == "regboost") {
+
+    fit = regboost(
+      X.train, W.train.factor, Y.train,
+      model_specs, model_specs, model_specs,
+      economy=T)
+
+    w.hat.oracle = params.train$e
+    y.hat.oracle = params.train$b + (params.train$e-0.5) * params.train$tau
+    #browser()
+    #qplot(w.hat.oracle, fit$p_hat)
+    #qplot(y.hat.oracle, fit$m_hat)
 
   } else if (alg == 'RS') {
     if (learner != "lasso"){
@@ -209,7 +231,10 @@ results.list = lapply(1:NREP, function(iter) {
     if (learner != "boost") {
       stop("causalboost is only available for learner=boost")
     }
-    fit = cv.causalBoosting(X.train, as.numeric(W.train), Y.train)
+    p_hat = xval_xfit(X.train, W.train.factor, model_specs,
+                      k_folds_cf=5, k_folds=5, economy=T, select_by="best")
+    stratum = stratify(p_hat, W.train)$stratum
+    fit = cv.causalBoosting(X.train, as.numeric(W.train), Y.train, propensity=T, stratum=stratum)
 
   } else {
 
@@ -217,6 +242,8 @@ results.list = lapply(1:NREP, function(iter) {
 
   }
   tau.hat = predict(fit, X.test)
+  #qplot(params.test$tau, tau.hat)
+  #qplot(params.test$tau, fit$tau.const)
   est.mse = mean((tau.hat - params.test$tau)^2)
   print(est.mse)
   return(est.mse)

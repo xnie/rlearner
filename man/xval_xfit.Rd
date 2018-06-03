@@ -34,6 +34,9 @@ be a list of two elements named \code{tune_grid} (hyperparameters) and \code{ext
 error or \code{"oneSE"} for the one-standard-error (1-SE) rule. The implementaion of the 1-SE rule for learners with
 multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some learners. See: \code{\link[caret]{?caret::oneSE}}.}
 }
+\description{
+Cross-validated cross-fitting
+}
 \details{
 Provides both a "deluxe" version and an "economy" version. The deluxe version 
 preserves data-splitting independence relations. The "economy version" leaks information from the held-out folds 

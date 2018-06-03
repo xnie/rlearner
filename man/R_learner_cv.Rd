@@ -24,7 +24,7 @@ Not needed if \code{p_hat} is provided.}
 \item{m_model_specs}{specification for the model of \eqn{m(x) = E[Y|X=x]}. See \code{\link{learner_cv}}.
 Not needed if \code{m_hat} is provided.}
 
-\item{p_hat}{a numeric vector of estimates of the treatment propensity \eqn{p(x) = E[W|X=x]} of each observation. 
+\item{p_hat}{a numeric vector of estimates of the treatment propensity \eqn{p(x) = E[W|X=x]} of each observation.
 The R-learner will estimate these values internally using cross-validated cross-estimation if \code{p_hat} is not provided.}
 
 \item{m_hat}{a numeric vector of estimates of the outcome marginalized over the treatment (\eqn{m(x) = E[Y|X=x]}) for each observation.
@@ -47,6 +47,9 @@ multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some l
 
 \item{p_max}{If provided, estimated propensities will be trimmed to have maximum \code{p_max}.}
 }
+\description{
+R-learning for heterogenous treatment effects
+}
 \details{
 The R-learner estimates heterogenous treatment effects by learning a custom objective function and minimizing it using
 any suitable machine learning algorithm.
@@ -56,12 +59,12 @@ any suitable machine learning algorithm.
 model_specs = list(
 gbm = list(
     tune_grid = expand.grid(
-        n.trees = seq(1,501,20), 
-        interaction.depth=3, 
-        shrinkage = 0.1, 
+        n.trees = seq(1,501,20),
+        interaction.depth=3,
+        shrinkage = 0.1,
         n.minobsinnode=3),
     extra_args = list(
-        verbose=F, 
+        verbose=F,
         bag.fraction=1)),
 glmnet = list(
     tune_grid = expand.grid(
@@ -70,9 +73,9 @@ glmnet = list(
     extra_args = list())
 )
 library(zeallot) # imports the \%<-\% operator, which is syntactic sugar that performs multiple assignment out of a list
-c(x, w, y, ...) \%<-\% toy_data_simulation(500) # draw a sample 
+c(x, w, y, ...) \%<-\% toy_data_simulation(500) # draw a sample
 
-tau_hat_model = R_learner_cv(x, w, y, model_specs) 
+tau_hat_model = R_learner_cv(x, w, y, model_specs)
 tau_hat = predict(tau_hat_model, x)
 }
 }

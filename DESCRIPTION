@@ -18,6 +18,7 @@ Collate:
     'T_learner.R'
     'U_learner.R'
     'X_learner.R'
+    'regboost.R'
     'rlasso.R'
     'slasso.R'
     'tlasso.R'
