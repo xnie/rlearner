@@ -4,10 +4,10 @@ setupvals=('A' 'B' 'C' 'D' 'E' 'F')
 nvals=(500 1000)
 pvals=(6 12)
 sigmavals=(0.5 1.0 2.0 4.0)
-algvals=('R' 'Ro' 'oracleo' 'RS' 'T' 'X' 'U' 'oracle' 'S')
-#algvals=('R' 'T' 'X' 'U' 'oracle' 'S' 'causalboost' 'regboost')
+algvals=('R' 'Ro' 'oracleo' 'RS' 'RC' 'T' 'X' 'U' 'oracle' 'S')
+#algvals=('R' 'RC' 'T' 'X' 'U' 'oracle' 'S' 'causalboost')
 
-reps=5
+reps=100
 learner='lasso'
 
 for ((i1=0; i1<${#setupvals[@]} ;i1++))

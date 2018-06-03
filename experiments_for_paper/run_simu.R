@@ -2,6 +2,7 @@ rm(list = ls())
 
 library(rlearner)
 library(causalLearning)
+library(magrittr)
 
 start.time <- Sys.time()
 
@@ -14,11 +15,11 @@ p = as.numeric(args[5])
 sigma = as.numeric(args[6])
 NREP = as.numeric(args[7])
 #
-#setup='C'
+#setup='F'
 #n=500
 #p=6
 #sigma=0.1
-#alg='regboost'
+#alg='S'
 #NREP=10
 #learner='boost'
 #print(alg)
@@ -130,23 +131,23 @@ results.list = lapply(1:NREP, function(iter) {
         extra_args = list()))
   } else if (learner == "boost"){
     model_specs = list(
-      #gbm = list(
-      #    tune_grid = expand.grid(
-      #        n.trees = seq(1,501,20),
-      #        interaction.depth=3,
-      #        shrinkage = 0.1,
-      #        n.minobsinnode=3),
-      #    extra_args = list(
-      #        verbose=F,
-      #        bag.fraction=0.75))
-      xgbTree = list(
-          tune_grid <-  expand.grid(eta = 0.1,
-                                  colsample_bytree=c(0.5,0.7),
-                                  max_depth=c(3,5),
-                                  nrounds=100,
-                                  gamma=1,
-                                  min_child_weight=c(2,5,8)),
-                        extra_args=list())
+      gbm = list(
+          tune_grid = expand.grid(
+              n.trees = seq(1,1001,20),
+              interaction.depth=c(1,3),
+              shrinkage = c(.05, .1),
+              n.minobsinnode=c(3, 5, 10)),
+          extra_args = list(
+              verbose=F,
+              bag.fraction=0.75))
+      #xgbTree = list(
+      #    tune_grid <-  expand.grid(eta = 0.1,
+      #                            colsample_bytree=c(0.5,0.7),
+      #                            max_depth=c(3,5),
+      #                            nrounds=100,
+      #                            gamma=1,
+      #                            min_child_weight=c(2,5,8)),
+      #                  extra_args=list())
     )
   }
 
@@ -164,15 +165,15 @@ results.list = lapply(1:NREP, function(iter) {
 
     fit <- rlasso(X.train, Y.train, as.numeric(W.train), lambda.choice = "lambda.min", rs=FALSE)
 
-  } else if (alg == "regboost") {
+  } else if (alg == "RC") {
 
-    fit = regboost(
+    fit = RC_learner_cv(
       X.train, W.train.factor, Y.train,
       model_specs, model_specs, model_specs,
       economy=T)
 
-    w.hat.oracle = params.train$e
-    y.hat.oracle = params.train$b + (params.train$e-0.5) * params.train$tau
+    #w.hat.oracle = params.train$e
+    #y.hat.oracle = params.train$b + (params.train$e-0.5) * params.train$tau
     #browser()
     #qplot(w.hat.oracle, fit$p_hat)
     #qplot(y.hat.oracle, fit$m_hat)
@@ -205,13 +206,13 @@ results.list = lapply(1:NREP, function(iter) {
 
     fit = S_learner_cv(
       X.train, W.train.factor, Y.train,
-      model_specs, model_specs, model_specs)
+      model_specs)
 
   } else if (alg == 'T') {
 
     fit = T_learner_cv(
       X.train, W.train.factor, Y.train,
-      model_specs, model_specs, model_specs)
+      model_specs)
 
   } else if (alg == 'X') {
 

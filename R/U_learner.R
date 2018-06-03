@@ -63,7 +63,7 @@ U_learner_cv = function(x, w, y, tau_model_specs,
 			trim(p_min, p_max)
 	}
 	if (is.null(m_hat)) {
-		m_hat = xval_xfit(x, y, mu_model_specs,
+		m_hat = xval_xfit(x, y, m_model_specs,
 			k_folds_cf=k_folds_cf, k_folds=k_folds, economy=economy, select_by=select_by)
 	}
 

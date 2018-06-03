@@ -1,6 +1,6 @@
 #' @include learner_utils.R utils.R
 
-#' @title reg boost for heterogenous treatment effects
+#' @title rc learner for heterogenous treatment effects
 #'
 #' @details The R-learner estimates heterogenous treatment effects by learning a custom objective function and minimizing it using
 #' any suitable machine learning algorithm.
@@ -52,7 +52,7 @@
 #' tau_hat = predict(tau_hat_model, x)
 #' }
 #' @export
-regboost = function(x, w, y, tau_model_specs,
+RC_learner_cv = function(x, w, y, tau_model_specs,
          p_model_specs=tau_model_specs, m_model_specs=tau_model_specs,
          p_hat=NULL, m_hat=NULL,
          k_folds=5, k_folds_cf=5,
@@ -80,15 +80,15 @@ regboost = function(x, w, y, tau_model_specs,
   r_pseudo_outcome = y.tilde.tilde/w.tilde
   r_weights = w.tilde^2
 
-  regboost = list(
+  RC_learner = list(
     model=learner_cv(x, r_pseudo_outcome, tau_model_specs, weights=r_weights,
                      k_folds=k_folds, select_by=select_by),
     m_hat=m_hat,
     p_hat=p_hat,
     tau.const = tau.const
   )
-  class(regboost) = "regboost"
-  return(regboost)
+  class(RC_learner) = "RC_learner"
+  return(RC_learner)
 }
 
 #' Title
@@ -100,6 +100,6 @@ regboost = function(x, w, y, tau_model_specs,
 #' @export
 #'
 #' @examples
-predict.regboost <- function(object, x){
+predict.RC_learner <- function(object, x){
   object$tau.const + predict(object$model, newdata=x)
 }

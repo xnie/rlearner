@@ -13,12 +13,12 @@ RoxygenNote: 6.0.1.9000
 Collate: 
     'utils.R'
     'learner_utils.R'
+    'RC_learner.R'
     'R_learner.R'
     'S_learner.R'
     'T_learner.R'
     'U_learner.R'
     'X_learner.R'
-    'regboost.R'
     'rlasso.R'
     'slasso.R'
     'tlasso.R'
