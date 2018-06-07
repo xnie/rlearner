@@ -28,7 +28,8 @@ if (setup == 'A') {
   get.params = function() {
     X = matrix(runif(n*p, min=0, max=1), n, p)
     b = sin(pi * X[,1] * X[,2]) + 2 * (X[,3] - 0.5)^2 + X[,4] + 0.5 * X[,5]
-    e = sin(pi * X[,1] * X[,2])
+    eta = 0.1
+    e = pmax(eta, pmin(sin(pi * X[,1] * X[,2]), 1-eta))
     tau = (X[,1] + X[,2]) / 2
     list(X=X, b=b, tau=tau, e=e)
   }
@@ -71,7 +72,7 @@ if (setup == 'A') {
     b = pmax(0, rowm)
     eta = 0.1
     e = pmax(eta, pmin(0.5 * (1 + sign(rowm) * rowm^2), 1-eta))
-    tau = sin(2 * pi * X[,1])
+    tau = sin(2 * X[,1])
     list(X=X, b=b, tau=tau, e=e)
   }
 } else if (setup == 'F') { # treat/control imbalance; complicated baseline+ treatment
