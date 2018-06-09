@@ -12,7 +12,7 @@
 ulasso = function(X, Y, W,
                   alpha = 1,
                   nfolds=NULL,
-                  lambda.choice=c("lambda.min", "lambda.1se"),
+                  lambda.choice=c("lambda.1se", "lambda.mse"),
                   cutoff=0.05){
 
   lambda.choice = match.arg(lambda.choice)
@@ -57,7 +57,7 @@ ulasso = function(X, Y, W,
 #' @export predict.ulasso
 predict.ulasso <- function(object,
                            newx=NULL,
-                           s=c("lambda.min", "lambda.1se"),
+                           s=c("lambda.1se", "lambda.min"),
                            ...) {
   s = match.arg(s)
   if (!is.null(newx)) {

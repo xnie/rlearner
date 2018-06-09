@@ -4,8 +4,8 @@
 \alias{ulasso}
 \title{U-learner}
 \usage{
-ulasso(X, Y, W, alpha = 1, nfolds = NULL, lambda.choice = c("lambda.min",
-  "lambda.1se"), cutoff = 0.05)
+ulasso(X, Y, W, alpha = 1, nfolds = NULL, lambda.choice = c("lambda.1se",
+  "lambda.mse"), cutoff = 0.05)
 }
 \arguments{
 \item{X}{the input features}

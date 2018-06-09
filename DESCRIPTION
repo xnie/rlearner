@@ -6,21 +6,26 @@ Authors@R: person("Stefan", "Wager", email = "swager@stanford.edu", role = c("au
            person("Xinkun", "Nie", email = "xinkun@stanford.edu", role = c("aut", "cre"))
 Description: R-learner for quasi-oracle estimation of hetereogeneous treatment effects
 Depends: R (>= 3.4.0) 
-Imports: splines, stats, Rlab, glmnet, magrittr, caret, zeallot, dplyr, tidyr, purrr
+Imports: splines, stats, Rlab, glmnet, magrittr, caret, zeallot, dplyr, tidyr, purrr, xgboost, MlBayesOpt
 Suggests: testthat
 License: none
 RoxygenNote: 6.0.1.9000
 Collate: 
     'utils.R'
     'learner_utils.R'
-    'RC_learner.R'
     'R_learner.R'
     'S_learner.R'
     'T_learner.R'
     'U_learner.R'
     'X_learner.R'
+    'cvboost.R'
+    'rboost.R'
     'rlasso.R'
+    'sboost.R'
     'slasso.R'
+    'tboost.R'
     'tlasso.R'
+    'uboost.R'
     'ulasso.R'
+    'xboost.R'
     'xlasso.R'

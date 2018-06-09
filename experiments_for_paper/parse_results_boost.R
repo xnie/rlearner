@@ -6,6 +6,7 @@ filenames = list.files("results", pattern="*", full.names=TRUE)
 
 param.names = c("alg", "learner", "setup", "n", "p", "sigma")
 setup.values = c('A', 'B', 'C', 'D', 'E', 'F')
+#setup.values = c('B', 'C', 'D', 'F')
 
 raw = data.frame(t(sapply(filenames, function(fnm) {
 
@@ -23,7 +24,7 @@ rownames(raw) = 1:nrow(raw)
 names(raw) = c(param.names,
                "mean")
 
-raw<-raw[raw$learner=="boost",] # only look at boost results
+raw<-raw[raw$learner=="boost", ] # only look at boost results
 
 options(stringsAsFactors = FALSE)
 
@@ -67,3 +68,4 @@ for (i in seq_along(setup.values)){
   names(xtab.setup) <- c('n','p','$\\sigma$', "S", "T", "X", "U", "cb", "R", "RC", "oracle")
   print(xtab.setup, include.rownames = FALSE, include.colnames = TRUE, sanitize.text.function = identity, file = paste("tables_boost/simulation_results_setup_", setup.values[i], ".tex", sep=""))
 }
+
