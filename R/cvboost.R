@@ -71,7 +71,7 @@ cvboost = function(X,
                             early_stopping_rounds = 10,
                             maximize = FALSE,
                             print_every_n = print.every.n,
-                            callbacks = list(cb.cv.predict(save_models = TRUE)))
+                            callbacks = list(xgboost::cb.cv.predict(save_models = TRUE)))
 
       metric = paste('test_', eval, '_mean', sep='')
       list(Score = min(cv$evaluation_log[, ..metric]),
@@ -97,7 +97,7 @@ cvboost = function(X,
                                       early_stopping_rounds = 10,
                                       maximize = FALSE,
                                       print_every_n = print.every.n,
-                                      callbacks = list(cb.cv.predict(save_models = TRUE)))
+                                      callbacks = list(xgboost::cb.cv.predict(save_models = TRUE)))
 
   }
   else{
@@ -123,7 +123,7 @@ cvboost = function(X,
                                    maximize = FALSE,
                                    nrounds = ntrees.max,
                                    print_every_n = print.every.n,
-                                   callbacks = list(cb.cv.predict(save_models = TRUE)))
+                                   callbacks = list(xgboost::cb.cv.predict(save_models = TRUE)))
 
       metric = paste('test_', eval, '_mean', sep='')
 
