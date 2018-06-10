@@ -21,6 +21,10 @@ rlasso = function(X, Y, W,
 
     #X.scl = scale(X)
     #X.scl = X.scl[,!is.na(colSums(X.scl))]
+
+    if (is.null(colnames(X))) {
+      stop("The design matrix X must have named columns.")
+    }
     standardization = caret::preProcess(X, method=c("center", "scale")) # get the standardization params
     X.scl = predict(standardization, X)							 # standardize the input
     X.scl = X.scl[,!is.na(colSums(X.scl))]
