@@ -6,6 +6,7 @@
 #' @param nfolds
 #' @param w.hat
 #' @param y.hat
+#' @param cutoff
 #'
 #' @return
 #' @export
@@ -14,7 +15,8 @@
 uboost= function(X, Y, W,
                  nfolds=NULL,
                  w.hat = NULL,
-                 y.hat = NULL){
+                 y.hat = NULL,
+                 cutoff=0.05){
 
   nobs = nrow(X)
   pobs = ncol(X)
@@ -38,6 +40,8 @@ uboost= function(X, Y, W,
   else{
     w.fit = NULL
   }
+
+  w.hat = pmax(cutoff, pmin(1 - cutoff, w.hat))
 
   Y.tilde = Y - y.hat
   W.tilde = W - w.hat

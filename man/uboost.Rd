@@ -4,10 +4,11 @@
 \alias{uboost}
 \title{Title}
 \usage{
-uboost(X, Y, W, nfolds = NULL, w.hat = NULL, y.hat = NULL)
+uboost(X, Y, W, nfolds = NULL, w.hat = NULL, y.hat = NULL,
+  cutoff = 0.05)
 }
 \arguments{
-\item{y.hat}{}
+\item{cutoff}{}
 }
 \description{
 Title
