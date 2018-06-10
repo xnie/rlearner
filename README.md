@@ -25,7 +25,7 @@ X = matrix(rnorm(n * p), n, p)
 b = sin(pi * X[,1] * X[,2]) + (X[,3] + X[,4])^2
 e = 1/(1 + exp(-X[,2]))
 tau = log(1 + exp(X[,3] + X[,5]))
-W = Rlab::rbern(n, e)
+W = rbinom(n, 1, e)
 Y = b + (W - 0.5) * tau + sigma * rnorm(n)
 
 r.fit = rlasso(X, Y, W, rs=FALSE)

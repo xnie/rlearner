@@ -96,11 +96,11 @@ if (setup == 'A') {
 results.list = lapply(1:NREP, function(iter) {
 
     params.train = get.params()
-    W.train = Rlab::rbern(n, params.train$e)
+    W.train = rbinom(n, 1, params.train$e)
     Y.train = params.train$b + (W.train - 0.5) * params.train$tau + sigma * rnorm(n)
 
     params.test = get.params()
-    W.test = Rlab::rbern(n, params.test$e)
+    W.test = rbinom(n, 1, params.test$e)
     Y.test = params.test$b + (W.test - 0.5) * params.test$tau + sigma * rnorm(n)
 
     if (learner == "lasso") {
