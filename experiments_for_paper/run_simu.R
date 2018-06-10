@@ -193,7 +193,7 @@ results.list = lapply(1:NREP, function(iter) {
 
       } else if (alg == 'U') {
 
-        fit <- uboost(X.train, Y.train, W.train)
+        fit <- uboost(X.train, Y.train, W.train, cutoff=0.05)
 
       } else if (alg == 'causalboost') {
 
