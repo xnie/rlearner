@@ -8,7 +8,8 @@ lassoalgvals=('R' 'RS' 'T' 'X' 'U' 'oracle' 'S')
 boostalgvals=('R' 'RC' 'T' 'X' 'U' 'oracle' 'S' 'causalboost')
 
 reps=100
-learners=('boost' 'lasso')
+#learners=('boost' 'lasso')
+learners=('boost')
 
 for ((i1=0; i1<${#setupvals[@]} ;i1++))
 do
@@ -20,10 +21,6 @@ for ((i4=0; i4<${#sigmavals[@]} ;i4++))
 do
 for ((i5=0; i5<${#learners[@]} ;i5++))
 do
-    while [ `pgrep -c R` -ge 100 ]
-    do
-        sleep 5
-    done
 
     setup=${setupvals[$i1]}
     n=${nvals[$i2]}
@@ -42,6 +39,10 @@ do
 
     for ((i6=0; i6<${#algvals[@]} ;i6++))
     do
+      while [ `pgrep -c R` -ge 100 ]
+      do
+          sleep 5
+      done
       alg=${algvals[$i6]}
       fnm="logging/progress-$alg-$learner-$setup-$n-$p-$sigma-$reps.out"
 

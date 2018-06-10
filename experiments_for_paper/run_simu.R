@@ -74,7 +74,7 @@ if (setup == 'A') {
     b = pmax(0, rowm)
     eta = 0.1
     e = pmax(eta, pmin(0.5 * (1 + sign(rowm) * rowm^2), 1-eta))
-    tau = sin(2 * X[,1])
+    tau = sin(X[,1])
     list(X=X, b=b, tau=tau, e=e)
   }
 } else if (setup == 'F') { # treat/control imbalance; complicated baseline+ treatment
