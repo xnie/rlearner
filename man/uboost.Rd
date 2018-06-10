@@ -4,7 +4,7 @@
 \alias{uboost}
 \title{Title}
 \usage{
-uboost(X, Y, W, nfolds = NULL, rc = FALSE, w.hat = NULL, y.hat = NULL)
+uboost(X, Y, W, nfolds = NULL, w.hat = NULL, y.hat = NULL)
 }
 \arguments{
 \item{y.hat}{}
