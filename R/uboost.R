@@ -4,7 +4,6 @@
 #' @param Y
 #' @param W
 #' @param nfolds
-#' @param rc
 #' @param w.hat
 #' @param y.hat
 #'
@@ -14,7 +13,6 @@
 #' @examples
 uboost= function(X, Y, W,
                  nfolds=NULL,
-                 rc = FALSE,
                  w.hat = NULL,
                  y.hat = NULL){
 
@@ -43,16 +41,8 @@ uboost= function(X, Y, W,
 
   Y.tilde = Y - y.hat
   W.tilde = W - w.hat
-  if (rc) {
-    tau.const.fit = lm(Y.tilde ~ W.tilde)
-    tau.const = coef(tau.const.fit)["w.tilde"]
-    Y.tilde.tilde = Y.tilde - W.tilde * tau.const # subtracting out the constant treatment effect
-    pseudo.outcome = Y.tilde.tilde/W.tilde
-  }
-  else{
-    pseudo.outcome = Y.tilde/W.tilde
-    tau.const = NULL
-  }
+  pseudo.outcome = Y.tilde/W.tilde
+  tau.const = NULL
 
 
   tau.fit = cvboost(X, pseudo.outcome, objective="reg:linear")
@@ -62,8 +52,7 @@ uboost= function(X, Y, W,
              y.fit = y.fit,
              w.hat = w.hat,
              y.hat = y.hat,
-             tau.const = tau.const,
-             rc = rc)
+             tau.const = tau.const)
   class(ret) <- "uboost"
   ret
 }
@@ -81,10 +70,5 @@ uboost= function(X, Y, W,
 predict.uboost<- function(object,
                           newx=NULL,
                           ...) {
-  if (object$rc){
-    object$tau.const + predict(object$tau.fit, newx=x)
-  }
-  else{
-    predict(object$tau.fit, newx=x)
-  }
+  predict(object$tau.fit, newx=newx)
 }

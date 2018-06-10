@@ -45,7 +45,7 @@ rboost= function(X, Y, W,
   W.tilde = W - w.hat
   if (rc) {
     tau.const.fit = lm(Y.tilde ~ W.tilde)
-    tau.const = coef(tau.const.fit)["w.tilde"]
+    tau.const = coef(tau.const.fit)["W.tilde"]
     Y.tilde.tilde = Y.tilde - W.tilde * tau.const # subtracting out the constant treatment effect
     pseudo.outcome = Y.tilde.tilde/W.tilde
   }

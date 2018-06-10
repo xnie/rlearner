@@ -9,23 +9,22 @@
 sboost = function(X, Y, W,
                   nfolds = NULL){
 
-  nobs = nrow(X.scl)
-  pobs = ncol(X.scl)
+  nobs = nrow(X)
+  pobs = ncol(X)
 
   if (is.null(nfolds)) {
     nfolds = floor(max(3, min(10,nobs/4)))
   }
 
-  browser()
-
   s.fit = cvboost(cbind(X, (W-0.5)*X, (W-0.5)), Y, objective="reg:linear")
 
-  list(0, 1) %>% purrr::map(function(w) {
-    predict(s.fit, newx=cbind(X, (w-0.5)*X, (W-0.5)))
-  }) %->% c(mu0.hat, mu1.hat)
+  mu0.hat = predict(s.fit, newx=cbind(X, (0-0.5)*X, (0-0.5)))
+  mu1.hat = predict(s.fit, newx=cbind(X, (1-0.5)*X, (1-0.5)))
   tau.hat = mu1.hat - mu0.hat
 
   ret = list(s.fit = s.fit,
+             mu0.hat = mu0.hat,
+             mu1.hat = mu1.hat,
              tau.hat = tau.hat)
 
   class(ret) <- "sboost"
@@ -37,9 +36,8 @@ predict.sboost <- function(object,
                            newx=NULL,
                            ...) {
   if (!is.null(newx)) {
-    list(0, 1) %>% purrr::map(function(w) {
-      predict(object$s.fit, newdata=cbind(newx, (w-0.5)*newx, (w-0.5)))
-    }) %->% c(mu0.hat, mu1.hat)
+    mu0.hat = predict(object$s.fit, newx=cbind(newx, (0-0.5)*newx, (0-0.5)))
+    mu1.hat = predict(object$s.fit, newx=cbind(newx, (1-0.5)*newx, (1-0.5)))
     tau.hat = mu1.hat - mu0.hat
   }
   else {
