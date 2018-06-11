@@ -64,14 +64,14 @@ cvboost = function(X,
                                           eval_metric = eval),
                             data = dtrain,
                             nround = ntrees.max,
-                            #nthread = 1,
+                            nthread = 1,
                             nfold = nfolds,
                             prediction = TRUE,
                             showsd = TRUE,
                             early_stopping_rounds = 10,
                             maximize = FALSE,
                             print_every_n = print.every.n,
-                            callbacks = list(cb.cv.predict(save_models = TRUE)))
+                            callbacks = list(xgboost::cb.cv.predict(save_models = TRUE)))
 
       metric = paste('test_', eval, '_mean', sep='')
       list(Score = min(cv$evaluation_log[, ..metric]),
@@ -90,14 +90,14 @@ cvboost = function(X,
     best.xgb.cvfit <- xgboost::xgb.cv(params = best.param,
                                       data = dtrain,
                                       nround = ntrees.max,
-                                      #nthread = 1,
+                                      nthread = 1,
                                       nfold = nfolds,
                                       prediction = TRUE,
                                       showsd = TRUE,
                                       early_stopping_rounds = 10,
                                       maximize = FALSE,
                                       print_every_n = print.every.n,
-                                      callbacks = list(cb.cv.predict(save_models = TRUE)))
+                                      callbacks = list(xgboost::cb.cv.predict(save_models = TRUE)))
 
   }
   else{
@@ -124,7 +124,7 @@ cvboost = function(X,
                                    maximize = FALSE,
                                    nrounds = ntrees.max,
                                    print_every_n = print.every.n,
-                                   callbacks = list(cb.cv.predict(save_models = TRUE)))
+                                   callbacks = list(xgboost::cb.cv.predict(save_models = TRUE)))
 
       metric = paste('test_', eval, '_mean', sep='')
 
