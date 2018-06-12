@@ -19,9 +19,6 @@ rlasso = function(X, Y, W,
                   w.hat = NULL,
                   y.hat = NULL){
 
-    #X.scl = scale(X)
-    #X.scl = X.scl[,!is.na(colSums(X.scl))]
-
     if (is.null(colnames(X))) {
       stop("The design matrix X must have named columns.")
     }
