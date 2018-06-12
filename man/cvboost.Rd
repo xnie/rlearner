@@ -5,7 +5,7 @@
 \title{Title}
 \usage{
 cvboost(X, Y, weights = NULL, nfolds = NULL, objective = c("reg:linear",
-  "binary:logistic"), ntrees.max = 30000, num.search.rounds = 20,
+  "binary:logistic"), ntrees.max = 1000, num.search.rounds = 10,
   print.every.n = 100, early.stopping.rounds = 10, bayes.opt = FALSE)
 }
 \arguments{

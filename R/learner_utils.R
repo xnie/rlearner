@@ -118,6 +118,10 @@ learner_cv = function(x, y, model_specs, weights=NULL, k_folds=5, select_by="bes
 	return(learner)
 }
 
+#' @title Prediction for base learner
+#' @param object a learner object
+#' @param x a matrix of covariates for which to predict a target
+#' @export predict.learner
 predict.learner = function(object, newdata) {
 	if(object$model$modelType == "Classification") {
 		predict(object$model, newdata=newdata, type="prob")[[object$positive_class]] %>%
