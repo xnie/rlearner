@@ -21,9 +21,9 @@ NREP = as.numeric(args[7])
 #n=500
 #p=6
 #sigma=1
-#alg='R'
-#NREP=10
-#learner='boost'
+#alg='S'
+#NREP=5
+#learner='lasso'
 #print(alg)
 
 if (setup == 'A') {
@@ -93,6 +93,8 @@ if (setup == 'A') {
 
 }
 
+make_matrix = function(x) stats::model.matrix(~.-1, x)
+
 results.list = lapply(1:NREP, function(iter) {
 
     params.train = get.params()
@@ -109,12 +111,12 @@ results.list = lapply(1:NREP, function(iter) {
       X.ns = stats::model.matrix(~.*.-1, data.frame(X.ns)) # pairwise interaction (not including squared term for each column)
       X.ns.sq = do.call(cbind, lapply(1:dim.ns, function(col){matrix(X.ns[,col]^2)})) # squared term for each column
       X.ns = cbind(X.ns, X.ns.sq)
-      X.train = X.ns[1:n,]
-      X.test = X.ns[(n+1):(2*n),]
+      X.train = data.frame(X.ns[1:n,]) %>% make_matrix
+      X.test = data.frame(X.ns[(n+1):(2*n),]) %>% make_matrix
     }
     else if (learner == "boost") {
-      X.train = params.train$X
-      X.test = params.test$X
+      X.train = data.frame(params.train$X) %>% make_matrix
+      X.test = data.frame(params.test$X) %>% make_matrix
     }
     else {
       stop("learner needs to be lasso or boost.")
