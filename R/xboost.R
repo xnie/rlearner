@@ -52,7 +52,7 @@ xboost = function(X, Y, W,
   tau.1.pred = predict(x.1.fit, newx=X)
   tau.0.pred = predict(x.0.fit, newx=X)
 
-  w.fit = cvboost(X, W, objective="binary:logistic")
+  w.fit = cvboost(X, W, objective="binary:logistic", nfolds = nfolds.W)
   w.hat = predict(w.fit)
 
   tau.hat = tau.1.pred * (1-w.hat) + tau.0.pred * w.hat

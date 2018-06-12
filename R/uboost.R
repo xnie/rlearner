@@ -26,7 +26,7 @@ uboost= function(X, Y, W,
   }
 
   if (is.null(y.hat)){
-    y.fit = cvboost(X, Y, objective="reg:linear")
+    y.fit = cvboost(X, Y, objective="reg:linear", nfolds=nfolds)
     y.hat = predict(y.fit)
   }
   else {
@@ -34,7 +34,7 @@ uboost= function(X, Y, W,
   }
 
   if (is.null(w.hat)){
-    w.fit = cvboost(X, W, objective="binary:logistic")
+    w.fit = cvboost(X, W, objective="binary:logistic", nfolds=nfolds)
     w.hat = predict(w.fit)
   }
   else{
@@ -49,7 +49,7 @@ uboost= function(X, Y, W,
   tau.const = NULL
 
 
-  tau.fit = cvboost(X, pseudo.outcome, objective="reg:linear")
+  tau.fit = cvboost(X, pseudo.outcome, objective="reg:linear", nfolds=nfolds)
 
   ret = list(tau.fit = tau.fit,
              w.fit = w.fit,

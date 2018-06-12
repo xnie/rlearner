@@ -16,7 +16,7 @@ sboost = function(X, Y, W,
     nfolds = floor(max(3, min(10,nobs/4)))
   }
 
-  s.fit = cvboost(cbind(X, (W-0.5)*X, (W-0.5)), Y, objective="reg:linear")
+  s.fit = cvboost(cbind(X, (W-0.5)*X, (W-0.5)), Y, objective="reg:linear", nfolds=nfolds)
 
   mu0.hat = predict(s.fit, newx=cbind(X, (0-0.5)*X, (0-0.5)))
   mu1.hat = predict(s.fit, newx=cbind(X, (1-0.5)*X, (1-0.5)))
