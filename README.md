@@ -8,7 +8,7 @@ to the following general nonparameteric model
 ```
 X ~ P(X)
 W ~ P(W|X) where W is in {0,1}
-Y = m(X) + 2(W-1)*tau(X) + e
+Y = m(X) + (2W-1)*tau(X) + e
 ```
 
 With `e` being some mean-zero noise.
