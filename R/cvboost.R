@@ -52,7 +52,6 @@ cvboost = function(X,
   best.seednumber = 1234
   best.loss = Inf
 
-
   if (bayes.opt){ # WARNING: very slow!
     xgb_cv_bayes <- function(subsample, eta, max_depth, min_child_weight) {
       xgb.cv.args = list(params = list(subsample = subsample,

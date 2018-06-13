@@ -12,7 +12,9 @@ xboost = function(X, Y, W,
                   nfolds.1=NULL,
                   nfolds.0=NULL,
                   nfolds.W=NULL,
-                  nthread=NULL){
+                  nthread=NULL,
+                  y.1.pred=NULL,
+                  y.0.pred=NULL){
 
   X.1 = X[which(W==1),]
   X.0 = X[which(W==0),]
@@ -38,11 +40,15 @@ xboost = function(X, Y, W,
     nfolds.W = floor(max(3, min(10,nobs/4)))
   }
 
-  t.1.fit = cvboost(X.1, Y.1, objective="reg:linear", nfolds = nfolds.1, nthread=nthread)
-  t.0.fit = cvboost(X.0, Y.0, objective="reg:linear", nfolds = nfolds.0, nthread=nthread)
+  if (is.null(y.1.pred)){
+    t.1.fit = cvboost(X.1, Y.1, objective="reg:linear", nfolds = nfolds.1, nthread=nthread)
+    y.1.pred = predict(t.1.fit, newx=X)
+  }
 
-  y.1.pred = predict(t.1.fit, newx=X)
-  y.0.pred = predict(t.0.fit, newx=X)
+  if (is.null(y.0.pred)){
+    t.0.fit = cvboost(X.0, Y.0, objective="reg:linear", nfolds = nfolds.0, nthread=nthread)
+    y.0.pred = predict(t.0.fit, newx=X)
+  }
 
   D.1 = Y.1 - y.0.pred[W==1]
   D.0 = y.1.pred[W==0] - Y.0
