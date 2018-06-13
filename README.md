@@ -1,7 +1,7 @@
-# rlearner: R-learner for Quasi-Oracle Estimation of Hetereogenerous Treatment Effects
+# rlearner: R-learner for Quasi-Oracle Estimation of Heterogenerous Treatment Effects
 
 This package implements the R-learner for estimating
-hetereogeneous treatment effects, as proposed by Nie and Wager (2017). We consider a
+heterogeneous treatment effects, as proposed by Nie and Wager (2017). We consider a
 setup where we observe data `(X, W, Y)` generated according
 to the following general nonparameteric model
 
@@ -13,7 +13,7 @@ Y = m(X) + 2(W-1)*tau(X) + e
 
 With `e` being some mean-zero noise.
 
-The R-learner estimates the hetereogeneous treatment effect `tau(X)`.
+The R-learner estimates the heterogeneous treatment effect `tau(X)`.
 
 To install this package in R, run the following commands:
 
@@ -95,6 +95,6 @@ source("make_plots.R")
 
 #### References
 Xinkun Nie and Stefan Wager.
-<b>Quasi-Oracle Estimation of Hetereogeneous Treatment Effects.</b>
+<b>Quasi-Oracle Estimation of Heterogeneous Treatment Effects.</b>
 2017.
 [<a href="https://arxiv.org/abs/1712.04912.pdf">arxiv</a>]
