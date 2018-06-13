@@ -10,11 +10,11 @@ sim_tests = function(sim_data) {
 	
 	# everything is the right size
 	expect_equal(
-		all(map(sim_data[-1], length)==n), # exclude the covariate matrix
+		all(map_int(sim_data[-1], length)==n), # exclude the covariate matrix
 		TRUE)
 	expect_equal(nrow(x), n)
 	expect_equal(
-		all(map(sim_data[-2], is.numeric)==TRUE), # exclude the treatment vector
+		all(map_lgl(sim_data[-2], is.numeric)), # exclude the treatment vector
 		TRUE)
 	expect_equal(is.factor(w), TRUE)
 }

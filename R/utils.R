@@ -40,7 +40,7 @@ toy_data_simulation = function(n) {
 	mu1 = m + tau/2
 	mu0 = m - tau/2
 	y = (m + tau/2*(2*w_bool-1))[,1] + rnorm(n)
-	list(x, w, y, p, m, mu0, mu1, tau)
+	list(x=x, w=w, y=y, p=p, m=m, mu0=mu0, mu1=mu1, tau=tau)
 }
 
 #' @title Toy data simulation (easy mode)
@@ -70,5 +70,5 @@ easy_toy_data_simulation = function(n) {
 	mu1 = m + tau/2
 	mu0 = m - tau/2
 	y = (m + tau/2*(2*w_bool-1))[,1] 
-	list(x, w, y, p, m, mu0, mu1, tau)
+	list(x=x, w=w, y=y, p=p, m=m, mu0=mu0, mu1=mu1, tau=tau)
 }

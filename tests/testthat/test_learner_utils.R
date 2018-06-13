@@ -38,15 +38,16 @@ reg_tests = function(reg_model) {
 	expect_equal(is.numeric(y_hat), TRUE)
 }
 
-cls_tests = function(cls_model) {
+cls_tests = function(cls_model, p_min=0, p_max=1) {
 	expect_equal(cls_model$model$modelType, "Classification")
 	expect_equal(cls_model$model$maximize, FALSE)
 	expect_equal(cls_model$model$metric, "wDeviance")
-	expect_equal(all(levels(w) %in% names(cls_model$model$pred) == TRUE), TRUE)
+	expect_equal(all(levels(w) %in% names(cls_model$model$pred)), TRUE)
 	expect_equal(nrow(cls_model$model$pred), n)
 	w_hat = predict(cls_model, x)
 	expect_equal(length(w_hat), nrow(x))
 	expect_equal(is.numeric(w_hat), TRUE)
+	expect_equal(all((p_min <= w_hat) & (w_hat <= p_max)), TRUE)
 }
 
 test_that("carret is returning sensible things when doing cross-validated regression", {
@@ -59,6 +60,9 @@ test_that("carret is returning sensible things when doing cross-validated regres
 test_that("carret is returning sensible things when doing cross-validated probabilistic classification", {	
 	cls_tests(learner_cv(x, w, model_specs))
 	cls_tests(learner_cv(x, w, model_specs, weights=weights))
+	c(p_min, p_max) %<-% list(0.45, 0.55)
+	cls_tests(learner_cv(x, w, model_specs, p_min=p_min, p_max=p_max), 
+		p_min=p_min, p_max=p_max)
 })
 
 test_that("mean outcome can be easily predicted when the true model is linear and there are many samples", {
@@ -76,10 +80,9 @@ xval_xfit_tests = function(est) {
 
 test_that("cross-validated cross-fitting returns sensible things", {
 	list(
-		xval_xfit(x, y, model_specs, economy=F),
+		xval_xfit(x, y, model_specs),
 		xval_xfit(x, w, model_specs, economy=F),
-		xval_xfit(x, y, model_specs[2], select_by="oneSE"),
-		xval_xfit(x, w, model_specs[2], select_by="oneSE")
+		xval_xfit(x, y, model_specs[2], select_by="oneSE")
 	) %>% map(xval_xfit_tests)
 })
 

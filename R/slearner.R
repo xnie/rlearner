@@ -31,11 +31,11 @@
 #' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
 #' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample 
 #' 
-#' tau_hat_model = S_learner_cv(x, w, y, model_specs) 
+#' tau_hat_model = slearner_cv(x, w, y, model_specs) 
 #' tau_hat = predict(tau_hat_model, x)
 #' }
 #' @export
-S_learner_cv = function(x, w, y, model_specs, k_folds=5, select_by="best") {
+slearner_cv = function(x, w, y, model_specs, k_folds=5, select_by="best") {
 	if (is.factor(w)) {w = w==levels(w)[1]} # turn factor to a logical (the first factor level should be the "treated")
 
 	if ("glmnet" %in% names(model_specs)) { # tell glmnet not to standardize... other models may also be standardizing so caveat emptor
@@ -50,18 +50,18 @@ S_learner_cv = function(x, w, y, model_specs, k_folds=5, select_by="best") {
 	# is difficult to implement in a general purpose way.
 	# note that glmnet will add its own intercept and won't regularize it
 
-	S_learner = list(
+	slearner = list(
 		model = learner_cv(x_expanded, y, model_specs, k_folds=k_folds, select_by=select_by),
 		standardization = standardization) 
-	class(S_learner) = "S_learner"
-	return(S_learner)
+	class(slearner) = "slearner"
+	return(slearner)
 }
 
 #' @title Prediction for U-learner
 #' @param object a U-learner object
 #' @param x a matrix of covariates for which to predict the treatment effect
-#' @export predict.S_learner
-predict.S_learner = function(object, x) {
+#' @export predict.slearner
+predict.slearner = function(object, x) {
 	x = predict(object$standardization, x) # standardize the new data using the same standardization as with the training data
 	list(0, 1) %>% purrr::map(function(w) {
 		predict(object$model, newdata=cbind(x, (w-0.5)*x, (w-0.5)))

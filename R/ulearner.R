@@ -1,17 +1,15 @@
 #' @include learner_utils.R utils.R
 
-#' @title R-learning for heterogenous treatment effects
+#' @title U-learning for heterogenous treatment effects
 #'
-#' @details The R-learner estimates heterogenous treatment effects by learning a custom objective function and minimizing it using
-#' any suitable machine learning algorithm.
 #' @param x a numeric matrix of \strong{covariates}
 #' @param w a two-class factor vector of \strong{treatments}. The first factor level is treated as the positive class \eqn{w=1}
 #' @param y a numeric vector of \strong{outcomes}
 #' @param tau_model_specs specification for the model of \eqn{\tau(x) = E[Y(1) - Y(0)|X=x]}. See \code{\link{learner_cv}}.
 #' @param p_hat a numeric vector of estimates of the treatment propensity \eqn{p(x) = E[W|X=x]} of each observation.
-#' The R-learner will estimate these values internally using cross-validated cross-estimation if \code{p_hat} is not provided.
+#' The U-learner will estimate these values internally using cross-validated cross-estimation if \code{p_hat} is not provided.
 #' @param m_hat a numeric vector of estimates of the outcome marginalized over the treatment (\eqn{m(x) = E[Y|X=x]}) for each observation.
-#' The R-learner will estimate these values internally using cross-validated cross-estimation if \code{m_hat} is not provided.
+#' The U-learner will estimate these values internally using cross-validated cross-estimation if \code{m_hat} is not provided.
 #' @param p_model_specs specification for the model of \eqn{p(x) = E[W|X=x]}. See \code{\link{learner_cv}}.
 #' Not needed if \code{p_hat} is provided.
 #' @param m_model_specs specification for the model of \eqn{m(x) = E[Y|X=x]}. See \code{\link{learner_cv}}.
@@ -27,7 +25,6 @@
 #' multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some learners. See: \code{\link[caret]{?caret::oneSE}}.
 #' @param p_min If provided, estimated propensities will be trimmed to have minimum \code{p_min}.
 #' @param p_max If provided, estimated propensities will be trimmed to have maximum \code{p_max}.
-#' @param rc If TRUE, predict constant treatment effect first, learn hetereogeneity, and then add constant effect back
 #' @examples
 #' \dontrun{
 #' model_specs = list(
@@ -49,16 +46,16 @@
 #' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
 #' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample
 #'
-#' tau_hat_model = R_learner_cv(x, w, y, model_specs)
+#' tau_hat_model = ulearner_cv(x, w, y, model_specs)
 #' tau_hat = predict(tau_hat_model, x)
 #' }
 #' @export
-R_learner_cv = function(x, w, y, tau_model_specs,
+ulearner_cv = function(x, w, y, tau_model_specs,
 	p_model_specs=tau_model_specs, m_model_specs=tau_model_specs,
 	p_hat=NULL, m_hat=NULL,
 	k_folds=5, k_folds_cf=5,
 	economy=T, select_by="best",
-	p_min=0, p_max=1, rc=FALSE) {
+	p_min=0, p_max=1) {
 
 	if (is.null(p_hat)) {
 		p_hat = xval_xfit(x, w, p_model_specs,
@@ -70,42 +67,21 @@ R_learner_cv = function(x, w, y, tau_model_specs,
 			k_folds_cf=k_folds_cf, k_folds=k_folds, economy=economy, select_by=select_by)
 	}
 
-	w = w==levels(w)[1] # turn factor to a logical (the first factor level should be the "treated")
-	if (rc) {
-	  y.tilde = y - m_hat
-	  w.tilde = w - p_hat
-	  tau.const.fit = lm(y.tilde ~ w.tilde)
-	  tau.const = coef(tau.const.fit)["w.tilde"]
-	  y.tilde.tilde = y.tilde - w.tilde * tau.const # subtracting out the constant treatment effect
-  	r_pseudo_outcome = (y.tilde.tilde)/(w - p_hat)
-	}
-	else{
-  	r_pseudo_outcome = (y - m_hat)/(w - p_hat)
-  	tau.const = NULL
-	}
-	r_weights = (w - p_hat)^2
+	if (is.factor(w)) {w = w==levels(w)[1]} # turn factor to a logical (the first factor level should be the "treated")
+	r_pseudo_outcome = (y - m_hat)/(w - p_hat)
 
-	R_learner = list(
-		model=learner_cv(x, r_pseudo_outcome, tau_model_specs, weights=r_weights,
-			k_folds=k_folds, select_by=select_by),
-		m_hat=m_hat,
-		p_hat=p_hat,
-		rc=rc,
-		tau.const = tau.const
+	ulearner = list(
+		model=learner_cv(x, r_pseudo_outcome, tau_model_specs,
+			k_folds=k_folds, select_by=select_by)
 		)
-	class(R_learner) = "R_learner"
-	return(R_learner)
+	class(ulearner) = "ulearner"
+	return(ulearner)
 }
 
-#' @title Prediction for R-learner
-#' @param object a R-learner object
+#' @title Prediction for U-learner
+#' @param object a U-learner object
 #' @param x a matrix of covariates for which to predict the treatment effect
-#' @export predict.R_learner
-predict.R_learner = function(object, x) {
-  if (object$rc){
-    object$tau.const + predict(object$model, newdata=x)
-  }
-  else{
-  	predict(object$model, newdata=x)
-  }
+#' @export predict.ulearner
+predict.ulearner = function(object, x) {
+	predict(object$model, newdata=x)
 }

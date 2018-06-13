@@ -41,11 +41,11 @@
 #' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
 #' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample 
 #' 
-#' tau_hat_model = X_learner_cv(x, w, y, model_specs) 
+#' tau_hat_model = xlearner_cv(x, w, y, model_specs) 
 #' tau_hat = predict(tau_hat_model, x)
 #' }
 #' @export
-X_learner_cv = function(x, w, y, tau_model_specs,
+xlearner_cv = function(x, w, y, tau_model_specs,
 	p_model_specs=tau_model_specs, mu_model_specs=tau_model_specs, 
 	mu0_hat_1=NULL, mu1_hat_0=NULL,
 	k_folds=5, select_by="best",
@@ -77,19 +77,19 @@ X_learner_cv = function(x, w, y, tau_model_specs,
 	tau0_hat_model = learner_cv(x[!w,], d0, tau_model_specs, 
 		k_folds=k_folds, select_by=select_by)
 
-	X_learner = list(
+	xlearner = list(
 		p_hat_model = p_hat_model,
 		tau0_hat_model = tau0_hat_model,
 		tau1_hat_model = tau1_hat_model)
-	class(X_learner) = "X_learner"
-	return(X_learner)
+	class(xlearner) = "xlearner"
+	return(xlearner)
 }
 
 #' @title Prediction for X-learner
 #' @param object a X-learner object
 #' @param x a matrix of covariates for which to predict the treatment effect
-#' @export predict.X_learner
-predict.X_learner = function(object, x) {
+#' @export predict.xlearner
+predict.xlearner = function(object, x) {
 	object %>% purrr::map(function(model) {
 		predict(model, x)
 	}) %->%	c(p_hat, tau0_hat, tau1_hat)
