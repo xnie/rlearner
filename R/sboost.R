@@ -7,7 +7,8 @@
 #'
 #' @export sboost
 sboost = function(X, Y, W,
-                  nfolds = NULL){
+                  nfolds = NULL,
+                  nthread = NULL){
 
   nobs = nrow(X)
   pobs = ncol(X)
@@ -16,7 +17,7 @@ sboost = function(X, Y, W,
     nfolds = floor(max(3, min(10,nobs/4)))
   }
 
-  s.fit = cvboost(cbind(X, (W-0.5)*X, (W-0.5)), Y, objective="reg:linear", nfolds=nfolds)
+  s.fit = cvboost(cbind(X, (W-0.5)*X, (W-0.5)), Y, objective="reg:linear", nfolds=nfolds, nthread=nthread)
 
   mu0.hat = predict(s.fit, newx=cbind(X, (0-0.5)*X, (0-0.5)))
   mu1.hat = predict(s.fit, newx=cbind(X, (1-0.5)*X, (1-0.5)))

@@ -27,7 +27,7 @@ rboost= function(X, Y, W,
   }
 
   if (is.null(y.hat)){
-    y.fit = cvboost(X, Y, objective="reg:linear", nfolds=nfolds)
+    y.fit = cvboost(X, Y, objective="reg:linear", nfolds=nfolds, nthread=nthread)
     y.hat = predict(y.fit)
   }
   else {
@@ -35,7 +35,7 @@ rboost= function(X, Y, W,
   }
 
   if (is.null(w.hat)){
-    w.fit = cvboost(X, W, objective="binary:logistic", nfolds=nfolds)
+    w.fit = cvboost(X, W, objective="binary:logistic", nfolds=nfolds, nthread=nthread)
     w.hat = predict(w.fit)
   }
   else{
@@ -57,7 +57,7 @@ rboost= function(X, Y, W,
 
   weights = W.tilde^2
 
-  tau.fit = cvboost(X, pseudo.outcome, objective="reg:linear", weights=weights, nfolds=nfolds)
+  tau.fit = cvboost(X, pseudo.outcome, objective="reg:linear", weights=weights, nfolds=nfolds, nthread=nthread)
 
   ret = list(tau.fit = tau.fit,
              w.fit = w.fit,

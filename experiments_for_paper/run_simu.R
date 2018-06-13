@@ -17,13 +17,13 @@ p = as.numeric(args[5])
 sigma = as.numeric(args[6])
 NREP = as.numeric(args[7])
 #
-#setup='F'
+#setup='A'
 #n=500
-#p=6
+#p=12
 #sigma=1
-#alg='S'
-#NREP=5
-#learner='lasso'
+#alg='T'
+#NREP=1
+#learner='boost'
 #print(alg)
 
 if (setup == 'A') {
@@ -164,7 +164,7 @@ results.list = lapply(1:NREP, function(iter) {
     else if (learner == "boost") {
       if (alg == 'R') {
 
-        fit <- rboost(X.train, Y.train, W.train, rc=FALSE)
+        fit <- rboost(X.train, Y.train, W.train, rc=FALSE, nthread=1)
         #w.hat.oracle = params.train$e
         #y.hat.oracle = params.train$b + (params.train$e-0.5) * params.train$tau
         #qplot(w.hat.oracle, fit$w.hat)
@@ -173,33 +173,33 @@ results.list = lapply(1:NREP, function(iter) {
 
       } else if (alg == 'RC') {
 
-        fit <- rboost(X.train, Y.train, W.train, rc=TRUE)
+        fit <- rboost(X.train, Y.train, W.train, rc=TRUE, nthread=1)
 
       } else if (alg == 'oracle') {
 
         w.hat.oracle = params.train$e
         y.hat.oracle = params.train$b + (params.train$e-0.5) * params.train$tau
-        fit <- rboost(X.train, Y.train, W.train, rc=FALSE, w.hat=w.hat.oracle, y.hat=y.hat.oracle)
+        fit <- rboost(X.train, Y.train, W.train, rc=FALSE, w.hat=w.hat.oracle, y.hat=y.hat.oracle, nthread=1)
 
       } else if (alg == 'S') {
 
-        fit <- sboost(X.train, Y.train, W.train)
+        fit <- sboost(X.train, Y.train, W.train, nthread=1)
 
       } else if (alg == 'T') {
 
-        fit <- tboost(X.train, Y.train, W.train)
+        fit <- tboost(X.train, Y.train, W.train, nthread=1)
 
       } else if (alg == 'X') {
 
-        fit <- xboost(X.train, Y.train, W.train)
+        fit <- xboost(X.train, Y.train, W.train, nthread=1)
 
       } else if (alg == 'U') {
 
-        fit <- uboost(X.train, Y.train, W.train, cutoff=0.05)
+        fit <- uboost(X.train, Y.train, W.train, cutoff=0.05, nthread=1)
 
       } else if (alg == 'causalboost') {
 
-        w.fit = cvboost(X.train, W.train, objective="binary:logistic")
+        w.fit = cvboost(X.train, W.train, objective="binary:logistic", nthread=1)
         w.hat = predict(w.fit)
 
         stratum = stratify(w.hat, W.train)$stratum

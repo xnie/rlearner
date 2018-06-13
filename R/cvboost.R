@@ -9,6 +9,7 @@
 #' @param num.search.rounds
 #' @param print.every.n
 #' @param early.stopping.rounds
+#' @param nthread
 #' @param bayes.opt
 #'
 #' @return
@@ -24,6 +25,7 @@ cvboost = function(X,
                    num.search.rounds=10,
                    print.every.n=100,
                    early.stopping.rounds=10,
+                   nthread=NULL,
                    bayes.opt=FALSE) {
 
   objective = match.arg(objective)
@@ -44,7 +46,6 @@ cvboost = function(X,
     weights = rep(1, length(Y))
   }
 
-
   dtrain <- xgboost::xgb.DMatrix(data = X, label = Y, weight = weights)
 
   best.param = list()
@@ -54,27 +55,30 @@ cvboost = function(X,
 
   if (bayes.opt){ # WARNING: very slow!
     xgb_cv_bayes <- function(subsample, eta, max_depth, min_child_weight) {
-      cv <- xgboost::xgb.cv(params = list(subsample = subsample,
-                                          eta = eta,
-                                          max_depth = max_depth,
-                                          min_child_weight = min_child_weight,
-                                          lambda = 1,
-                                          alpha = 0,
-                                          objective = objective,
-                                          eval_metric = eval),
-                            data = dtrain,
-                            nround = ntrees.max,
-                            nthread = 1,
-                            nfold = nfolds,
-                            prediction = TRUE,
-                            showsd = TRUE,
-                            early_stopping_rounds = 10,
-                            maximize = FALSE,
-                            print_every_n = print.every.n,
-                            callbacks = list(xgboost::cb.cv.predict(save_models = TRUE)))
+      xgb.cv.args = list(params = list(subsample = subsample,
+                                       eta = eta,
+                                       max_depth = max_depth,
+                                       min_child_weight = min_child_weight,
+                                       lambda = 1,
+                                       alpha = 0,
+                                       objective = objective,
+                                       eval_metric = eval),
+                         data = dtrain,
+                         nround = ntrees.max,
+                         nfold = nfolds,
+                         prediction = TRUE,
+                         showsd = TRUE,
+                         early_stopping_rounds = 10,
+                         maximize = FALSE,
+                         print_every_n = print.every.n,
+                         callbacks = list(xgboost::cb.cv.predict(save_models = TRUE)))
+      if (!is.null(nthread)){
+        xgb.cv.args = c(xgb.cv.args, nthread=nthread)
+      }
+      cv <- do.call(xgboost::xgb.cv, xgb.cv.args)
 
       metric = paste('test_', eval, '_mean', sep='')
-      list(Score = min(cv$evaluation_log[, ..metric]),
+      list(Score = min(cv$evaluation_log[, metric]),
            Pred = cv$pred)
     }
     opt.res <- rBayesianOptimization::BayesianOptimization(xgb_cv_bayes,
@@ -87,17 +91,23 @@ cvboost = function(X,
                                                            verbose = TRUE)
     best.param = as.list(opt.res$Best_Par)
     best.loss = opt.res$Best_Value
-    best.xgb.cvfit <- xgboost::xgb.cv(params = best.param,
-                                      data = dtrain,
-                                      nround = ntrees.max,
-                                      nthread = 1,
-                                      nfold = nfolds,
-                                      prediction = TRUE,
-                                      showsd = TRUE,
-                                      early_stopping_rounds = 10,
-                                      maximize = FALSE,
-                                      print_every_n = print.every.n,
-                                      callbacks = list(xgboost::cb.cv.predict(save_models = TRUE)))
+
+    xgb.cvfit.args = list(params = best.param,
+                          data = dtrain,
+                          nround = ntrees.max,
+                          nfold = nfolds,
+                          prediction = TRUE,
+                          showsd = TRUE,
+                          early_stopping_rounds = 10,
+                          maximize = FALSE,
+                          print_every_n = print.every.n,
+                          callbacks = list(xgboost::cb.cv.predict(save_models = TRUE)))
+
+    if (!is.null(nthread)) {
+      xgb.cvfit.args = c(xgb.cvfit.args, nthread=nthread)
+    }
+
+    best.xgb.cvfit <- do.call(xgboost::xgb.cv, xgb.cvfit.args)
 
   }
   else{
@@ -114,17 +124,22 @@ cvboost = function(X,
 
       seed.number = sample.int(100000, 1)[[1]]
       set.seed(seed.number)
-      xgb.cvfit <- xgboost::xgb.cv(data = dtrain,
-                                   param =param,
-                                   missing = NA,
-                                   nfold = nfolds,
-                                   nthread=1,
-                                   prediction = TRUE,
-                                   early_stopping_rounds = early.stopping.rounds,
-                                   maximize = FALSE,
-                                   nrounds = ntrees.max,
-                                   print_every_n = print.every.n,
-                                   callbacks = list(xgboost::cb.cv.predict(save_models = TRUE)))
+      xgb.cv.args = list(data = dtrain,
+                         param =param,
+                         missing = NA,
+                         nfold = nfolds,
+                         prediction = TRUE,
+                         early_stopping_rounds = early.stopping.rounds,
+                         maximize = FALSE,
+                         nrounds = ntrees.max,
+                         print_every_n = print.every.n,
+                         callbacks = list(xgboost::cb.cv.predict(save_models = TRUE)))
+
+      if (!is.null(nthread)){
+        xgb.cv.args = c(list(nthread=nthread), xgb.cv.args)
+      }
+
+      xgb.cvfit <- do.call(xgboost::xgb.cv, xgb.cv.args)
 
       metric = paste('test_', eval, '_mean', sep='')
 
@@ -139,16 +154,24 @@ cvboost = function(X,
     }
   }
 
+  set.seed(best.seednumber)
 
- set.seed(best.seednumber)
- xgb.fit <- xgboost::xgb.train(data=dtrain, params=best.param, nrounds=best.xgb.cvfit$best_ntreelimit, nthread=1)
+  xgb.train.args = list(data=dtrain,
+                        params=best.param,
+                        nrounds=best.xgb.cvfit$best_ntreelimit)
 
- ret = list(xgb.fit = xgb.fit,
-            best.xgb.cvfit = best.xgb.cvfit,
-            best.seednumber = best.seednumber,
-            best.param = best.param,
-            best.loss = best.loss,
-            best.ntreelimit = best.xgb.cvfit$best_ntreelimit)
+  if (!is.null(nthread)){
+    xgb.train.args = c(xgb.train.args, nthread=nthread)
+  }
+
+  xgb.fit <- do.call(xgboost::xgb.train, xgb.train.args)
+
+  ret = list(xgb.fit = xgb.fit,
+             best.xgb.cvfit = best.xgb.cvfit,
+             best.seednumber = best.seednumber,
+             best.param = best.param,
+             best.loss = best.loss,
+             best.ntreelimit = best.xgb.cvfit$best_ntreelimit)
 
   class(ret) <- "cvboost"
   ret
@@ -171,7 +194,7 @@ predict.cvboost <- function(object,
     return(object$best.xgb.cvfit$pred)
   }
   else{
-   dtest <- xgboost::xgb.DMatrix(data=newx)
-   return(predict(object$xgb.fit, newdata=dtest))
+    dtest <- xgboost::xgb.DMatrix(data=newx)
+    return(predict(object$xgb.fit, newdata=dtest))
   }
 }
