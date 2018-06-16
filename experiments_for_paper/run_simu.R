@@ -5,7 +5,6 @@ library(causalLearning)
 library(xgboost)
 library(magrittr)
 
-
 start.time <- Sys.time()
 
 args=(commandArgs(TRUE))
@@ -16,15 +15,6 @@ n = as.numeric(args[4])
 p = as.numeric(args[5])
 sigma = as.numeric(args[6])
 NREP = as.numeric(args[7])
-#
-#setup='A'
-#n=500
-#p=12
-#sigma=1
-#alg='T'
-#NREP=1
-#learner='boost'
-#print(alg)
 
 if (setup == 'A') {
   get.params = function() {
@@ -36,7 +26,7 @@ if (setup == 'A') {
     list(X=X, b=b, tau=tau, e=e)
   }
 
-} else if (setup == 'B') { # RCT
+} else if (setup == 'B') {
 
   get.params = function() {
     X = matrix(rnorm(n * p), n, p)
@@ -46,7 +36,7 @@ if (setup == 'A') {
     list(X=X, b=b, tau=tau, e=e)
   }
 
-} else if (setup == 'C') { # constant treatment effect
+} else if (setup == 'C') {
 
   get.params = function() {
     X = matrix(rnorm(n * p), n, p)
@@ -56,7 +46,7 @@ if (setup == 'A') {
     list(X=X, b=b, tau=tau, e=e)
   }
 
-} else if (setup == 'D') { # T
+} else if (setup == 'D') {
 
   get.params = function() {
     X = matrix(rnorm(n*p), n, p)
@@ -165,11 +155,6 @@ results.list = lapply(1:NREP, function(iter) {
       if (alg == 'R') {
 
         fit <- rboost(X.train, Y.train, W.train, rc=FALSE, nthread=1)
-        #w.hat.oracle = params.train$e
-        #y.hat.oracle = params.train$b + (params.train$e-0.5) * params.train$tau
-        #qplot(w.hat.oracle, fit$w.hat)
-        #qplot(y.hat.oracle, fit$y.hat)
-
 
       } else if (alg == 'RC') {
 
@@ -219,7 +204,6 @@ results.list = lapply(1:NREP, function(iter) {
     }
 
     est.mse = mean((tau.hat - params.test$tau)^2)
-    #qplot(params.test$tau, tau.hat)
     print(est.mse)
     return(est.mse)
 })
