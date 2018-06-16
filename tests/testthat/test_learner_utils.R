@@ -6,18 +6,18 @@ library(purrr)
 library(magrittr)
 
 n = 100
-c(x, w, y, p, m, mu0, mu1, tau) %<-% toy_data_simulation(n) # draw a sample 
+c(x, w, y, p, m, mu0, mu1, tau) %<-% toy_data_simulation(n) # draw a sample
 weights = runif(n)
 
 model_specs = list(
 	gbm = list(
 	    tune_grid = expand.grid(
-	        n.trees = seq(1,501,20), 
-	        interaction.depth=3, 
-	        shrinkage = 0.1, 
+	        n.trees = seq(1,501,20),
+	        interaction.depth=3,
+	        shrinkage = 0.1,
 	        n.minobsinnode=3),
 	    extra_args = list(
-	        verbose=F, 
+	        verbose=F,
 	        bag.fraction=1)),
 	glmnet = list(
 	    tune_grid = expand.grid(
@@ -31,8 +31,8 @@ reg_tests = function(reg_model) {
 	expect_equal(class(reg_model$model), "train")
 	expect_equal(reg_model$model$modelType, "Regression")
 	expect_equal(reg_model$model$maximize, FALSE)
-	expect_equal(reg_model$model$metric, "wRMSE")	
-	expect_equal(nrow(reg_model$model$pred), n)	
+	expect_equal(reg_model$model$metric, "wRMSE")
+	expect_equal(nrow(reg_model$model$pred), n)
 	y_hat = predict(reg_model, x)
 	expect_equal(length(y_hat), nrow(x))
 	expect_equal(is.numeric(y_hat), TRUE)
@@ -50,24 +50,24 @@ cls_tests = function(cls_model, p_min=0, p_max=1) {
 	expect_equal(all((p_min <= w_hat) & (w_hat <= p_max)), TRUE)
 }
 
-test_that("carret is returning sensible things when doing cross-validated regression", {
+test_that("caret is returning sensible things when doing cross-validated regression", {
 	reg_tests(learner_cv(x, y, model_specs))
-	reg_tests(learner_cv(x, y, model_specs, weights=weights)) 
+	reg_tests(learner_cv(x, y, model_specs, weights=weights))
 	expect_error(learner_cv(x, y, model_specs, select_by="oneSE"))
 	reg_tests(learner_cv(x, y, model_specs[1], select_by="oneSE"))
 })
 
-test_that("carret is returning sensible things when doing cross-validated probabilistic classification", {	
+test_that("caret is returning sensible things when doing cross-validated probabilistic classification", {
 	cls_tests(learner_cv(x, w, model_specs))
 	cls_tests(learner_cv(x, w, model_specs, weights=weights))
 	c(p_min, p_max) %<-% list(0.45, 0.55)
-	cls_tests(learner_cv(x, w, model_specs, p_min=p_min, p_max=p_max), 
+	cls_tests(learner_cv(x, w, model_specs, p_min=p_min, p_max=p_max),
 		p_min=p_min, p_max=p_max)
 })
 
 test_that("mean outcome can be easily predicted when the true model is linear and there are many samples", {
 	set.seed(1)
-	c(x, w, y, p, m, mu0, mu1, tau) %<-% easy_toy_data_simulation(5*n) # draw a sample 
+	c(x, w, y, p, m, mu0, mu1, tau) %<-% easy_toy_data_simulation(5*n) # draw a sample
 	y_hat = learner_cv(x, y, model_specs) %>% predict(x)
 	mse = mean((y_hat - m)^2)
 	expect_equal(mse<0.1, TRUE)
