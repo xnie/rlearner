@@ -2,7 +2,7 @@
 % Please edit documentation in R/slasso.R
 \name{slasso}
 \alias{slasso}
-\title{S-learner, as proposed by Imai and Ratkovic 2013}
+\title{S-learner, as proposed by Imai and Ratkovic 2013, implemented via glmnet (lasso)}
 \usage{
 slasso(X, Y, W, alpha = 1, nfolds = NULL, lambda.choice = c("lambda.min",
   "lambda.1se"), penalty.search = FALSE)
@@ -16,12 +16,24 @@ slasso(X, Y, W, alpha = 1, nfolds = NULL, lambda.choice = c("lambda.min",
 
 \item{alpha}{tuning parameter for the elastic net}
 
-\item{nfolds}{number of folds for cross-fitting}
+\item{nfolds}{number of folds for cross validation}
 
-\item{lambda.choice}{how to cross-validate}
+\item{lambda.choice}{how to cross-validate; choose from "lambda.min" or "lambda.1se"}
 
 \item{penalty.search}{whether to perform fine grainted penalty factor search (logical)}
 }
 \description{
-S-learner, as proposed by Imai and Ratkovic 2013
+S-learner, as proposed by Imai and Ratkovic 2013, implemented via glmnet (lasso)
+}
+\examples{
+\dontrun{
+n = 100; p = 10
+
+X = matrix(rnorm(n*p), n, p)
+W = rbinom(n, 1, 0.5)
+Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+
+slasso.fit = slasso(X, Y, W)
+slasso.est = predict(slasso.fit, X)
+}
 }

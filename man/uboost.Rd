@@ -2,14 +2,53 @@
 % Please edit documentation in R/uboost.R
 \name{uboost}
 \alias{uboost}
-\title{Title}
+\title{U-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via xgboost (gradient boosting)}
 \usage{
 uboost(X, Y, W, nfolds = NULL, w.hat = NULL, y.hat = NULL,
-  cutoff = 0.05)
+  cutoff = 0.05, ntrees.max = 1000, num.search.rounds = 10,
+  print.every.n = 100, early.stopping.rounds = 10, nthread = NULL,
+  bayes.opt = FALSE)
 }
 \arguments{
-\item{cutoff}{}
+\item{X}{the input features}
+
+\item{Y}{the observed response (real valued)}
+
+\item{W}{the treatment variable (0 or 1)}
+
+\item{nfolds}{number of folds used for cross fitting and cross validation}
+
+\item{w.hat}{pre-computed estimates on E[W|X] corresponding to the input X. uboost will compute it internally if not provided.}
+
+\item{y.hat}{pre-computed estimates on E[Y|X] corresponding to the input X. uboost will compute it internally if not provided.}
+
+\item{cutoff}{the threshold to cutoff propensity estimate}
+
+\item{ntrees.max}{the maximum number of trees to grow for xgboost}
+
+\item{num.search.rounds}{the number of random sampling of hyperparameter combinations for cross validating on xgboost trees}
+
+\item{print.every.n}{the number of iterations (in each iteration, a tree is grown) by which the code prints out information}
+
+\item{early.stopping.rounds}{the number of rounds the test error stops decreasing by which the cross validation in finding the optimal number of trees stops}
+
+\item{nthread}{the number of threads to use. The default is NULL, which uses all available threads}
+
+\item{bayes.opt}{if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost. if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num.search.rounds). Default is FALSE.}
 }
 \description{
-Title
+U-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via xgboost (gradient boosting)
+}
+\examples{
+\dontrun{
+n = 100; p = 10
+
+X = matrix(rnorm(n*p), n, p)
+W = rbinom(n, 1, 0.5)
+Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+
+uboost.fit = uboost(X, Y, W)
+uboost.est = predict(uboost.fit, X)
+}
+
 }

@@ -2,13 +2,34 @@
 % Please edit documentation in R/tboost.R
 \name{predict.tboost}
 \alias{predict.tboost}
-\title{Title}
+\title{predict for tboost}
 \usage{
 \method{predict}{tboost}(object, newx = NULL, ...)
 }
 \arguments{
-\item{...}{}
+\item{object}{a tboost object}
+
+\item{newx}{covariate matrix to make predictions on. If null, return the tau(x) predictions on the training data}
+
+\item{...}{additional arguments (currently not used)}
+}
+\value{
+vector of predictions
 }
 \description{
-Title
+get estimated tau(x) using the trained tboost model
+}
+\examples{
+\dontrun{
+n = 100; p = 10
+
+X = matrix(rnorm(n*p), n, p)
+W = rbinom(n, 1, 0.5)
+Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+
+tboost.fit = tboost(X, Y, W)
+tboost.est = predict(tboost.fit, X)
+}
+
+
 }

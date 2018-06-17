@@ -2,7 +2,7 @@
 % Please edit documentation in R/rlasso.R
 \name{rlasso}
 \alias{rlasso}
-\title{R-learner, as proposed by Nie and Wager, 2017}
+\title{R-learner, as proposed by Nie and Wager 2017, implemented via glmnet (lasso)}
 \usage{
 rlasso(X, Y, W, alpha = 1, nfolds = NULL, lambda.choice = c("lambda.min",
   "lambda.1se"), rs = FALSE, w.hat = NULL, y.hat = NULL)
@@ -18,14 +18,26 @@ rlasso(X, Y, W, alpha = 1, nfolds = NULL, lambda.choice = c("lambda.min",
 
 \item{nfolds}{number of folds for cross-fitting}
 
-\item{lambda.choice}{how to cross-validate}
+\item{lambda.choice}{how to cross-validate; choose from "lambda.min" or "lambda.1se"}
 
-\item{rs}{whether to use the RS-learner (logical)}
+\item{rs}{whether to use the RS-learner (logical).}
 
 \item{w.hat}{user-supplied estimate for E[W|X]}
 
 \item{y.hat}{user-supplied estimte for E[Y|X]}
 }
 \description{
-R-learner, as proposed by Nie and Wager, 2017
+R-learner, as proposed by Nie and Wager 2017, implemented via glmnet (lasso)
+}
+\examples{
+\dontrun{
+n = 100; p = 10
+
+X = matrix(rnorm(n*p), n, p)
+W = rbinom(n, 1, 0.5)
+Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+
+rlasso.fit = rlasso(X, Y, W)
+rlasso.est = predict(rlasso.fit, X)
+}
 }

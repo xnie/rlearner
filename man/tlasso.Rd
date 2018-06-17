@@ -2,7 +2,7 @@
 % Please edit documentation in R/tlasso.R
 \name{tlasso}
 \alias{tlasso}
-\title{T-learner}
+\title{T-learner, implemented via glmnet (lasso)}
 \usage{
 tlasso(X, Y, W, alpha = 1, nfolds.1 = NULL, nfolds.0 = NULL,
   lambda.choice = c("lambda.min", "lambda.1se"))
@@ -16,12 +16,24 @@ tlasso(X, Y, W, alpha = 1, nfolds.1 = NULL, nfolds.0 = NULL,
 
 \item{alpha}{tuning parameter for the elastic net}
 
-\item{nfolds.1}{number of folds for learning E[Y|X,W=1]}
+\item{nfolds.1}{number of folds for cross validation for the treated}
 
-\item{nfolds.0}{number of folds for learning E[Y|X,W=0]}
+\item{nfolds.0}{number of folds for cross validation for the control}
 
-\item{lambda.choice}{how to cross-validate}
+\item{lambda.choice}{how to cross-validate; choose from "lambda.min" or "lambda.1se"}
 }
 \description{
-T-learner
+T-learner, implemented via glmnet (lasso)
+}
+\examples{
+\dontrun{
+n = 100; p = 10
+
+X = matrix(rnorm(n*p), n, p)
+W = rbinom(n, 1, 0.5)
+Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+
+tlasso.fit = tlasso(X, Y, W)
+tlasso.est = predict(tlasso.fit, X)
+}
 }

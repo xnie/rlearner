@@ -1,25 +1,41 @@
-#' Title
+#' T-learner, implemented via xgboost (gradient boosting)
 #'
-#' @param X
-#' @param Y
-#' @param W
-#' @param alpha
-#' @param nfolds.1
-#' @param nfolds.0
-#' @param lambda.choice
-#'
-#' @return
-#' @export
+#' @param X the input features
+#' @param Y the observed response (real valued)
+#' @param W the treatment variable (0 or 1)
+#' @param nfolds.1 number of folds for cross validation for the treated
+#' @param nfolds.0 number of folds for cross validation for the control
+#' @param ntrees.max the maximum number of trees to grow for xgboost
+#' @param num.search.rounds the number of random sampling of hyperparameter combinations for cross validating on xgboost trees
+#' @param print.every.n the number of iterations (in each iteration, a tree is grown) by which the code prints out information
+#' @param early.stopping.rounds the number of rounds the test error stops decreasing by which the cross validation in finding the optimal number of trees stops
+#' @param nthread the number of threads to use. The default is NULL, which uses all available threads
+#' @param bayes.opt if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost. if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num.search.rounds). Default is FALSE.
 #'
 #' @examples
+#' \dontrun{
+#' n = 100; p = 10
+#'
+#' X = matrix(rnorm(n*p), n, p)
+#' W = rbinom(n, 1, 0.5)
+#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#'
+#' tboost.fit = tboost(X, Y, W)
+#' tboost.est = predict(tboost.fit, X)
+#' }
+#'
+#' @export
+
 tboost = function(X, Y, W,
                   alpha = 1,
                   nfolds.1=NULL,
                   nfolds.0=NULL,
-                  lambda.choice=c("lambda.min", "lambda.1se"),
-                  nthread=NULL) {
-
-  lambda.choice = match.arg(lambda.choice)
+                  ntrees.max=1000,
+                  num.search.rounds=10,
+                  print.every.n=100,
+                  early.stopping.rounds=10,
+                  nthread=NULL,
+                  bayes.opt=FALSE) {
 
   X.1 = X[which(W==1),]
   X.0 = X[which(W==0),]
@@ -57,16 +73,29 @@ tboost = function(X, Y, W,
   ret
 }
 
-#' Title
+#' predict for tboost
 #'
-#' @param object
-#' @param newx
-#' @param ...
+#' get estimated tau(x) using the trained tboost model
 #'
-#' @return
-#' @export predict.tboost
+#' @param object a tboost object
+#' @param newx covariate matrix to make predictions on. If null, return the tau(x) predictions on the training data
+#' @param ... additional arguments (currently not used)
 #'
 #' @examples
+#' \dontrun{
+#' n = 100; p = 10
+#'
+#' X = matrix(rnorm(n*p), n, p)
+#' W = rbinom(n, 1, 0.5)
+#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#'
+#' tboost.fit = tboost(X, Y, W)
+#' tboost.est = predict(tboost.fit, X)
+#' }
+#'
+#'
+#' @return vector of predictions
+#' @export
 predict.tboost <- function(object,
                            newx=NULL,
                            ...) {

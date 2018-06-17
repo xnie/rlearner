@@ -1,14 +1,24 @@
-#' S-learner, as proposed by Imai and Ratkovic 2013
+#' S-learner, as proposed by Imai and Ratkovic 2013, implemented via glmnet (lasso)
 #'
 #' @param X the input features
 #' @param Y the observed response (real valued)
 #' @param W the treatment variable (0 or 1)
 #' @param alpha tuning parameter for the elastic net
-#' @param nfolds number of folds for cross-fitting
-#' @param lambda.choice how to cross-validate
+#' @param nfolds number of folds for cross validation
+#' @param lambda.choice how to cross-validate; choose from "lambda.min" or "lambda.1se"
 #' @param penalty.search whether to perform fine grainted penalty factor search (logical)
+#' @examples
+#' \dontrun{
+#' n = 100; p = 10
 #'
-#' @export slasso
+#' X = matrix(rnorm(n*p), n, p)
+#' W = rbinom(n, 1, 0.5)
+#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#'
+#' slasso.fit = slasso(X, Y, W)
+#' slasso.est = predict(slasso.fit, X)
+#' }
+#' @export
 slasso = function(X, Y, W,
                   alpha = 1,
                   nfolds = NULL,
@@ -100,7 +110,29 @@ slasso = function(X, Y, W,
   ret
 }
 
-#' @export predict.slasso
+#' predict for slasso
+#'
+#' get estimated tau(x) using the trained slasso model
+#'
+#' @param object a slasso object
+#' @param newx covariate matrix to make predictions on. If null, return the tau(x) predictions on the training data
+#' @param ... additional arguments (currently not used)
+#'
+#' @examples
+#' \dontrun{
+#' n = 100; p = 10
+#'
+#' X = matrix(rnorm(n*p), n, p)
+#' W = rbinom(n, 1, 0.5)
+#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#'
+#' slasso.fit = slasso(X, Y, W)
+#' slasso.est = predict(slasso.fit, X)
+#' }
+#'
+#'
+#' @return vector of predictions
+#' @export
 predict.slasso <- function(object,
                            newx=NULL,
                            ...) {

@@ -1,21 +1,31 @@
-#' Title
+#' Gradient boosting for regression and classification with cross validation to search for hyper-parameters (implemented with xgboost)
 #'
-#' @param X
-#' @param Y
-#' @param weights
-#' @param nfolds
-#' @param objective
-#' @param ntrees.max
-#' @param num.search.rounds
-#' @param print.every.n
-#' @param early.stopping.rounds
-#' @param nthread
-#' @param bayes.opt
+#' @param X the input features
+#' @param Y the observed response (real valued)
+#' @param weights weights for input if doing weighted regression/classification. If set to NULL, no weights are used
+#' @param nfolds number of folds used in cross validation
+#' @param objective choose from either "reg:linear" for regression or "binary:logistic" for logistic regression
+#' @param ntrees.max the maximum number of trees to grow for xgboost
+#' @param num.search.rounds the number of random sampling of hyperparameter combinations for cross validating on xgboost trees
+#' @param print.every.n the number of iterations (in each iteration, a tree is grown) by which the code prints out information
+#' @param early.stopping.rounds the number of rounds the test error stops decreasing by which the cross validation in finding the optimal number of trees stops
+#' @param nthread the number of threads to use. The default is NULL, which uses all available threads
+#' @param bayes.opt if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost. if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num.search.rounds). Default is FALSE.
 #'
-#' @return
-#' @export
+#' @return a cvboost object
 #'
 #' @examples
+#' \dontrun{
+#' n = 100; p = 10
+#'
+#' X = matrix(rnorm(n*p), n, p)
+#' Y = pmax(X[,1], 0) + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#'
+#' fit = cvboost(X, Y, objective="reg:linear")
+#' est = predict(fit, X)
+#' }
+#'
+#' @export
 cvboost = function(X,
                    Y,
                    weights=NULL,
@@ -176,16 +186,25 @@ cvboost = function(X,
   ret
 }
 
-#' Title
+#' predict for cvboost
 #'
-#' @param object
-#' @param newx
-#' @param ...
-#'
-#' @return
-#' @export
+#' @param object a cvboost object
+#' @param newx covariate matrix to make predictions on. If null, return the predictions on the training data
+#' @param ... additional arguments (currently not used)
 #'
 #' @examples
+#' \dontrun{
+#' n = 100; p = 10
+#'
+#' X = matrix(rnorm(n*p), n, p)
+#' Y = pmax(X[,1], 0) + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#'
+#' fit = cvboost(X, Y, objective="reg:linear")
+#' est = predict(fit, X)
+#' }
+#'
+#' @return vector of predictions
+#' @export
 predict.cvboost <- function(object,
                             newx=NULL,
                             ...) {

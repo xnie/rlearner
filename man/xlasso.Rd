@@ -2,10 +2,11 @@
 % Please edit documentation in R/xlasso.R
 \name{xlasso}
 \alias{xlasso}
-\title{X-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017}
+\title{X-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via glmnet (lasso)}
 \usage{
 xlasso(X, Y, W, alpha = 1, nfolds.1 = NULL, nfolds.0 = NULL,
-  nfolds.W = NULL, lambda.choice = c("lambda.min", "lambda.1se"))
+  nfolds.W = NULL, lambda.choice = c("lambda.min", "lambda.1se"),
+  y.1.pred = NULL, y.0.pred = NULL)
 }
 \arguments{
 \item{X}{the input features}
@@ -22,8 +23,26 @@ xlasso(X, Y, W, alpha = 1, nfolds.1 = NULL, nfolds.0 = NULL,
 
 \item{nfolds.W}{number of folds for learning E[W|X]}
 
-\item{lambda.choice}{how to cross-validate}
+\item{lambda.choice}{how to cross-validate; choose from "lambda.min" or "lambda.1se"}
+
+\item{y.1.pred}{pre-computed estimates on E[Y|X,W=1] corresponding to the input X. xlasso will compute it internally if not provided.}
+
+\item{y.0.pred}{pre-computed estimates on E[Y|X,W=0] corresponding to the input X. xlasso will compute it internally if not provided.}
 }
 \description{
-X-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017
+X-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via glmnet (lasso)
+}
+\examples{
+\dontrun{
+n = 100; p = 10
+
+X = matrix(rnorm(n*p), n, p)
+W = rbinom(n, 1, 0.5)
+Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+
+xlasso.fit = xlasso(X, Y, W)
+xlasso.est = predict(xlasso.fit, X)
+}
+
+
 }

@@ -49,6 +49,9 @@ multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some l
 
 \item{rc}{If TRUE, predict constant treatment effect first, learn hetereogeneity, and then add constant effect back}
 }
+\description{
+R-learning for heterogenous treatment effects
+}
 \details{
 The R-learner estimates heterogenous treatment effects by learning a custom objective function and minimizing it using
 any suitable machine learning algorithm.

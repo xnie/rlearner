@@ -11,3 +11,6 @@
 
 \item{x}{a matrix of covariates for which to predict the treatment effect}
 }
+\description{
+Prediction for R-learner
+}

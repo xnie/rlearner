@@ -1,4 +1,4 @@
-#' X-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017
+#' X-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via glmnet (lasso)
 #'
 #' @param X the input features
 #' @param Y the observed response (real valued)
@@ -7,9 +7,23 @@
 #' @param nfolds.1 number of folds for learning E[Y|X,W=1]
 #' @param nfolds.0 number of folds for learning E[Y|X,W=0]
 #' @param nfolds.W number of folds for learning E[W|X]
-#' @param lambda.choice how to cross-validate
+#' @param lambda.choice how to cross-validate; choose from "lambda.min" or "lambda.1se"
+#' @param y.1.pred pre-computed estimates on E[Y|X,W=1] corresponding to the input X. xlasso will compute it internally if not provided.
+#' @param y.0.pred pre-computed estimates on E[Y|X,W=0] corresponding to the input X. xlasso will compute it internally if not provided.
+#' @examples
+#' \dontrun{
+#' n = 100; p = 10
 #'
-#' @export xlasso
+#' X = matrix(rnorm(n*p), n, p)
+#' W = rbinom(n, 1, 0.5)
+#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#'
+#' xlasso.fit = xlasso(X, Y, W)
+#' xlasso.est = predict(xlasso.fit, X)
+#' }
+#'
+#'
+#' @export
 xlasso = function(X, Y, W,
                   alpha=1,
                   nfolds.1=NULL,
@@ -90,7 +104,29 @@ xlasso = function(X, Y, W,
 
 }
 
-#' @export predict.xlasso
+#' predict for xlasso
+#'
+#' get estimated tau(x) using the trained xlasso model
+#'
+#' @param object a xlasso object
+#' @param newx covariate matrix to make predictions on. If null, return the tau(x) predictions on the training data
+#' @param ... additional arguments (currently not used)
+#'
+#' @examples
+#' \dontrun{
+#' n = 100; p = 10
+#'
+#' X = matrix(rnorm(n*p), n, p)
+#' W = rbinom(n, 1, 0.5)
+#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#'
+#' xlasso.fit = xlasso(X, Y, W)
+#' xlasso.est = predict(xlasso.fit, X)
+#' }
+#'
+#'
+#' @return vector of predictions
+#' @export
 predict.xlasso <- function(object,
                            newx=NULL,
                            s=c("lambda.min", "lambda.1se"),

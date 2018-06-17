@@ -2,14 +2,37 @@
 % Please edit documentation in R/tlasso.R
 \name{predict.tlasso}
 \alias{predict.tlasso}
-\title{Title}
+\title{predict for tlasso}
 \usage{
 \method{predict}{tlasso}(object, newx = NULL, s = c("lambda.min",
   "lambda.1se"), ...)
 }
 \arguments{
-\item{...}{}
+\item{object}{a tlasso object}
+
+\item{newx}{covariate matrix to make predictions on. If null, return the tau(x) predictions on the training data}
+
+\item{s}{choose from "lambda.min" or "lambda.1se" for prediction}
+
+\item{...}{additional arguments (currently not used)}
+}
+\value{
+vector of predictions
 }
 \description{
-Title
+get estimated tau(x) using the trained tlasso model
+}
+\examples{
+\dontrun{
+n = 100; p = 10
+
+X = matrix(rnorm(n*p), n, p)
+W = rbinom(n, 1, 0.5)
+Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+
+tlasso.fit = tlasso(X, Y, W)
+tlasso.est = predict(tlasso.fit, X)
+}
+
+
 }

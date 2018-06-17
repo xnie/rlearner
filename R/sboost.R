@@ -1,14 +1,37 @@
-#' S-learner, as proposed by Imai and Ratkovic 2013
+#' S-learner, as proposed by Imai and Ratkovic 2013, implemented via xgboost (gradient boosting)
 #'
 #' @param X the input features
 #' @param Y the observed response (real valued)
 #' @param W the treatment variable (0 or 1)
-#' @param nfolds number of folds for cross-fitting
+#' @param nfolds number of folds for cross validation
+#' @param ntrees.max the maximum number of trees to grow for xgboost
+#' @param num.search.rounds the number of random sampling of hyperparameter combinations for cross validating on xgboost trees
+#' @param print.every.n the number of iterations (in each iteration, a tree is grown) by which the code prints out information
+#' @param early.stopping.rounds the number of rounds the test error stops decreasing by which the cross validation in finding the optimal number of trees stops
+#' @param nthread the number of threads to use. The default is NULL, which uses all available threads
+#' @param bayes.opt if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost. if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num.search.rounds). Default is FALSE.
 #'
-#' @export sboost
+#' @examples
+#' \dontrun{
+#' n = 100; p = 10
+#'
+#' X = matrix(rnorm(n*p), n, p)
+#' W = rbinom(n, 1, 0.5)
+#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#'
+#' sboost.fit = sboost(X, Y, W)
+#' sboost.est = predict(sboost.fit, X)
+#' }
+#'
+#' @export
 sboost = function(X, Y, W,
                   nfolds = NULL,
-                  nthread = NULL){
+                  ntrees.max=1000,
+                  num.search.rounds=10,
+                  print.every.n=100,
+                  early.stopping.rounds=10,
+                  nthread=NULL,
+                  bayes.opt=FALSE){
 
   nobs = nrow(X)
   pobs = ncol(X)
@@ -32,7 +55,29 @@ sboost = function(X, Y, W,
   ret
 }
 
-#' @export predict.sboost
+#' predict for sboost
+#'
+#' get estimated tau(x) using the trained sboost model
+#'
+#' @param object a sboost object
+#' @param newx covariate matrix to make predictions on. If null, return the tau(x) predictions on the training data
+#' @param ... additional arguments (currently not used)
+#'
+#' @examples
+#' \dontrun{
+#' n = 100; p = 10
+#'
+#' X = matrix(rnorm(n*p), n, p)
+#' W = rbinom(n, 1, 0.5)
+#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#'
+#' sboost.fit = sboost(X, Y, W)
+#' sboost.est = predict(sboost.fit, X)
+#' }
+#'
+#'
+#' @return vector of predictions
+#' @export
 predict.sboost <- function(object,
                            newx=NULL,
                            ...) {

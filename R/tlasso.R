@@ -1,14 +1,24 @@
-#' T-learner
+#' T-learner, implemented via glmnet (lasso)
 #'
 #' @param X the input features
 #' @param Y the observed response (real valued)
 #' @param W the treatment variable (0 or 1)
 #' @param alpha tuning parameter for the elastic net
-#' @param nfolds.1 number of folds for learning E[Y|X,W=1]
-#' @param nfolds.0 number of folds for learning E[Y|X,W=0]
-#' @param lambda.choice how to cross-validate
+#' @param nfolds.1 number of folds for cross validation for the treated
+#' @param nfolds.0 number of folds for cross validation for the control
+#' @param lambda.choice how to cross-validate; choose from "lambda.min" or "lambda.1se"
+#' @examples
+#' \dontrun{
+#' n = 100; p = 10
 #'
-#' @export tlasso
+#' X = matrix(rnorm(n*p), n, p)
+#' W = rbinom(n, 1, 0.5)
+#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#'
+#' tlasso.fit = tlasso(X, Y, W)
+#' tlasso.est = predict(tlasso.fit, X)
+#' }
+#' @export
 tlasso = function(X, Y, W,
                   alpha = 1,
                   nfolds.1=NULL,
@@ -57,17 +67,30 @@ tlasso = function(X, Y, W,
   ret
 }
 
-#' Title
+#' predict for tlasso
 #'
-#' @param object
-#' @param newx
-#' @param s
-#' @param ...
+#' get estimated tau(x) using the trained tlasso model
 #'
-#' @return
-#' @export predict.tlasso
+#' @param object a tlasso object
+#' @param newx covariate matrix to make predictions on. If null, return the tau(x) predictions on the training data
+#' @param s choose from "lambda.min" or "lambda.1se" for prediction
+#' @param ... additional arguments (currently not used)
 #'
 #' @examples
+#' \dontrun{
+#' n = 100; p = 10
+#'
+#' X = matrix(rnorm(n*p), n, p)
+#' W = rbinom(n, 1, 0.5)
+#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#'
+#' tlasso.fit = tlasso(X, Y, W)
+#' tlasso.est = predict(tlasso.fit, X)
+#' }
+#'
+#'
+#' @return vector of predictions
+#' @export
 predict.tlasso <- function(object,
                            newx=NULL,
                            s=c("lambda.min", "lambda.1se"),

@@ -2,13 +2,32 @@
 % Please edit documentation in R/cvboost.R
 \name{predict.cvboost}
 \alias{predict.cvboost}
-\title{Title}
+\title{predict for cvboost}
 \usage{
 \method{predict}{cvboost}(object, newx = NULL, ...)
 }
 \arguments{
-\item{...}{}
+\item{object}{a cvboost object}
+
+\item{newx}{covariate matrix to make predictions on. If null, return the predictions on the training data}
+
+\item{...}{additional arguments (currently not used)}
+}
+\value{
+vector of predictions
 }
 \description{
-Title
+predict for cvboost
+}
+\examples{
+\dontrun{
+n = 100; p = 10
+
+X = matrix(rnorm(n*p), n, p)
+Y = pmax(X[,1], 0) + X[,2] + pmin(X[,3], 0) + rnorm(n)
+
+fit = cvboost(X, Y, objective="reg:linear")
+est = predict(fit, X)
+}
+
 }

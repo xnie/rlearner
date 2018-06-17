@@ -2,14 +2,48 @@
 % Please edit documentation in R/tboost.R
 \name{tboost}
 \alias{tboost}
-\title{Title}
+\title{T-learner, implemented via xgboost (gradient boosting)}
 \usage{
 tboost(X, Y, W, alpha = 1, nfolds.1 = NULL, nfolds.0 = NULL,
-  lambda.choice = c("lambda.min", "lambda.1se"))
+  ntrees.max = 1000, num.search.rounds = 10, print.every.n = 100,
+  early.stopping.rounds = 10, nthread = NULL, bayes.opt = FALSE)
 }
 \arguments{
-\item{lambda.choice}{}
+\item{X}{the input features}
+
+\item{Y}{the observed response (real valued)}
+
+\item{W}{the treatment variable (0 or 1)}
+
+\item{nfolds.1}{number of folds for cross validation for the treated}
+
+\item{nfolds.0}{number of folds for cross validation for the control}
+
+\item{ntrees.max}{the maximum number of trees to grow for xgboost}
+
+\item{num.search.rounds}{the number of random sampling of hyperparameter combinations for cross validating on xgboost trees}
+
+\item{print.every.n}{the number of iterations (in each iteration, a tree is grown) by which the code prints out information}
+
+\item{early.stopping.rounds}{the number of rounds the test error stops decreasing by which the cross validation in finding the optimal number of trees stops}
+
+\item{nthread}{the number of threads to use. The default is NULL, which uses all available threads}
+
+\item{bayes.opt}{if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost. if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num.search.rounds). Default is FALSE.}
 }
 \description{
-Title
+T-learner, implemented via xgboost (gradient boosting)
+}
+\examples{
+\dontrun{
+n = 100; p = 10
+
+X = matrix(rnorm(n*p), n, p)
+W = rbinom(n, 1, 0.5)
+Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+
+tboost.fit = tboost(X, Y, W)
+tboost.est = predict(tboost.fit, X)
+}
+
 }

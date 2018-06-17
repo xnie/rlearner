@@ -2,10 +2,10 @@
 % Please edit documentation in R/ulasso.R
 \name{ulasso}
 \alias{ulasso}
-\title{U-learner}
+\title{U-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via glmnet (lasso)}
 \usage{
 ulasso(X, Y, W, alpha = 1, nfolds = NULL, lambda.choice = c("lambda.1se",
-  "lambda.mse"), cutoff = 0.05)
+  "lambda.mse"), w.hat = NULL, y.hat = NULL, cutoff = 0.05)
 }
 \arguments{
 \item{X}{the input features}
@@ -18,10 +18,26 @@ ulasso(X, Y, W, alpha = 1, nfolds = NULL, lambda.choice = c("lambda.1se",
 
 \item{nfolds}{number of folds for cross-fitting}
 
-\item{lambda.choice}{how to cross-validate}
+\item{lambda.choice}{how to cross-validate; choose from "lambda.1se" or "lambda.mse"}
 
-\item{cutoff}{propensity cutoff threshold}
+\item{w.hat}{user-supplied estimate for E[W|X]}
+
+\item{y.hat}{user-supplied estimte for E[Y|X]}
+
+\item{cutoff}{the threshold to cutoff propensity estimate}
 }
 \description{
-U-learner
+U-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via glmnet (lasso)
+}
+\examples{
+\dontrun{
+n = 100; p = 10
+
+X = matrix(rnorm(n*p), n, p)
+W = rbinom(n, 1, 0.5)
+Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+
+ulasso.fit = ulasso(X, Y, W)
+ulasso.est = predict(ulasso.fit, X)
+}
 }

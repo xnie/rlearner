@@ -1,16 +1,27 @@
-#' R-learner, as proposed by Nie and Wager, 2017
+#' R-learner, as proposed by Nie and Wager 2017, implemented via glmnet (lasso)
 #'
 #' @param X the input features
 #' @param Y the observed response (real valued)
 #' @param W the treatment variable (0 or 1)
 #' @param alpha tuning parameter for the elastic net
 #' @param nfolds number of folds for cross-fitting
-#' @param lambda.choice how to cross-validate
-#' @param rs whether to use the RS-learner (logical)
+#' @param lambda.choice how to cross-validate; choose from "lambda.min" or "lambda.1se"
+#' @param rs whether to use the RS-learner (logical).
 #' @param w.hat user-supplied estimate for E[W|X]
 #' @param y.hat user-supplied estimte for E[Y|X]
 #'
-#' @export rlasso
+#' @examples
+#' \dontrun{
+#' n = 100; p = 10
+#'
+#' X = matrix(rnorm(n*p), n, p)
+#' W = rbinom(n, 1, 0.5)
+#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#'
+#' rlasso.fit = rlasso(X, Y, W)
+#' rlasso.est = predict(rlasso.fit, X)
+#' }
+#' @export
 rlasso = function(X, Y, W,
                   alpha = 1,
                   nfolds=NULL,
@@ -93,16 +104,30 @@ rlasso = function(X, Y, W,
     ret
 }
 
-#' Title
+
+#' predict for rlasso
 #'
-#' @param object
-#' @param newx
-#' @param ...
+#' get estimated tau(x) using the trained rlasso model
 #'
-#' @return
-#' @export predict.rlasso
+#' @param object a rlasso object
+#' @param newx covariate matrix to make predictions on. If null, return the tau(x) predictions on the training data
+#' @param ... additional arguments (currently not used)
 #'
 #' @examples
+#' \dontrun{
+#' n = 100; p = 10
+#'
+#' X = matrix(rnorm(n*p), n, p)
+#' W = rbinom(n, 1, 0.5)
+#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#'
+#' rlasso.fit = rlasso(X, Y, W)
+#' rlasso.est = predict(rlasso.fit, X)
+#' }
+#'
+#'
+#' @return vector of predictions
+#' @export
 predict.rlasso <- function(object,
                            newx=NULL,
                            ...) {
