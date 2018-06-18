@@ -5,9 +5,19 @@
 \title{X-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via xgboost (gradient boosting)}
 \usage{
 xboost(X, Y, W, nfolds.1 = NULL, nfolds.0 = NULL, nfolds.W = NULL,
+<<<<<<< Updated upstream
   y.1.pred = NULL, y.0.pred = NULL, w.hat = NULL, ntrees.max = 1000,
   num.search.rounds = 10, print.every.n = 100, early.stopping.rounds = 10,
   nthread = NULL, bayes.opt = FALSE)
+=======
+<<<<<<< HEAD
+  nthread = NULL, y.1.pred = NULL, y.0.pred = NULL)
+=======
+  y.1.pred = NULL, y.0.pred = NULL, w.hat = NULL, ntrees.max = 1000,
+  num.search.rounds = 10, print.every.n = 100, early.stopping.rounds = 10,
+  nthread = NULL, bayes.opt = FALSE)
+>>>>>>> origin/master
+>>>>>>> Stashed changes
 }
 \arguments{
 \item{X}{the input features}

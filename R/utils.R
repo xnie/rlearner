@@ -4,12 +4,49 @@
 #' @import dplyr
 #' @import tidyr
 #' @import purrr
+#' @import stringr
 
 # For thresholding propensity scores
 trim = function(x, min, max) {
 	x[x>max] = max
 	x[x<min] = min
 	return(x)
+}
+
+#logical treatment to factor treatment
+lgl_to_fct = function(w_lgl) {
+	w_lgl %>% 
+		ifelse("treated", "control") %>%
+		as.factor() %>% 
+		factor(c("treated", "control")) # 
+}
+
+sanitize_input = function(x,w,y) {
+	# make sure x is a numeric matrix with named columns (for caret)
+	if (!is.matrix(x) | !is.numeric(x) | any(is.na(x))) {
+		rlang::abort("x must be a numeric matrix with no missing values")
+	}
+	colnames(x) = str_c("covariate_", 1:ncol(x))
+
+	# make sure w is logical (learner_cv will convert to factor when necessary)
+	if (is.numeric(w) & all(w %in% c(0,1))) {
+		w = w==1
+	}
+	if (!is.logical(w)) {
+		rlang::abort("w should be a logical vector")
+	}
+
+	# make sure y is a numeric vector
+	if (!is.numeric(y)) {
+		rlang::abort("y should be a numeric vector")
+	}
+
+	# make sure the dimensions align
+	if (length(y)!=nrow(x) | length(w)!=nrow(x)) {
+		rlang::abort("nrow(x), length(w), and length(y) should all be equal")
+	}
+
+	return(list(x,w,y))
 }
 
 #' @title Toy data simulation
@@ -33,13 +70,12 @@ toy_data_simulation = function(n) {
 	x = stats::model.matrix(~.-1, data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n))) 
 	logit_p = (x %*% c(1,1))
 	p = exp(logit_p)/(1+exp(logit_p))
-	w_bool = rbinom(n,1,p)==1
-	w = factor(as.factor(w_bool %>% ifelse("treated", "control")), c("treated", "control"))
+	w = rbinom(n,1,p)==1
 	tau = (x %*% c(1,1))^2
 	m = x %*% c(1,-3)
 	mu1 = m + tau/2
 	mu0 = m - tau/2
-	y = (m + tau/2*(2*w_bool-1))[,1] + rnorm(n)
+	y = (m + tau/2*(2*w-1))[,1] + rnorm(n)
 	list(x=x, w=w, y=y, p=p, m=m, mu0=mu0, mu1=mu1, tau=tau)
 }
 
@@ -63,12 +99,11 @@ toy_data_simulation = function(n) {
 easy_toy_data_simulation = function(n) {
 	x = stats::model.matrix(~.-1, data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n))) 
 	p = rep(0.5, n)
-	w_bool = rbinom(n,1,p)==1
-	w = factor(as.factor(w_bool %>% ifelse("treated", "control")), c("treated", "control"))
+	w = rbinom(n,1,p)==1
 	tau = x %*% c(1,1)
 	m = x %*% c(0.5,-0.5)
 	mu1 = m + tau/2
 	mu0 = m - tau/2
-	y = (m + tau/2*(2*w_bool-1))[,1] 
+	y = (m + tau/2*(2*w-1))[,1] 
 	list(x=x, w=w, y=y, p=p, m=m, mu0=mu0, mu1=mu1, tau=tau)
 }

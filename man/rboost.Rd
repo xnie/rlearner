@@ -4,9 +4,20 @@
 \alias{rboost}
 \title{R-learner, as proposed by Nie and Wager 2017, implemented via xgboost (gradient boosting)}
 \usage{
+<<<<<<< Updated upstream
 rboost(X, Y, W, nfolds = NULL, w.hat = NULL, y.hat = NULL,
   ntrees.max = 1000, num.search.rounds = 10, print.every.n = 100,
   early.stopping.rounds = 10, nthread = NULL, bayes.opt = FALSE)
+=======
+<<<<<<< HEAD
+rboost(X, Y, W, nfolds = NULL, rc = FALSE, w.hat = NULL, y.hat = NULL,
+  nthread = NULL)
+=======
+rboost(X, Y, W, nfolds = NULL, w.hat = NULL, y.hat = NULL,
+  ntrees.max = 1000, num.search.rounds = 10, print.every.n = 100,
+  early.stopping.rounds = 10, nthread = NULL, bayes.opt = FALSE)
+>>>>>>> origin/master
+>>>>>>> Stashed changes
 }
 \arguments{
 \item{X}{the input features}

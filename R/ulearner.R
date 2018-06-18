@@ -3,7 +3,7 @@
 #' @title U-learning for heterogenous treatment effects
 #'
 #' @param x a numeric matrix of \strong{covariates}
-#' @param w a two-class factor vector of \strong{treatments}. The first factor level is treated as the positive class \eqn{w=1}
+#' @param w a logical vector indicating \strong{treatment}
 #' @param y a numeric vector of \strong{outcomes}
 #' @param tau_model_specs specification for the model of \eqn{\tau(x) = E[Y(1) - Y(0)|X=x]}. See \code{\link{learner_cv}}.
 #' @param p_hat a numeric vector of estimates of the treatment propensity \eqn{p(x) = E[W|X=x]} of each observation.
@@ -57,6 +57,8 @@ ulearner_cv = function(x, w, y, tau_model_specs,
 	economy=T, select_by="best",
 	p_min=0, p_max=1) {
 
+	c(x, w, y) %<-% sanitize_input(x,w,y)
+
 	if (is.null(p_hat)) {
 		p_hat = xval_xfit(x, w, p_model_specs,
 			k_folds_cf=k_folds_cf, k_folds=k_folds, economy=economy, select_by=select_by) %>%
@@ -67,7 +69,6 @@ ulearner_cv = function(x, w, y, tau_model_specs,
 			k_folds_cf=k_folds_cf, k_folds=k_folds, economy=economy, select_by=select_by)
 	}
 
-	if (is.factor(w)) {w = w==levels(w)[1]} # turn factor to a logical (the first factor level should be the "treated")
 	r_pseudo_outcome = (y - m_hat)/(w - p_hat)
 
 	ulearner = list(

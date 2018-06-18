@@ -3,7 +3,7 @@
 #' @title T-learning for heterogenous treatment effects
 #'
 #' @param x a numeric matrix of \strong{covariates}
-#' @param w a two-class factor vector of \strong{treatments}. The first factor level is treated as the positive class \eqn{w=1}
+#' @param w a logical vector indicating \strong{treatment}
 #' @param y a numeric vector of \strong{outcomes}
 #' @param model_specs specification for the models of \eqn{\mu_w(x) = E[Y|W=w,X=x]}. See \code{\link{learner_cv}}.
 #' @param k_folds number of cross-validation folds to use in hyperparameter optimization for each model.
@@ -36,7 +36,9 @@
 #' }
 #' @export
 tlearner_cv = function(x, w, y, model_specs, k_folds=5, select_by="best") {
-	tlearner = levels(w) %>% map(function(condition) { # the first level of w corresponds to the treated
+	c(x, w, y) %<-% sanitize_input(x,w,y)
+
+	tlearner = c(TRUE, FALSE) %>% map(function(condition) {
 		learner_cv(
 			x[w==condition,], y[w==condition], # filters to only include subjects treated under "condition"
 			model_specs, k_folds=k_folds)
@@ -52,6 +54,6 @@ tlearner_cv = function(x, w, y, model_specs, k_folds=5, select_by="best") {
 predict.tlearner = function(object, x) {
 	object %>% 
 		map(~predict(., newdata=x)) %->% 
-		c(mu1_hat, mu0_hat) # these will come out in the order of levels(w), where the first level indicates positive treatment
+		c(mu1_hat, mu0_hat) # these will come out in this order because of the above: c(T,F) %>% map(... 
 	return(mu1_hat - mu0_hat)
 }

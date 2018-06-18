@@ -3,7 +3,7 @@
 #' @title X-learning for heterogenous treatment effects
 #'
 #' @param x a numeric matrix of \strong{covariates}
-#' @param w a two-class factor vector of \strong{treatments}. The first factor level is treated as the positive class \eqn{w=1}
+#' @param w a logical vector indicating \strong{treatment}
 #' @param y a numeric vector of \strong{outcomes}
 #' @param tau_model_specs specification for the model of \eqn{\tau(x) = E[Y(1) - Y(0)|X=x]}. See \code{\link{learner_cv}}.
 #' @param p_model_specs specification for the model of \eqn{p(x) = E[W|X=x]}. See \code{\link{learner_cv}}.
@@ -51,11 +51,11 @@ xlearner_cv = function(x, w, y, tau_model_specs,
 	k_folds=5, select_by="best",
 	p_min=0, p_max=1) {
 	
+	c(x, w, y) %<-% sanitize_input(x,w,y)
+
 	p_hat_model = learner_cv(x, w, p_model_specs, 
 		k_folds=k_folds, select_by=select_by,
 		p_min = p_min, p_max=p_max)
-
-	w = w==levels(w)[1]
 
 	if (is.null(mu1_hat_0)) {
 		mu1_hat_model = learner_cv(x[w,], y[w], mu_model_specs, 

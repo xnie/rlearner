@@ -5,8 +5,17 @@
 \title{T-learner, implemented via xgboost (gradient boosting)}
 \usage{
 tboost(X, Y, W, alpha = 1, nfolds.1 = NULL, nfolds.0 = NULL,
+<<<<<<< Updated upstream
   ntrees.max = 1000, num.search.rounds = 10, print.every.n = 100,
   early.stopping.rounds = 10, nthread = NULL, bayes.opt = FALSE)
+=======
+<<<<<<< HEAD
+  lambda.choice = c("lambda.min", "lambda.1se"), nthread = NULL)
+=======
+  ntrees.max = 1000, num.search.rounds = 10, print.every.n = 100,
+  early.stopping.rounds = 10, nthread = NULL, bayes.opt = FALSE)
+>>>>>>> origin/master
+>>>>>>> Stashed changes
 }
 \arguments{
 \item{X}{the input features}
