@@ -6,7 +6,7 @@
 \usage{
 xlasso(X, Y, W, alpha = 1, nfolds.1 = NULL, nfolds.0 = NULL,
   nfolds.W = NULL, lambda.choice = c("lambda.min", "lambda.1se"),
-  y.1.pred = NULL, y.0.pred = NULL)
+  y.1.pred = NULL, y.0.pred = NULL, w.hat = NULL)
 }
 \arguments{
 \item{X}{the input features}
@@ -28,6 +28,8 @@ xlasso(X, Y, W, alpha = 1, nfolds.1 = NULL, nfolds.0 = NULL,
 \item{y.1.pred}{pre-computed estimates on E[Y|X,W=1] corresponding to the input X. xlasso will compute it internally if not provided.}
 
 \item{y.0.pred}{pre-computed estimates on E[Y|X,W=0] corresponding to the input X. xlasso will compute it internally if not provided.}
+
+\item{w.hat}{pre-computed estimates on E[W|X] corresponding to the input X. xlasso will compute it internally if not provided}
 }
 \description{
 X-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via glmnet (lasso)

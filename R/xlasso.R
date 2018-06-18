@@ -10,6 +10,7 @@
 #' @param lambda.choice how to cross-validate; choose from "lambda.min" or "lambda.1se"
 #' @param y.1.pred pre-computed estimates on E[Y|X,W=1] corresponding to the input X. xlasso will compute it internally if not provided.
 #' @param y.0.pred pre-computed estimates on E[Y|X,W=0] corresponding to the input X. xlasso will compute it internally if not provided.
+#' @param w.hat pre-computed estimates on E[W|X] corresponding to the input X. xlasso will compute it internally if not provided
 #' @examples
 #' \dontrun{
 #' n = 100; p = 10
@@ -31,7 +32,8 @@ xlasso = function(X, Y, W,
                   nfolds.W=NULL,
                   lambda.choice=c("lambda.min", "lambda.1se"),
                   y.1.pred=NULL,
-                  y.0.pred=NULL){
+                  y.0.pred=NULL,
+                  w.hat=NULL){
 
   lambda.choice = match.arg(lambda.choice)
 
@@ -83,8 +85,13 @@ xlasso = function(X, Y, W,
   tau.1.pred = predict(x.1.fit, newx=X, s=lambda.choice)
   tau.0.pred = predict(x.0.fit, newx=X, s=lambda.choice)
 
-  w.fit = glmnet::cv.glmnet(X, W, foldid=foldid.W, keep=TRUE, family="binomial", type.measure = "deviance", alpha = alpha)
-  w.hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.min]
+  if (is.null(w.hat)){
+    w.fit = glmnet::cv.glmnet(X, W, foldid = foldid.W, keep = TRUE, family = "binomial", type.measure = "deviance", alpha = alpha)
+    w.hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.min]
+  }
+  else{
+    w.fit = NULL
+  }
 
   tau.hat = tau.1.pred * (1-w.hat) + tau.0.pred * w.hat
 

@@ -56,8 +56,27 @@ tboost = function(X, Y, W,
     nfolds.0 = floor(max(3, min(10,nobs.0/4)))
   }
 
-  t.1.fit = cvboost(X.1, Y.1, objective="reg:linear", nfolds = nfolds.1, nthread=nthread)
-  t.0.fit = cvboost(X.0, Y.0, objective="reg:linear", nfolds = nfolds.0, nthread=nthread)
+  t.1.fit = cvboost(X.1,
+                    Y.1,
+                    objective="reg:linear",
+                    nfolds = nfolds.1,
+                    ntrees.max=ntrees.max,
+                    num.search.rounds=num.search.rounds,
+                    print.every.n=print.every.n,
+                    early.stopping.rounds=early.stopping.rounds,
+                    nthread=nthread,
+                    bayes.opt=bayes.opt)
+
+  t.0.fit = cvboost(X.0,
+                    Y.0,
+                    objective="reg:linear",
+                    nfolds = nfolds.0,
+                    ntrees.max=ntrees.max,
+                    num.search.rounds=num.search.rounds,
+                    print.every.n=print.every.n,
+                    early.stopping.rounds=early.stopping.rounds,
+                    nthread=nthread,
+                    bayes.opt=bayes.opt)
 
   y.1.pred = predict(t.1.fit, newx=X)
   y.0.pred = predict(t.0.fit, newx=X)

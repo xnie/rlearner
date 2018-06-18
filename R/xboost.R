@@ -6,8 +6,9 @@
 #' @param nfolds.1 number of folds for learning E[Y|X,W=1]
 #' @param nfolds.0 number of folds for learning E[Y|X,W=0]
 #' @param nfolds.W number of folds for learning E[W|X]
-#' @param y.1.pred pre-computed estimates on E[Y|X,W=1] corresponding to the input X. xboost will compute it internally if not provided.
-#' @param y.0.pred pre-computed estimates on E[Y|X,W=0] corresponding to the input X. xboost will compute it internally if not provided.
+#' @param y.1.pred pre-computed estimates on E[Y|X,W=1] corresponding to the input X. xboost will compute it internally if not provided
+#' @param y.0.pred pre-computed estimates on E[Y|X,W=0] corresponding to the input X. xboost will compute it internally if not provided
+#' @param w.hat pre-computed estimates on E[W|X] corresponding to the input X. xboost will compute it internally if not provided
 #' @param ntrees.max the maximum number of trees to grow for xgboost
 #' @param num.search.rounds the number of random sampling of hyperparameter combinations for cross validating on xgboost trees
 #' @param print.every.n the number of iterations (in each iteration, a tree is grown) by which the code prints out information
@@ -34,6 +35,7 @@ xboost = function(X, Y, W,
                   nfolds.W=NULL,
                   y.1.pred=NULL,
                   y.0.pred=NULL,
+                  w.hat=NULL,
                   ntrees.max=1000,
                   num.search.rounds=10,
                   print.every.n=100,
@@ -66,26 +68,78 @@ xboost = function(X, Y, W,
   }
 
   if (is.null(y.1.pred)){
-    t.1.fit = cvboost(X.1, Y.1, objective="reg:linear", nfolds = nfolds.1, nthread=nthread)
+    t.1.fit = cvboost(X.1,
+                      Y.1,
+                      objective="reg:linear",
+                      nfolds = nfolds.1,
+                      ntrees.max=ntrees.max,
+                      num.search.rounds=num.search.rounds,
+                      print.every.n=print.every.n,
+                      early.stopping.rounds=early.stopping.rounds,
+                      nthread=nthread,
+                      bayes.opt=bayes.opt)
     y.1.pred = predict(t.1.fit, newx=X)
   }
 
   if (is.null(y.0.pred)){
-    t.0.fit = cvboost(X.0, Y.0, objective="reg:linear", nfolds = nfolds.0, nthread=nthread)
+    t.0.fit = cvboost(X.0,
+                      Y.0,
+                      objective="reg:linear",
+                      nfolds = nfolds.0,
+                      ntrees.max=ntrees.max,
+                      num.search.rounds=num.search.rounds,
+                      print.every.n=print.every.n,
+                      early.stopping.rounds=early.stopping.rounds,
+                      nthread=nthread,
+                      bayes.opt=bayes.opt)
     y.0.pred = predict(t.0.fit, newx=X)
   }
 
   D.1 = Y.1 - y.0.pred[W==1]
   D.0 = y.1.pred[W==0] - Y.0
 
-  x.1.fit = cvboost(X.1, D.1, objective="reg:linear", nfolds = nfolds.1, nthread=nthread)
-  x.0.fit = cvboost(X.0, D.0, objective="reg:linear", nfolds = nfolds.0, nthread=nthread)
+  x.1.fit = cvboost(X.1,
+                    D.1,
+                    objective="reg:linear",
+                    nfolds = nfolds.1,
+                    ntrees.max=ntrees.max,
+                    num.search.rounds=num.search.rounds,
+                    print.every.n=print.every.n,
+                    early.stopping.rounds=early.stopping.rounds,
+                    nthread=nthread,
+                    bayes.opt=bayes.opt)
+
+  x.0.fit = cvboost(X.0,
+                    D.0,
+                    objective="reg:linear",
+                    nfolds = nfolds.0,
+                    ntrees.max=ntrees.max,
+                    num.search.rounds=num.search.rounds,
+                    print.every.n=print.every.n,
+                    early.stopping.rounds=early.stopping.rounds,
+                    nthread=nthread,
+                    bayes.opt=bayes.opt)
 
   tau.1.pred = predict(x.1.fit, newx=X)
   tau.0.pred = predict(x.0.fit, newx=X)
 
-  w.fit = cvboost(X, W, objective="binary:logistic", nfolds = nfolds.W, nthread=nthread)
-  w.hat = predict(w.fit)
+
+  if (is.null(w.hat)){
+    w.fit = cvboost(X,
+                    W,
+                    objective="binary:logistic",
+                    nfolds=nfolds.W,
+                    ntrees.max=ntrees.max,
+                    num.search.rounds=num.search.rounds,
+                    print.every.n=print.every.n,
+                    early.stopping.rounds=early.stopping.rounds,
+                    nthread=nthread,
+                    bayes.opt=bayes.opt)
+    w.hat = predict(w.fit)
+  }
+  else{
+    w.fit = NULL
+  }
 
   tau.hat = tau.1.pred * (1-w.hat) + tau.0.pred * w.hat
 

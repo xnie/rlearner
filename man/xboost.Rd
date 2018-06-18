@@ -5,7 +5,7 @@
 \title{X-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via xgboost (gradient boosting)}
 \usage{
 xboost(X, Y, W, nfolds.1 = NULL, nfolds.0 = NULL, nfolds.W = NULL,
-  y.1.pred = NULL, y.0.pred = NULL, ntrees.max = 1000,
+  y.1.pred = NULL, y.0.pred = NULL, w.hat = NULL, ntrees.max = 1000,
   num.search.rounds = 10, print.every.n = 100, early.stopping.rounds = 10,
   nthread = NULL, bayes.opt = FALSE)
 }
@@ -22,9 +22,11 @@ xboost(X, Y, W, nfolds.1 = NULL, nfolds.0 = NULL, nfolds.W = NULL,
 
 \item{nfolds.W}{number of folds for learning E[W|X]}
 
-\item{y.1.pred}{pre-computed estimates on E[Y|X,W=1] corresponding to the input X. xboost will compute it internally if not provided.}
+\item{y.1.pred}{pre-computed estimates on E[Y|X,W=1] corresponding to the input X. xboost will compute it internally if not provided}
 
-\item{y.0.pred}{pre-computed estimates on E[Y|X,W=0] corresponding to the input X. xboost will compute it internally if not provided.}
+\item{y.0.pred}{pre-computed estimates on E[Y|X,W=0] corresponding to the input X. xboost will compute it internally if not provided}
+
+\item{w.hat}{pre-computed estimates on E[W|X] corresponding to the input X. xboost will compute it internally if not provided}
 
 \item{ntrees.max}{the maximum number of trees to grow for xgboost}
 

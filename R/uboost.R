@@ -47,7 +47,17 @@ uboost= function(X, Y, W,
   }
 
   if (is.null(y.hat)){
-    y.fit = cvboost(X, Y, objective="reg:linear", nfolds=nfolds, nthread=nthread)
+    y.fit = cvboost(X,
+                    Y,
+                    objective="reg:linear",
+                    nfolds=nfolds,
+                    ntrees.max=ntrees.max,
+                    num.search.rounds=num.search.rounds,
+                    print.every.n=print.every.n,
+                    early.stopping.rounds=early.stopping.rounds,
+                    nthread=nthread,
+                    bayes.opt=bayes.opt)
+
     y.hat = predict(y.fit)
   }
   else {
@@ -55,7 +65,16 @@ uboost= function(X, Y, W,
   }
 
   if (is.null(w.hat)){
-    w.fit = cvboost(X, W, objective="binary:logistic", nfolds=nfolds, nthread=nthread)
+    w.fit = cvboost(X,
+                    W,
+                    objective="binary:logistic",
+                    nfolds=nfolds,
+                    ntrees.max=ntrees.max,
+                    num.search.rounds=num.search.rounds,
+                    print.every.n=print.every.n,
+                    early.stopping.rounds=early.stopping.rounds,
+                    nthread=nthread,
+                    bayes.opt=bayes.opt)
     w.hat = predict(w.fit)
   }
   else{
@@ -67,17 +86,24 @@ uboost= function(X, Y, W,
   Y.tilde = Y - y.hat
   W.tilde = W - w.hat
   pseudo.outcome = Y.tilde/W.tilde
-  tau.const = NULL
 
-
-  tau.fit = cvboost(X, pseudo.outcome, objective="reg:linear", nfolds=nfolds, nthread=nthread)
+  tau.fit = cvboost(X,
+                    pseudo.outcome,
+                    objective="reg:linear",
+                    nfolds=nfolds,
+                    ntrees.max=ntrees.max,
+                    num.search.rounds=num.search.rounds,
+                    print.every.n=print.every.n,
+                    early.stopping.rounds=early.stopping.rounds,
+                    nthread=nthread,
+                    bayes.opt=bayes.opt)
 
   ret = list(tau.fit = tau.fit,
+             pseudo.outcome = pseudo.outcome,
              w.fit = w.fit,
              y.fit = y.fit,
              w.hat = w.hat,
-             y.hat = y.hat,
-             tau.const = tau.const)
+             y.hat = y.hat)
   class(ret) <- "uboost"
   ret
 }
