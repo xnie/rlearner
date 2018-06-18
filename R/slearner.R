@@ -60,8 +60,31 @@ slearner_cv = function(x, w, y, model_specs, k_folds=5, select_by="best") {
 #' @title Prediction for U-learner
 #' @param object a U-learner object
 #' @param x a matrix of covariates for which to predict the treatment effect
+#' @examples
+#' \dontrun{
+#' model_specs = list(
+#' gbm = list(
+#'     tune_grid = expand.grid(
+#'         n.trees = seq(1,501,20), 
+#'         interaction.depth=3, 
+#'         shrinkage = 0.1, 
+#'         n.minobsinnode=3),
+#'     extra_args = list(
+#'         verbose=F, 
+#'         bag.fraction=1)),
+#' glmnet = list(
+#'     tune_grid = expand.grid(
+#'        alpha=c(0,0.5,1),
+#'        lambda=exp(seq(-5,2,0.2))),
+#'     extra_args = list())
+#' )
+#' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
+#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample 
+#' 
+#' tau_hat_model = slearner_cv(x, w, y, model_specs) 
+#' tau
 #' @export predict.slearner
-predict.slearner = function(object, x) {
+predict.slearner = function(object, x, ...) {
 	x = predict(object$standardization, x) # standardize the new data using the same standardization as with the training data
 	list(0, 1) %>% purrr::map(function(w) {
 		predict(object$model, newdata=cbind(x, (w-0.5)*x, (w-0.5)))
