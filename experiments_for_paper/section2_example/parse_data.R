@@ -19,4 +19,7 @@ DF = data.frame(X, Y, W)
 
 DF.nona = DF[!is.na(rowSums(DF)),]
 
-write.csv(DF.nona, "data_clean.csv", row.names = FALSE)
+idx.all = sample(c(sample(which(DF.nona$W == 0), sum(DF.nona$W) * 3/2), which(DF.nona$W == 1)))
+DF.subset = DF.nona[idx.all,]
+
+write.csv(DF.subset, "data_clean.csv", row.names = FALSE)

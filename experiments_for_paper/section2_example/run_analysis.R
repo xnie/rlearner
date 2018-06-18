@@ -10,15 +10,17 @@ library(RColorBrewer)
 proc.time()
 
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
 data = read.csv("data_clean.csv")
 
 proc.time()
 
-idx.all = sample(c(sample(which(data$W == 0), sum(data$W) * 3/2), which(data$W == 1)))
+idx.all = 1:nrow(data)
 
 n.train = 100000
 n.test = 25000
 n.holdout = length(idx.all) - n.train - n.test
+
 
 #
 # MAKE SYNTHETIC TAU
