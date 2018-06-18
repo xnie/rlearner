@@ -9,7 +9,7 @@ slearner_cv(x, w, y, model_specs, k_folds = 5, select_by = "best")
 \arguments{
 \item{x}{a numeric matrix of \strong{covariates}}
 
-\item{w}{a two-class factor vector of \strong{treatments}. The first factor level is treated as the positive class \eqn{w=1}}
+\item{w}{a logical vector indicating \strong{treatment}}
 
 \item{y}{a numeric vector of \strong{outcomes}}
 
@@ -20,9 +20,6 @@ slearner_cv(x, w, y, model_specs, k_folds = 5, select_by = "best")
 \item{select_by}{optimization method to use for cross-validation in each model: either \code{"best"} for minimum cross-validation
 error or \code{"oneSE"} for the one-standard-error (1-SE) rule. The implementaion of the 1-SE rule for learners with
 multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some learners. See: \code{\link[caret]{?caret::oneSE}}.}
-}
-\description{
-S-learning for heterogenous treatment effects
 }
 \examples{
 \dontrun{

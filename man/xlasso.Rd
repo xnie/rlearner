@@ -6,15 +6,7 @@
 \usage{
 xlasso(X, Y, W, alpha = 1, nfolds.1 = NULL, nfolds.0 = NULL,
   nfolds.W = NULL, lambda.choice = c("lambda.min", "lambda.1se"),
-<<<<<<< Updated upstream
   y.1.pred = NULL, y.0.pred = NULL, w.hat = NULL)
-=======
-<<<<<<< HEAD
-  y.1.pred = NULL, y.0.pred = NULL)
-=======
-  y.1.pred = NULL, y.0.pred = NULL, w.hat = NULL)
->>>>>>> origin/master
->>>>>>> Stashed changes
 }
 \arguments{
 \item{X}{the input features}

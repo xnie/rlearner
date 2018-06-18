@@ -5,19 +5,9 @@
 \title{U-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via xgboost (gradient boosting)}
 \usage{
 uboost(X, Y, W, nfolds = NULL, w.hat = NULL, y.hat = NULL,
-<<<<<<< Updated upstream
   cutoff = 0.05, ntrees.max = 1000, num.search.rounds = 10,
   print.every.n = 100, early.stopping.rounds = 10, nthread = NULL,
   bayes.opt = FALSE)
-=======
-<<<<<<< HEAD
-  cutoff = 0.05, nthread = NULL)
-=======
-  cutoff = 0.05, ntrees.max = 1000, num.search.rounds = 10,
-  print.every.n = 100, early.stopping.rounds = 10, nthread = NULL,
-  bayes.opt = FALSE)
->>>>>>> origin/master
->>>>>>> Stashed changes
 }
 \arguments{
 \item{X}{the input features}

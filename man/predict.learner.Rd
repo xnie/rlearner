@@ -11,6 +11,3 @@
 
 \item{x}{a matrix of covariates for which to predict a target}
 }
-\description{
-Prediction for base learner
-}

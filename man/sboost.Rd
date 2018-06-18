@@ -4,19 +4,9 @@
 \alias{sboost}
 \title{S-learner, as proposed by Imai and Ratkovic 2013, implemented via xgboost (gradient boosting)}
 \usage{
-<<<<<<< Updated upstream
 sboost(X, Y, W, nfolds = NULL, ntrees.max = 1000, num.search.rounds = 10,
   print.every.n = 100, early.stopping.rounds = 10, nthread = NULL,
   bayes.opt = FALSE)
-=======
-<<<<<<< HEAD
-sboost(X, Y, W, nfolds = NULL, nthread = NULL)
-=======
-sboost(X, Y, W, nfolds = NULL, ntrees.max = 1000, num.search.rounds = 10,
-  print.every.n = 100, early.stopping.rounds = 10, nthread = NULL,
-  bayes.opt = FALSE)
->>>>>>> origin/master
->>>>>>> Stashed changes
 }
 \arguments{
 \item{X}{the input features}
