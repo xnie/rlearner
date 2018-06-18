@@ -55,27 +55,6 @@ if (setup == 'A') {
     tau = pmax(X[,1] + X[,2] + X[,3], 0) - pmax(X[,4] + X[,5], 0)
     list(X=X, b=b, tau=tau, e=e)
   }
-} else if (setup == 'E') {
-
-  get.params = function() {
-    X = matrix(rnorm(n*p), n, p)
-    k=3
-    rowm = rowMeans(X[,1:k] * sqrt(k))
-    b = pmax(0, rowm)
-    eta = 0.1
-    e = pmax(eta, pmin(0.5 * (1 + sign(rowm) * rowm^2), 1-eta))
-    tau = sin(X[,1])
-    list(X=X, b=b, tau=tau, e=e)
-  }
-} else if (setup == 'F') { # treat/control imbalance; complicated baseline+ treatment
-
-  get.params = function() {
-    X = matrix(rnorm(n * p), n, p)
-    b = sin(pi * X[,1] * X[,2]) + (X[,3] + X[,4])^2
-    e = 0.2
-    tau = log(1 + exp(X[,3] + X[,5]))
-    list(X=X, b=b, tau=tau, e=e)
-  }
 
 } else {
 
@@ -154,17 +133,13 @@ results.list = lapply(1:NREP, function(iter) {
     else if (learner == "boost") {
       if (alg == 'R') {
 
-        fit <- rboost(X.train, Y.train, W.train, rc=FALSE, nthread=1)
-
-      } else if (alg == 'RC') {
-
-        fit <- rboost(X.train, Y.train, W.train, rc=TRUE, nthread=1)
+        fit <- rboost(X.train, Y.train, W.train, nthread=1)
 
       } else if (alg == 'oracle') {
 
         w.hat.oracle = params.train$e
         y.hat.oracle = params.train$b + (params.train$e-0.5) * params.train$tau
-        fit <- rboost(X.train, Y.train, W.train, rc=FALSE, w.hat=w.hat.oracle, y.hat=y.hat.oracle, nthread=1)
+        fit <- rboost(X.train, Y.train, W.train, w.hat=w.hat.oracle, y.hat=y.hat.oracle, nthread=1)
 
       } else if (alg == 'S') {
 

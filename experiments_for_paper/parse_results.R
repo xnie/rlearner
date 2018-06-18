@@ -4,7 +4,7 @@ library(xtable)
 library(data.table)
 args=(commandArgs(TRUE))
 learner = as.character(args[1])
-#learner = "lasso"
+learner = "lasso"
 
 if (learner != "boost" & learner != "lasso") {
   stop("learner needs to be boost or lasso")
@@ -13,7 +13,7 @@ if (learner != "boost" & learner != "lasso") {
 filenames = list.files("results", pattern="*", full.names=TRUE)
 
 param.names = c("alg", "learner", "setup", "n", "p", "sigma")
-setup.values = c('A', 'B', 'C', 'D', 'E', 'F')
+setup.values = c('A', 'B', 'C', 'D')
 
 raw = data.frame(t(sapply(filenames, function(fnm) {
 
@@ -45,7 +45,7 @@ rownames(raw) = 1:nrow(raw)
 
 if (learner == "boost") {
   algs = c("S", "T", "X", "U", "causalboost", "R", "oracle")
-  algs.tex = c("S", "T", "X", "U", "cb", "R", "oracle")
+  algs.tex = c("S", "T", "X", "U", "CB", "R", "oracle")
 } else if (learner == "lasso") {
   algs = c("S", "T", "X", "U", "R", "RS", "oracle")
   algs.tex = algs
@@ -54,6 +54,7 @@ if (learner == "boost") {
 }
 cols = c(c("setup", "n", "p", "sigma"), algs)
 raw <- raw[, ..cols]
+colnames(raw)[colnames(raw)=="causalboost"] <- "CB"
 
 raw.round = raw
 for (col in (5:11)){

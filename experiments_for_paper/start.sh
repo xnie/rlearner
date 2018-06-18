@@ -1,15 +1,14 @@
 #! /bin/bash
 
-setupvals=('A' 'B' 'C' 'D' 'E' 'F')
+setupvals=('A' 'B' 'C' 'D')
 nvals=(500 1000)
 pvals=(6 12)
 sigmavals=(0.5 1.0 2.0 4.0)
 lassoalgvals=('R' 'RS' 'T' 'X' 'U' 'oracle' 'S')
-boostalgvals=('R' 'RC' 'T' 'X' 'U' 'oracle' 'S' 'causalboost')
+boostalgvals=('R' 'T' 'X' 'U' 'oracle' 'S' 'causalboost')
 
 reps=100
-#learners=('boost' 'lasso')
-learners=('boost')
+learners=('boost' 'lasso')
 
 for ((i1=0; i1<${#setupvals[@]} ;i1++))
 do
@@ -39,7 +38,7 @@ do
 
     for ((i6=0; i6<${#algvals[@]} ;i6++))
     do
-      while [ `pgrep -c R` -ge 100 ]
+      while [ `pgrep -c R` -ge 100 ] # limit at most 100 R scripts running at one time; should be adjusted depending on the machine
       do
           sleep 5
       done
