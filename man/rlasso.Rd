@@ -4,27 +4,27 @@
 \alias{rlasso}
 \title{R-learner, as proposed by Nie and Wager 2017, implemented via glmnet (lasso)}
 \usage{
-rlasso(X, Y, W, alpha = 1, nfolds = NULL, lambda.choice = c("lambda.min",
-  "lambda.1se"), rs = FALSE, w.hat = NULL, y.hat = NULL)
+rlasso(x, w, y, alpha = 1, k_folds = NULL, lambda_choice = c("lambda.min",
+  "lambda.1se"), rs = FALSE, p_hat = NULL, m_hat = NULL)
 }
 \arguments{
-\item{X}{the input features}
+\item{x}{the input features}
 
-\item{Y}{the observed response (real valued)}
+\item{w}{the treatment variable (0 or 1)}
 
-\item{W}{the treatment variable (0 or 1)}
+\item{y}{the observed response (real valued)}
 
 \item{alpha}{tuning parameter for the elastic net}
 
-\item{nfolds}{number of folds for cross-fitting}
+\item{k_folds}{number of folds for cross-fitting}
 
-\item{lambda.choice}{how to cross-validate; choose from "lambda.min" or "lambda.1se"}
+\item{lambda_choice}{how to cross-validate; choose from "lambda.min" or "lambda.1se"}
 
 \item{rs}{whether to use the RS-learner (logical).}
 
-\item{w.hat}{user-supplied estimate for E[W|X]}
+\item{p_hat}{user-supplied estimate for E[W|X]}
 
-\item{y.hat}{user-supplied estimte for E[Y|X]}
+\item{m_hat}{user-supplied estimte for E[Y|X]}
 }
 \description{
 R-learner, as proposed by Nie and Wager 2017, implemented via glmnet (lasso)
@@ -33,11 +33,11 @@ R-learner, as proposed by Nie and Wager 2017, implemented via glmnet (lasso)
 \dontrun{
 n = 100; p = 10
 
-X = matrix(rnorm(n*p), n, p)
-W = rbinom(n, 1, 0.5)
-Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+x = matrix(rnorm(n*p), n, p)
+w = rbinom(n, 1, 0.5)
+y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 
-rlasso.fit = rlasso(X, Y, W)
-rlasso.est = predict(rlasso.fit, X)
+rlasso_fit = rlasso(x, w, y)
+rlasso_est = predict(rlasso_fit, x)
 }
 }

@@ -15,12 +15,12 @@
 #' model_specs = list(
 #' gbm = list(
 #'     tune_grid = expand.grid(
-#'         n.trees = seq(1,501,20), 
-#'         interaction.depth=3, 
-#'         shrinkage = 0.1, 
+#'         n.trees = seq(1,501,20),
+#'         interaction.depth=3,
+#'         shrinkage = 0.1,
 #'         n.minobsinnode=3),
 #'     extra_args = list(
-#'         verbose=F, 
+#'         verbose=F,
 #'         bag.fraction=1)),
 #' glmnet = list(
 #'     tune_grid = expand.grid(
@@ -29,9 +29,9 @@
 #'     extra_args = list())
 #' )
 #' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
-#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample 
-#' 
-#' tau_hat_model = slearner_cv(x, w, y, model_specs) 
+#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample
+#'
+#' tau_hat_model = slearner_cv(x, w, y, model_specs)
 #' tau_hat = predict(tau_hat_model, x)
 #' }
 #' @export
@@ -44,7 +44,7 @@ slearner_cv = function(x, w, y, model_specs, k_folds=5, select_by="best") {
 
 	standardization = caret::preProcess(x, method=c("center", "scale")) # get the standardization params
 	x = predict(standardization, x)							 # standardize the input
-	x_expanded = cbind(x, (w-0.5)*x, (w-0.5)) 
+	x_expanded = cbind(x, (w-0.5)*x, (w-0.5))
 	# check that the names don't mess things up
 	# it's not clear how, in general, to have different regularization on x and (w-0.5)x, so the "fancy" S-learner
 	# is difficult to implement in a general purpose way.
@@ -52,25 +52,25 @@ slearner_cv = function(x, w, y, model_specs, k_folds=5, select_by="best") {
 
 	slearner = list(
 		model = learner_cv(x_expanded, y, model_specs, k_folds=k_folds, select_by=select_by),
-		standardization = standardization) 
+		standardization = standardization)
 	class(slearner) = "slearner"
 	return(slearner)
 }
 
 #' @title Prediction for U-learner
 #' @param object a U-learner object
-#' @param x a matrix of covariates for which to predict the treatment effect
+#' @param newx a matrix of covariates for which to predict the treatment effect
 #' @examples
 #' \dontrun{
 #' model_specs = list(
 #' gbm = list(
 #'     tune_grid = expand.grid(
-#'         n.trees = seq(1,501,20), 
-#'         interaction.depth=3, 
-#'         shrinkage = 0.1, 
+#'         n.trees = seq(1,501,20),
+#'         interaction.depth=3,
+#'         shrinkage = 0.1,
 #'         n.minobsinnode=3),
 #'     extra_args = list(
-#'         verbose=F, 
+#'         verbose=F,
 #'         bag.fraction=1)),
 #' glmnet = list(
 #'     tune_grid = expand.grid(
@@ -79,15 +79,16 @@ slearner_cv = function(x, w, y, model_specs, k_folds=5, select_by="best") {
 #'     extra_args = list())
 #' )
 #' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
-#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample 
-#' 
-#' tau_hat_model = slearner_cv(x, w, y, model_specs) 
+#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample
+#'
+#' tau_hat_model = slearner_cv(x, w, y, model_specs)
 #' tau
+#' }
 #' @export predict.slearner
-predict.slearner = function(object, x, ...) {
-	x = predict(object$standardization, x) # standardize the new data using the same standardization as with the training data
+predict.slearner = function(object, newx, ...) {
+	newx = predict(object$standardization, newx) # standardize the new data using the same standardization as with the training data
 	list(0, 1) %>% purrr::map(function(w) {
-		predict(object$model, newdata=cbind(x, (w-0.5)*x, (w-0.5)))
+		predict(object$model, newdata=cbind(newx, (w-0.5)*newx, (w-0.5)))
 	}) %->% c(mu0_hat, mu1_hat)
 	return(mu1_hat - mu0_hat)
 }

@@ -6,63 +6,63 @@
 #' @param alpha tuning parameter for the elastic net
 #' @param k_folds_mu1 number of folds for cross validation for the treated
 #' @param k_folds_mu0 number of folds for cross validation for the control
-#' @param lambda.choice how to cross-validate; choose from "lambda.min" or "lambda.1se"
+#' @param lambda_choice how to cross-validate; choose from "lambda.min" or "lambda.1se"
 #' @examples
 #' \dontrun{
 #' n = 100; p = 10
 #'
 #' x = matrix(rnorm(n*p), n, p)
-#' w = rbinom(n, 1, 0.5)
+#' w = rbinom(n, 1, 0_5)
 #' y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 #'
-#' tlasso.fit = tlasso(x, w, y)
-#' tlasso.est = predict(tlasso.fit, x)
+#' tlasso_fit = tlasso(x, w, y)
+#' tlasso_est = predict(tlasso_fit, x)
 #' }
 #' @export
-tlasso = function(X, W, Y,
+tlasso = function(x, w, y,
                   alpha = 1,
-                  k_folds_mu1=NULL,
-                  k_folds_mu0=NULL,
-                  lambda.choice=c("lambda.min", "lambda.1se")) {
+                  k_folds_mu1 = NULL,
+                  k_folds_mu0 = NULL,
+                  lambda_choice = c("lambda.min", "lambda.1se")) {
 
-  lambda.choice = match.arg(lambda.choice)
+  lambda_choice = match.arg(lambda_choice)
 
-  X.1 = X[which(W==1),]
-  X.0 = X[which(W==0),]
+  x_1 = x[which(w==1),]
+  x_0 = x[which(w==0),]
 
-  Y.1 = Y[which(W==1)]
-  Y.0 = Y[which(W==0)]
+  y_1 = y[which(w==1)]
+  y_0 = y[which(w==0)]
 
-  nobs.1 = nrow(X.1)
-  nobs.0 = nrow(X.0)
+  nobs_1 = nrow(x_1)
+  nobs_0 = nrow(x_0)
 
-  pobs = ncol(X)
+  pobs = ncol(x)
 
   if (is.null(k_folds_mu1)) {
-    k_folds_mu1 = floor(max(3, min(10,nobs.1/4)))
+    k_folds_mu1 = floor(max(3, min(10, nobs_1/4)))
   }
 
   if (is.null(k_folds_mu0)) {
-    k_folds_mu0 = floor(max(3, min(10,nobs.0/4)))
+    k_folds_mu0 = floor(max(3, min(10, nobs_0/4)))
   }
 
   # fold ID for cross-validation; balance treatment assignments
-  foldid.1 = sample(rep(seq(k_folds_mu1), length = nobs.1))
-  foldid.0 = sample(rep(seq(k_folds_mu0), length = nobs.0))
+  foldid_1 = sample(rep(seq(k_folds_mu1), length = nobs_1))
+  foldid_0 = sample(rep(seq(k_folds_mu0), length = nobs_0))
 
-  t.1.fit = glmnet::cv.glmnet(X.1, Y.1, foldid = foldid.1, alpha = alpha)
-  t.0.fit = glmnet::cv.glmnet(X.0, Y.0, foldid = foldid.0, alpha = alpha)
+  t_1_fit = glmnet::cv.glmnet(x_1, y_1, foldid = foldid_1, alpha = alpha)
+  t_0_fit = glmnet::cv.glmnet(x_0, y_0, foldid = foldid_0, alpha = alpha)
 
-  y.1.pred = predict(t.1.fit, newx=X, s=lambda.choice)
-  y.0.pred = predict(t.0.fit, newx=X, s=lambda.choice)
+  y_1_pred = predict(t_1_fit, newx = x, s = lambda_choice)
+  y_0_pred = predict(t_0_fit, newx = x, s = lambda_choice)
 
-  tau.hat = y.1.pred - y.0.pred
+  tau_hat = y_1_pred - y_0_pred
 
-  ret = list(t.1.fit = t.1.fit,
-             t.0.fit = t.0.fit,
-             y.1.pred = y.1.pred,
-             y.0.pred = y.0.pred,
-             tau.hat = tau.hat)
+  ret = list(t_1_fit = t_1_fit,
+             t_0_fit = t_0_fit,
+             y_1_pred = y_1_pred,
+             y_0_pred = y_0_pred,
+             tau_hat = tau_hat)
   class(ret) <- "tlasso"
   ret
 }
@@ -81,29 +81,29 @@ tlasso = function(X, W, Y,
 #' n = 100; p = 10
 #'
 #' x = matrix(rnorm(n*p), n, p)
-#' w = rbinom(n, 1, 0.5)
+#' w = rbinom(n, 1, 0_5)
 #' y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 #'
-#' tlasso.fit = tlasso(x, w, y)
-#' tlasso.est = predict(tlasso.fit, x)
+#' tlasso_fit = tlasso(x, w, y)
+#' tlasso_est = predict(tlasso_fit, x)
 #' }
 #'
 #'
 #' @return vector of predictions
 #' @export
 predict.tlasso <- function(object,
-                           newx=NULL,
-                           s=c("lambda.min", "lambda.1se"),
+                           newx = NULL,
+                           s = c("lambda.min", "lambda.1se"),
                            ...) {
   s = match.arg(s)
 
   if (!is.null(newx)) {
-    y.1.pred = predict(object$t.1.fit, newx=newx, s=s)
-    y.0.pred = predict(object$t.0.fit, newx=newx, s=s)
-    tau.hat = y.1.pred - y.0.pred
+    y_1_pred = predict(object$t_1_fit, newx = newx, s = s)
+    y_0_pred = predict(object$t_0_fit, newx = newx, s = s)
+    tau_hat = y_1_pred - y_0_pred
   }
   else {
-    tau.hat = object$tau.hat
+    tau_hat = object$tau_hat
   }
-  return(tau.hat)
+  return(tau_hat)
 }

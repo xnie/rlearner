@@ -23,11 +23,11 @@ predict for cvboost
 \dontrun{
 n = 100; p = 10
 
-X = matrix(rnorm(n*p), n, p)
-Y = pmax(X[,1], 0) + X[,2] + pmin(X[,3], 0) + rnorm(n)
+x = matrix(rnorm(n*p), n, p)
+y = pmax(x[,1], 0) + x[,2] + pmin(x[,3], 0) + rnorm(n)
 
-fit = cvboost(X, Y, objective="reg:linear")
-est = predict(fit, X)
+fit = cvboost(x, y, objective="reg:linear")
+est = predict(fit, x)
 }
 
 }

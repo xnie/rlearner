@@ -4,10 +4,38 @@
 \alias{predict.ulearner}
 \title{Prediction for U-learner}
 \usage{
-\method{predict}{ulearner}(object, x)
+\method{predict}{ulearner}(object, newx, ...)
 }
 \arguments{
 \item{object}{a U-learner object}
 
-\item{x}{a matrix of covariates for which to predict the treatment effect}
+\item{newx}{a matrix of covariates for which to predict the treatment effect}
+}
+\description{
+Prediction for U-learner
+}
+\examples{
+\dontrun{
+model_specs = list(
+gbm = list(
+    tune_grid = expand.grid(
+        n.trees = seq(1,501,20),
+        interaction.depth=3,
+        shrinkage = 0.1,
+        n.minobsinnode=3),
+    extra_args = list(
+        verbose=F,
+        bag.fraction=1)),
+glmnet = list(
+    tune_grid = expand.grid(
+       alpha=c(0,0.5,1),
+       lambda=exp(seq(-5,2,0.2))),
+    extra_args = list())
+)
+library(zeallot) # imports the \%<-\% operator, which is syntactic sugar that performs multiple assignment out of a list
+c(x, w, y, ...) \%<-\% toy_data_simulation(500) # draw a sample
+
+tau_hat_model = ulearner_cv(x, w, y, model_specs)
+tau_hat = predict(tau_hat_model, x)
+}
 }

@@ -15,12 +15,12 @@
 #' model_specs = list(
 #' gbm = list(
 #'     tune_grid = expand.grid(
-#'         n.trees = seq(1,501,20), 
-#'         interaction.depth=3, 
-#'         shrinkage = 0.1, 
+#'         n.trees = seq(1,501,20),
+#'         interaction.depth=3,
+#'         shrinkage = 0.1,
 #'         n.minobsinnode=3),
 #'     extra_args = list(
-#'         verbose=F, 
+#'         verbose=F,
 #'         bag.fraction=1)),
 #' glmnet = list(
 #'     tune_grid = expand.grid(
@@ -29,9 +29,9 @@
 #'     extra_args = list())
 #' )
 #' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
-#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample 
-#' 
-#' tau_hat_model = tlearner_cv(x, w, y, model_specs) 
+#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample
+#'
+#' tau_hat_model = tlearner_cv(x, w, y, model_specs)
 #' tau_hat = predict(tau_hat_model, x)
 #' }
 #' @export
@@ -49,18 +49,18 @@ tlearner_cv = function(x, w, y, model_specs, k_folds=5, select_by="best") {
 
 #' @title Prediction for U-learner
 #' @param object a U-learner object
-#' @param x a matrix of covariates for which to predict the treatment effect
+#' @param newx a matrix of covariates for which to predict the treatment effect
 #' @examples
 #' \dontrun{
 #' model_specs = list(
 #' gbm = list(
 #'     tune_grid = expand.grid(
-#'         n.trees = seq(1,501,20), 
-#'         interaction.depth=3, 
-#'         shrinkage = 0.1, 
+#'         n.trees = seq(1,501,20),
+#'         interaction.depth=3,
+#'         shrinkage = 0.1,
 #'         n.minobsinnode=3),
 #'     extra_args = list(
-#'         verbose=F, 
+#'         verbose=F,
 #'         bag.fraction=1)),
 #' glmnet = list(
 #'     tune_grid = expand.grid(
@@ -69,15 +69,15 @@ tlearner_cv = function(x, w, y, model_specs, k_folds=5, select_by="best") {
 #'     extra_args = list())
 #' )
 #' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
-#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample 
-#' 
-#' tau_hat_model = tlearner_cv(x, w, y, model_specs) 
+#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample
+#'
+#' tau_hat_model = tlearner_cv(x, w, y, model_specs)
 #' tau_hat = predict(tau_hat_model, x)
 #' }
 #' @export predict.tlearner
-predict.tlearner = function(object, x, ...) {
-	object %>% 
-		map(~predict(., newdata=x)) %->% 
-		c(mu1_hat, mu0_hat) # these will come out in this order because of the above: c(T,F) %>% map(... 
+predict.tlearner = function(object, newx, ...) {
+	object %>%
+		map(~predict(., newdata=newx)) %->%
+		c(mu1_hat, mu0_hat) # these will come out in this order because of the above: c(T,F) %>% map(...
 	return(mu1_hat - mu0_hat)
 }

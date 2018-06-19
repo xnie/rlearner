@@ -81,7 +81,7 @@ ulearner_cv = function(x, w, y, tau_model_specs,
 
 #' @title Prediction for U-learner
 #' @param object a U-learner object
-#' @param x a matrix of covariates for which to predict the treatment effect
+#' @param newx a matrix of covariates for which to predict the treatment effect
 #' @examples
 #' \dontrun{
 #' model_specs = list(
@@ -107,6 +107,6 @@ ulearner_cv = function(x, w, y, tau_model_specs,
 #' tau_hat = predict(tau_hat_model, x)
 #' }
 #' @export predict.ulearner
-predict.ulearner = function(object, x, ...) {
-	predict(object$model, newdata=x)
+predict.ulearner = function(object, newx, ...) {
+	predict(object$model, newdata=newx)
 }

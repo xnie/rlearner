@@ -4,41 +4,41 @@
 \alias{xboost}
 \title{X-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via xgboost (gradient boosting)}
 \usage{
-xboost(X, Y, W, nfolds.1 = NULL, nfolds.0 = NULL, nfolds.W = NULL,
-  y.1.pred = NULL, y.0.pred = NULL, w.hat = NULL, ntrees.max = 1000,
-  num.search.rounds = 10, print.every.n = 100, early.stopping.rounds = 10,
-  nthread = NULL, bayes.opt = FALSE)
+xboost(x, w, y, k_folds_mu1 = NULL, k_folds_mu0 = NULL, k_folds_p = NULL,
+  mu1_hat = NULL, mu0_hat = NULL, p_hat = NULL, ntrees_max = 1000,
+  num_search_rounds = 10, print_every_n = 100, early_stopping_rounds = 10,
+  nthread = NULL, bayes_opt = FALSE)
 }
 \arguments{
-\item{X}{the input features}
+\item{x}{the input features}
 
-\item{Y}{the observed response (real valued)}
+\item{w}{the treatment variable (0 or 1)}
 
-\item{W}{the treatment variable (0 or 1)}
+\item{y}{the observed response (real valued)}
 
-\item{nfolds.1}{number of folds for learning E[Y|X,W=1]}
+\item{k_folds_mu1}{number of folds for learning E[Y|X,W=1]}
 
-\item{nfolds.0}{number of folds for learning E[Y|X,W=0]}
+\item{k_folds_mu0}{number of folds for learning E[Y|X,W=0]}
 
-\item{nfolds.W}{number of folds for learning E[W|X]}
+\item{k_folds_p}{number of folds for learning E[W|X]}
 
-\item{y.1.pred}{pre-computed estimates on E[Y|X,W=1] corresponding to the input X. xboost will compute it internally if not provided}
+\item{mu1_hat}{pre-computed estimates on E[Y|X,W=1] corresponding to the input x. xboost will compute it internally if not provided}
 
-\item{y.0.pred}{pre-computed estimates on E[Y|X,W=0] corresponding to the input X. xboost will compute it internally if not provided}
+\item{mu0_hat}{pre-computed estimates on E[Y|X,W=0] corresponding to the input x. xboost will compute it internally if not provided}
 
-\item{w.hat}{pre-computed estimates on E[W|X] corresponding to the input X. xboost will compute it internally if not provided}
+\item{p_hat}{pre-computed estimates on E[W|X] corresponding to the input x. xboost will compute it internally if not provided}
 
-\item{ntrees.max}{the maximum number of trees to grow for xgboost}
+\item{ntrees_max}{the maximum number of trees to grow for xgboost}
 
-\item{num.search.rounds}{the number of random sampling of hyperparameter combinations for cross validating on xgboost trees}
+\item{num_search_rounds}{the number of random sampling of hyperparameter combinations for cross validating on xgboost trees}
 
-\item{print.every.n}{the number of iterations (in each iteration, a tree is grown) by which the code prints out information}
+\item{print_every_n}{the number of iterations (in each iteration, a tree is grown) by which the code prints out information}
 
-\item{early.stopping.rounds}{the number of rounds the test error stops decreasing by which the cross validation in finding the optimal number of trees stops}
+\item{early_stopping_rounds}{the number of rounds the test error stops decreasing by which the cross validation in finding the optimal number of trees stops}
 
 \item{nthread}{the number of threads to use. The default is NULL, which uses all available threads}
 
-\item{bayes.opt}{if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost. if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num.search.rounds). Default is FALSE.}
+\item{bayes_opt}{if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost. if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num_search_rounds). default is FALSE.}
 }
 \description{
 X-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via xgboost (gradient boosting)
@@ -47,12 +47,12 @@ X-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via 
 \dontrun{
 n = 100; p = 10
 
-X = matrix(rnorm(n*p), n, p)
-W = rbinom(n, 1, 0.5)
-Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+x = matrix(rnorm(n*p), n, p)
+w = rbinom(n, 1, 0.5)
+y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 
-xboost.fit = xboost(X, Y, W)
-xboost.est = predict(xboost.fit, X)
+xboost_fit = xboost(x, w, y)
+xboost_est = predict(xboost_fit, x)
 }
 
 }

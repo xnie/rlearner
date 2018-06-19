@@ -5,8 +5,8 @@
 #' @param y the observed response (real valued)
 #' @param alpha tuning parameter for the elastic net
 #' @param k_folds number of folds for cross validation
-#' @param lambda.choice how to cross-validate; choose from "lambda.min" or "lambda.1se"
-#' @param penalty.search whether to perform fine grainted penalty factor search (logical)
+#' @param lambda_choice how to cross-validate; choose from "lambda.min" or "lambda.1se"
+#' @param penalty_search whether to perform fine grainted penalty_factor search (logical)
 #' @examples
 #' \dontrun{
 #' n = 100; p = 10
@@ -15,96 +15,94 @@
 #' w = rbinom(n, 1, 0.5)
 #' y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 #'
-#' slasso.fit = slasso(x, w, y)
-#' slasso.est = predict(slasso.fit, x)
+#' slasso_fit = slasso(x, w, y)
+#' slasso_est = predict(slasso_fit, x)
 #' }
 #' @export
-slasso = function(X, W, Y,
+slasso = function(x, w, y,
                   alpha = 1,
                   k_folds = NULL,
-                  lambda.choice = c("lambda.min", "lambda.1se"),
-                  penalty.search = FALSE) {
+                  lambda_choice = c("lambda.min", "lambda.1se"),
+                  penalty_search = FALSE) {
 
-  standardization = caret::preProcess(X, method=c("center", "scale")) # get the standardization params
-  X.scl = predict(standardization, X)							 # standardize the input
-  X.scl = X.scl[,!is.na(colSums(X.scl))]
+  standardization = caret::preProcess(x, method=c("center", "scale")) # get the standardization params
+  x_scl = predict(standardization, x)							 # standardize the input
+  x_scl = x_scl[,!is.na(colSums(x_scl))]
 
-  lambda.choice = match.arg(lambda.choice)
+  lambda_choice = match.arg(lambda_choice)
 
-  nobs = nrow(X.scl)
-  pobs = ncol(X.scl)
+  nobs = nrow(x_scl)
+  pobs = ncol(x_scl)
 
   if (is.null(k_folds)) {
-    k_folds = floor(max(3, min(10,nobs/4)))
+    k_folds = floor(max(3, min(10, nobs/4)))
   }
 
   # fold ID for cross-validation; balance treatment assignments
   foldid = sample(rep(seq(k_folds), length = nobs))
 
-  X.scl.tilde = cbind(as.numeric(2 * W - 1) * cbind(1, X.scl), X.scl)
-  X.scl.pred = cbind(1, X.scl, 0 * X.scl)
-  if(penalty.search){
-    search.range = 5
-    cvm.min = Inf
-    last.best = NULL
+  x_scl_tilde = cbind(as.numeric(2 * w - 1) * cbind(1, x_scl), x_scl)
+  x_scl_pred = cbind(1, x_scl, 0 * x_scl)
+  if (penalty_search) {
+    search_range = 5
+    cvm_min = Inf
+    last_best = NULL
     for (l in 0:2){
-      #print(paste("level :",l))
 
       updated = FALSE
 
-      for (i in 1:search.range){
+      for (i in 1:search_range){
 
         if (l==0){
-          penalty.factor = c(0, rep(10^(i- ceiling(search.range/2.0)), pobs), rep(1,pobs))
+          penalty_factor = c(0, rep(10^(i- ceiling(search_range / 2.0)), pobs), rep(1, pobs))
         }
         else{
-          penalty.factor = c(0, rep(10^(last.best - 10^(-l+1) + 20.0/search.range*10^(-l)*i), pobs), rep(1,pobs))
+          penalty_factor = c(0, rep(10^(last_best - 10^(-l + 1) + 20.0 / search_range * 10^(-l) * i), pobs), rep(1, pobs))
         }
-        s.fit <- glmnet::cv.glmnet(x = X.scl.tilde, y = Y, foldid = foldid, penalty.factor = penalty.factor, standardize = FALSE, alpha = alpha)
-        s.fit.cvm = s.fit$cvm[s.fit$lambda == s.fit$lambda.min]
-        s.beta = as.vector(t(coef(s.fit, s=lambda.choice)[-1]))
-        if (s.fit.cvm < cvm.min){
-          cvm.min = s.fit.cvm
-          s.fit.best = s.fit
+        s_fit <- glmnet::cv.glmnet(x = x_scl_tilde, y = y, foldid = foldid, penalty.factor = penalty_factor, standardize = FALSE, alpha = alpha)
+        s_fit_cvm = s_fit$cvm[s_fit$lambda == s_fit$lambda.min]
+        s_beta = as.vector(t(coef(s_fit, s=lambda_choice)[-1]))
+        if (s_fit_cvm < cvm_min){
+          cvm_min = s_fit_cvm
+          s_fit_best = s_fit
           if (l==0){
-            best.i = i - ceiling(search.range/2.0)
+            best_i = i - ceiling(search_range/2.0)
           }
           else{
-            best.i = i
+            best_i = i
           }
-          best.penalty.factor= penalty.factor
+          best_penalty_factor = penalty_factor
           updated = TRUE
         }
       }
 
       if (l==0){
-        last.best = best.i
+        last_best = best_i
       }
       else{
         if (updated){
-          last.best = last.best - 10^(-l+1) + 20.0/search.range*10^(-l)*best.i
+          last_best = last_best - 10^(-l + 1) + 20 / search_range * 10^(-l) * best_i
         }
       }
     }
-    penalty.factor = best.penalty.factor
+    penalty_factor = best_penalty_factor
   }
   else{
-    penalty.factor = c(0, rep(1, 2 * pobs))
+    penalty_factor = c(0, rep(1, 2 * pobs))
   }
 
-  s.fit = glmnet::cv.glmnet(X.scl.tilde, Y, foldid = foldid,
-                      penalty.factor = penalty.factor,
-                      standardize = FALSE, alpha = alpha)
+  s_fit = glmnet::cv.glmnet(x_scl_tilde, y, foldid = foldid,
+                            penalty.factor = penalty_factor,
+                            standardize = FALSE, alpha = alpha)
 
-  s.beta = as.vector(t(coef(s.fit, s=lambda.choice)[-1]))
+  s_beta = as.vector(t(coef(s_fit, s = lambda_choice)[-1]))
 
-  tau.hat = 2 * X.scl.pred %*% s.beta
+  tau_hat = 2 * x_scl_pred %*% s_beta
 
-  ret = list(s.fit = s.fit,
-             s.beta = s.beta,
-             tau.hat = tau.hat,
+  ret = list(s_fit = s_fit,
+             s_beta = s_beta,
+             tau_hat = tau_hat,
              standardization = standardization)
-
 
   class(ret) <- "slasso"
   ret
@@ -126,24 +124,24 @@ slasso = function(X, W, Y,
 #' w = rbinom(n, 1, 0.5)
 #' y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 #'
-#' slasso.fit = slasso(x, w, y)
-#' slasso.est = predict(slasso.fit, x)
+#' slasso_fit = slasso(x, w, y)
+#' slasso_est = predict(slasso_fit, x)
 #' }
 #'
 #'
 #' @return vector of predictions
 #' @export
 predict.slasso <- function(object,
-                           newx=NULL,
+                           newx = NULL,
                            ...) {
   if (!is.null(newx)) {
-    newx.scl = predict(object$standardization, newx) # standardize the new data using the same standardization as with the training data
-    newx.scl = newx.scl[,!is.na(colSums(newx.scl))]
-    newx.scl.pred = cbind(1, newx.scl, 0 * newx.scl)
-    tau.hat = 2 * newx.scl.pred %*% object$s.beta
+    newx_scl = predict(object$standardization, newx) # standardize the new data using the same standardization as with the training data
+    newx_scl = newx_scl[,!is.na(colSums(newx_scl))]
+    newx_scl_pred = cbind(1, newx_scl, 0 * newx_scl)
+    tau_hat = 2 * newx_scl_pred %*% object$s_beta
   }
   else {
-    tau.hat = object$tau.hat
+    tau_hat = object$tau_hat
   }
-  return(tau.hat)
+  return(tau_hat)
 }

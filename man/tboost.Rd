@@ -4,32 +4,32 @@
 \alias{tboost}
 \title{T-learner, implemented via xgboost (gradient boosting)}
 \usage{
-tboost(X, Y, W, alpha = 1, nfolds.1 = NULL, nfolds.0 = NULL,
-  ntrees.max = 1000, num.search.rounds = 10, print.every.n = 100,
-  early.stopping.rounds = 10, nthread = NULL, bayes.opt = FALSE)
+tboost(x, w, y, alpha = 1, k_folds_mu1 = NULL, k_folds_mu0 = NULL,
+  ntrees_max = 1000, num_search_rounds = 10, print_every_n = 100,
+  early_stopping_rounds = 10, nthread = NULL, bayes_opt = FALSE)
 }
 \arguments{
-\item{X}{the input features}
+\item{x}{the input features}
 
-\item{Y}{the observed response (real valued)}
+\item{w}{the treatment variable (0 or 1)}
 
-\item{W}{the treatment variable (0 or 1)}
+\item{y}{the observed response (real valued)}
 
-\item{nfolds.1}{number of folds for cross validation for the treated}
+\item{k_folds_mu1}{number of folds for cross validation for the treated}
 
-\item{nfolds.0}{number of folds for cross validation for the control}
+\item{k_folds_mu0}{number of folds for cross validation for the control}
 
-\item{ntrees.max}{the maximum number of trees to grow for xgboost}
+\item{ntrees_max}{the maximum number of trees to grow for xgboost}
 
-\item{num.search.rounds}{the number of random sampling of hyperparameter combinations for cross validating on xgboost trees}
+\item{num_search_rounds}{the number of random sampling of hyperparameter combinations for cross validating on xgboost trees}
 
-\item{print.every.n}{the number of iterations (in each iteration, a tree is grown) by which the code prints out information}
+\item{print_every_n}{the number of iterations (in each iteration, a tree is grown) by which the code prints out information}
 
-\item{early.stopping.rounds}{the number of rounds the test error stops decreasing by which the cross validation in finding the optimal number of trees stops}
+\item{early_stopping_rounds}{the number of rounds the test error stops decreasing by which the cross validation in finding the optimal number of trees stops}
 
 \item{nthread}{the number of threads to use. The default is NULL, which uses all available threads}
 
-\item{bayes.opt}{if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost. if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num.search.rounds). Default is FALSE.}
+\item{bayes_opt}{if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost. if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num_search_rounds). Default is FALSE.}
 }
 \description{
 T-learner, implemented via xgboost (gradient boosting)
@@ -38,12 +38,12 @@ T-learner, implemented via xgboost (gradient boosting)
 \dontrun{
 n = 100; p = 10
 
-X = matrix(rnorm(n*p), n, p)
-W = rbinom(n, 1, 0.5)
-Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+x = matrix(rnorm(n*p), n, p)
+w = rbinom(n, 1, 0.5)
+y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 
-tboost.fit = tboost(X, Y, W)
-tboost.est = predict(tboost.fit, X)
+tboost_fit = tboost(x, w, y)
+tboost_est = predict(tboost_fit, x)
 }
 
 }

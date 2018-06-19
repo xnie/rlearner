@@ -111,11 +111,11 @@ Y.hat = Y.hat.boost
 #
 
 proc.time()
-tau.boost = rboost(X, Y, W, w.hat = W.hat, y.hat = Y.hat, nthread = 4)
+tau.boost = rboost(X, W, Y, p_hat = W.hat, m_hat = Y.hat, nthread = 4)
 tau.hat.boost = predict(tau.boost)
 proc.time()
 
-tau.lasso = rlasso(X, Y, W, w.hat = W.hat, y.hat = Y.hat)
+tau.lasso = rlasso(X, W, Y, p_hat = W.hat, m_hat = Y.hat)
 tau.hat.lasso = predict(tau.lasso)
 
 # who wins on CV error?
@@ -145,7 +145,7 @@ print(round(c(mean((TAU.test - tau.hat.boost.test)^2),
 #
 
 proc.time()
-tau.slasso = slasso(X, Y, W)
+tau.slasso = slasso(X, W, Y)
 tau.hat.slasso.test = predict(tau.slasso, X.test)
 round(mean((TAU.test - tau.hat.slasso.test)^2), 4)
 proc.time()

@@ -4,33 +4,33 @@
 \alias{cvboost}
 \title{Gradient boosting for regression and classification with cross validation to search for hyper-parameters (implemented with xgboost)}
 \usage{
-cvboost(X, Y, weights = NULL, nfolds = NULL, objective = c("reg:linear",
-  "binary:logistic"), ntrees.max = 1000, num.search.rounds = 10,
-  print.every.n = 100, early.stopping.rounds = 10, nthread = NULL,
-  bayes.opt = FALSE)
+cvboost(x, y, weights = NULL, k_folds = NULL, objective = c("reg:linear",
+  "binary:logistic"), ntrees_max = 1000, num_search_rounds = 10,
+  print_every_n = 100, early_stopping_rounds = 10, nthread = NULL,
+  bayes_opt = FALSE)
 }
 \arguments{
-\item{X}{the input features}
+\item{x}{the input features}
 
-\item{Y}{the observed response (real valued)}
+\item{y}{the observed response (real valued)}
 
 \item{weights}{weights for input if doing weighted regression/classification. If set to NULL, no weights are used}
 
-\item{nfolds}{number of folds used in cross validation}
+\item{k_folds}{number of folds used in cross validation}
 
 \item{objective}{choose from either "reg:linear" for regression or "binary:logistic" for logistic regression}
 
-\item{ntrees.max}{the maximum number of trees to grow for xgboost}
+\item{ntrees_max}{the maximum number of trees to grow for xgboost}
 
-\item{num.search.rounds}{the number of random sampling of hyperparameter combinations for cross validating on xgboost trees}
+\item{num_search_rounds}{the number of random sampling of hyperparameter combinations for cross validating on xgboost trees}
 
-\item{print.every.n}{the number of iterations (in each iteration, a tree is grown) by which the code prints out information}
+\item{print_every_n}{the number of iterations (in each iteration, a tree is grown) by which the code prints out information}
 
-\item{early.stopping.rounds}{the number of rounds the test error stops decreasing by which the cross validation in finding the optimal number of trees stops}
+\item{early_stopping_rounds}{the number of rounds the test error stops decreasing by which the cross validation in finding the optimal number of trees stops}
 
 \item{nthread}{the number of threads to use. The default is NULL, which uses all available threads}
 
-\item{bayes.opt}{if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost. if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num.search.rounds). Default is FALSE.}
+\item{bayes_opt}{if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost (warning: very slow!). if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num_search_rounds). Default is FALSE.}
 }
 \value{
 a cvboost object
@@ -42,11 +42,11 @@ Gradient boosting for regression and classification with cross validation to sea
 \dontrun{
 n = 100; p = 10
 
-X = matrix(rnorm(n*p), n, p)
-Y = pmax(X[,1], 0) + X[,2] + pmin(X[,3], 0) + rnorm(n)
+x = matrix(rnorm(n*p), n, p)
+y = pmax(x[,1], 0) + x[,2] + pmin(x[,3], 0) + rnorm(n)
 
-fit = cvboost(X, Y, objective="reg:linear")
-est = predict(fit, X)
+fit = cvboost(x, y, objective="reg:linear")
+est = predict(fit, x)
 }
 
 }

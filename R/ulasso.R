@@ -1,11 +1,11 @@
 #' U-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via glmnet (lasso)
 #'
-#' @param X the input features
-#' @param Y the observed response (real valued)
-#' @param W the treatment variable (0 or 1)
+#' @param x the input features
+#' @param y the observed response (real valued)
+#' @param w the treatment variable (0 or 1)
 #' @param alpha tuning parameter for the elastic net
 #' @param k_folds number of folds for cross-fitting
-#' @param lambda.choice how to cross-validate; choose from "lambda.1se" or "lambda.mse"
+#' @param lambda_choice how to cross-validate; choose from "lambda.1se" or "lambda.min"
 #' @param p_hat user-supplied estimate for E[W|X]
 #' @param m_hat user-supplied estimte for E[Y|X]
 #' @param cutoff the threshold to cutoff propensity estimate
@@ -18,62 +18,62 @@
 #' w = rbinom(n, 1, 0.5)
 #' y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 #'
-#' ulasso.fit = ulasso(x, w, y)
-#' ulasso.est = predict(ulasso.fit, x)
+#' ulasso_fit = ulasso(x, w, y)
+#' ulasso_est = predict(ulasso_fit, x)
 #' }
 #' @export
-ulasso = function(X, W, Y,
+ulasso = function(x, w, y,
                   alpha = 1,
-                  k_folds=NULL,
-                  lambda.choice=c("lambda.1se", "lambda.mse"),
+                  k_folds = NULL,
+                  lambda_choice=c("lambda.1se", "lambda.min"),
                   p_hat = NULL,
                   m_hat = NULL,
-                  cutoff=0.05){
+                  cutoff = 0.05){
 
-  lambda.choice = match.arg(lambda.choice)
+  lambda_choice = match.arg(lambda_choice)
 
-  nobs = nrow(X)
-  pobs = ncol(X)
+  nobs = nrow(x)
+  pobs = ncol(x)
 
   if (is.null(k_folds)) {
-    k_folds = floor(max(3, min(10,length(W)/4)))
+    k_folds = floor(max(3, min(10,length(w)/4)))
   }
 
   # fold ID for cross-validation; balance treatment assignments
-  foldid = sample(rep(seq(k_folds), length = length(W)))
+  foldid = sample(rep(seq(k_folds), length = length(w)))
 
   if (is.null(m_hat)){
-    y.fit = glmnet::cv.glmnet(X, Y, foldid = foldid, keep = TRUE, alpha = alpha)
-    m_hat = y.fit$fit.preval[,!is.na(colSums(y.fit$fit.preval))][, y.fit$lambda == y.fit$lambda.min]
+    y_fit = glmnet::cv.glmnet(x, y, foldid = foldid, keep = TRUE, alpha = alpha)
+    m_hat = y_fit$fit.preval[,!is.na(colSums(y_fit$fit.preval))][, y_fit$lambda == y_fit$lambda.min]
   }
   else {
-    y.fit = NULL
+    y_fit = NULL
   }
 
   if (is.null(p_hat)){
-    w.fit = glmnet::cv.glmnet(X, W, foldid = foldid, keep = TRUE, family = "binomial", type.measure = "deviance", alpha = alpha)
-    p_hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.min]
+    w_fit = glmnet::cv.glmnet(x, w, foldid = foldid, keep = TRUE, family = "binomial", type.measure = "deviance", alpha = alpha)
+    p_hat = w_fit$fit.preval[,!is.na(colSums(w_fit$fit.preval))][, w_fit$lambda == w_fit$lambda.min]
   }
   else{
-    w.fit = NULL
+    w_fit = NULL
   }
 
-  p_hat.thresh = pmax(cutoff, pmin(1 - cutoff, p_hat))
+  p_hat_thresh = pmax(cutoff, pmin(1 - cutoff, p_hat))
 
-  Y.tilde = Y - m_hat
-  W.tilde = W - p_hat.thresh
+  y_tilde = y - m_hat
+  w_tilde = w - p_hat_thresh
 
-  U = Y.tilde / W.tilde
+  u = y_tilde / w_tilde
 
-  tau.fit = glmnet::cv.glmnet(X, U, k_folds= 10, alpha = alpha)
-  tau.hat = predict(tau.fit, newx = X, s=lambda.choice)
+  tau_fit = glmnet::cv.glmnet(x, u, nfolds = k_folds, alpha = alpha)
+  tau_hat = predict(tau_fit, newx = x, s = lambda_choice)
 
-  ret = list(tau.fit = tau.fit,
-             w.fit = w.fit,
-             y.fit = y.fit,
+  ret = list(tau_fit = tau_fit,
+             w_fit = w_fit,
+             y_fit = y_fit,
              p_hat = p_hat,
              m_hat = m_hat,
-             tau.hat = tau.hat)
+             tau_hat = tau_hat)
   class(ret) <- "ulasso"
   ret
 
@@ -96,23 +96,23 @@ ulasso = function(X, W, Y,
 #' w = rbinom(n, 1, 0.5)
 #' y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 #'
-#' ulasso.fit = ulasso(x, w, y)
-#' ulasso.est = predict(ulasso.fit, x)
+#' ulasso_fit = ulasso(x, w, y)
+#' ulasso_est = predict(ulasso_fit, x)
 #' }
 #'
 #'
 #' @return vector of predictions
 #' @export
 predict.ulasso <- function(object,
-                           newx=NULL,
-                           s=c("lambda.1se", "lambda.min"),
+                           newx = NULL,
+                           s = c("lambda.1se", "lambda.min"),
                            ...) {
   s = match.arg(s)
   if (!is.null(newx)) {
-    tau.hat = predict(object$tau.fit, newx=newx, s=s)
+    tau_hat = predict(object$tau_fit, newx = newx, s = s)
   }
   else {
-    tau.hat = object$tau.hat
+    tau_hat = object$tau_hat
   }
-  return(tau.hat)
+  return(tau_hat)
 }

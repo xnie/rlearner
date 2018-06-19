@@ -4,23 +4,23 @@
 \alias{tlasso}
 \title{T-learner, implemented via glmnet (lasso)}
 \usage{
-tlasso(X, Y, W, alpha = 1, nfolds.1 = NULL, nfolds.0 = NULL,
-  lambda.choice = c("lambda.min", "lambda.1se"))
+tlasso(x, w, y, alpha = 1, k_folds_mu1 = NULL, k_folds_mu0 = NULL,
+  lambda_choice = c("lambda.min", "lambda.1se"))
 }
 \arguments{
-\item{X}{the input features}
+\item{x}{the input features}
 
-\item{Y}{the observed response (real valued)}
+\item{w}{the treatment variable (0 or 1)}
 
-\item{W}{the treatment variable (0 or 1)}
+\item{y}{the observed response (real valued)}
 
 \item{alpha}{tuning parameter for the elastic net}
 
-\item{nfolds.1}{number of folds for cross validation for the treated}
+\item{k_folds_mu1}{number of folds for cross validation for the treated}
 
-\item{nfolds.0}{number of folds for cross validation for the control}
+\item{k_folds_mu0}{number of folds for cross validation for the control}
 
-\item{lambda.choice}{how to cross-validate; choose from "lambda.min" or "lambda.1se"}
+\item{lambda_choice}{how to cross-validate; choose from "lambda.min" or "lambda.1se"}
 }
 \description{
 T-learner, implemented via glmnet (lasso)
@@ -29,11 +29,11 @@ T-learner, implemented via glmnet (lasso)
 \dontrun{
 n = 100; p = 10
 
-X = matrix(rnorm(n*p), n, p)
-W = rbinom(n, 1, 0.5)
-Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+x = matrix(rnorm(n*p), n, p)
+w = rbinom(n, 1, 0_5)
+y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 
-tlasso.fit = tlasso(X, Y, W)
-tlasso.est = predict(tlasso.fit, X)
+tlasso_fit = tlasso(x, w, y)
+tlasso_est = predict(tlasso_fit, x)
 }
 }

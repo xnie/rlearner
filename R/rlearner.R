@@ -27,7 +27,6 @@
 #' multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some learners. See: \code{\link[caret]{?caret::oneSE}}.
 #' @param p_min If provided, estimated propensities will be trimmed to have minimum \code{p_min}.
 #' @param p_max If provided, estimated propensities will be trimmed to have maximum \code{p_max}.
-#' @param rc If TRUE, predict constant treatment effect first, learn hetereogeneity, and then add constant effect back
 #' @examples
 #' \dontrun{
 #' model_specs = list(
@@ -58,7 +57,7 @@ rlearner_cv = function(x, w, y, tau_model_specs,
 	p_hat=NULL, m_hat=NULL,
 	k_folds=5, k_folds_cf=5,
 	economy=T, select_by="best",
-	p_min=0, p_max=1, rc=FALSE) {
+	p_min=0, p_max=1) {
 
 	c(x, w, y) %<-% sanitize_input(x,w,y)
 
@@ -72,27 +71,15 @@ rlearner_cv = function(x, w, y, tau_model_specs,
 			k_folds_cf=k_folds_cf, k_folds=k_folds, economy=economy, select_by=select_by)
 	}
 
-	if (rc) {
-	  y.tilde = y - m_hat
-	  w.tilde = w - p_hat
-	  tau.const.fit = lm(y.tilde ~ w.tilde)
-	  tau.const = coef(tau.const.fit)["w.tilde"]
-	  y.tilde.tilde = y.tilde - w.tilde * tau.const # subtracting out the constant treatment effect
-  	r_pseudo_outcome = (y.tilde.tilde)/(w - p_hat)
-	}
-	else{
-  	r_pseudo_outcome = (y - m_hat)/(w - p_hat)
-  	tau.const = NULL
-	}
+	r_pseudo_outcome = (y - m_hat)/(w - p_hat)
+
 	r_weights = (w - p_hat)^2
 
 	rlearner = list(
 		model=learner_cv(x, r_pseudo_outcome, tau_model_specs, weights=r_weights,
 			k_folds=k_folds, select_by=select_by),
 		m_hat=m_hat,
-		p_hat=p_hat,
-		rc=rc,
-		tau.const = tau.const
+		p_hat=p_hat
 		)
 	class(rlearner) = "rlearner"
 	return(rlearner)
@@ -100,7 +87,7 @@ rlearner_cv = function(x, w, y, tau_model_specs,
 
 #' @title Prediction for R-learner
 #' @param object a R-learner object
-#' @param x a matrix of covariates for which to predict the treatment effect
+#' @param newx a matrix of covariates for which to predict the treatment effect
 #' @examples
 #' \dontrun{
 #' model_specs = list(
@@ -126,11 +113,6 @@ rlearner_cv = function(x, w, y, tau_model_specs,
 #' tau_hat = predict(tau_hat_model, x)
 #' }
 #' @export predict.rlearner
-predict.rlearner = function(object, x, ...) {
-  if (object$rc){
-    object$tau.const + predict(object$model, newdata=x)
-  }
-  else{
-  	predict(object$model, newdata=x)
-  }
+predict.rlearner = function(object, newx, ...) {
+	predict(object$model, newdata=newx)
 }

@@ -4,32 +4,32 @@
 \alias{xlasso}
 \title{X-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via glmnet (lasso)}
 \usage{
-xlasso(X, Y, W, alpha = 1, nfolds.1 = NULL, nfolds.0 = NULL,
-  nfolds.W = NULL, lambda.choice = c("lambda.min", "lambda.1se"),
-  y.1.pred = NULL, y.0.pred = NULL, w.hat = NULL)
+xlasso(x, w, y, alpha = 1, k_folds_mu1 = NULL, k_folds_mu0 = NULL,
+  k_folds_p = NULL, lambda_choice = c("lambda.min", "lambda.1se"),
+  mu1_hat = NULL, mu0_hat = NULL)
 }
 \arguments{
-\item{X}{the input features}
+\item{x}{the input features}
 
-\item{Y}{the observed response (real valued)}
+\item{w}{the treatment variable (0 or 1)}
 
-\item{W}{the treatment variable (0 or 1)}
+\item{y}{the observed response (real valued)}
 
 \item{alpha}{tuning parameter for the elastic net}
 
-\item{nfolds.1}{number of folds for learning E[Y|X,W=1]}
+\item{k_folds_mu1}{number of folds for learning E[Y|X,W=1]}
 
-\item{nfolds.0}{number of folds for learning E[Y|X,W=0]}
+\item{k_folds_mu0}{number of folds for learning E[Y|X,W=0]}
 
-\item{nfolds.W}{number of folds for learning E[W|X]}
+\item{k_folds_p}{number of folds for learning E[W|X]}
 
-\item{lambda.choice}{how to cross-validate; choose from "lambda.min" or "lambda.1se"}
+\item{lambda_choice}{how to cross-validate; choose from "lambda.min" or "lambda.1se"}
 
-\item{y.1.pred}{pre-computed estimates on E[Y|X,W=1] corresponding to the input X. xlasso will compute it internally if not provided.}
+\item{mu1_hat}{pre-computed estimates on E[Y|X,W=1] corresponding to the input x. xlasso will compute it internally if not provided.}
 
-\item{y.0.pred}{pre-computed estimates on E[Y|X,W=0] corresponding to the input X. xlasso will compute it internally if not provided.}
+\item{mu0_hat}{pre-computed estimates on E[Y|X,W=0] corresponding to the input x. xlasso will compute it internally if not provided.}
 
-\item{w.hat}{pre-computed estimates on E[W|X] corresponding to the input X. xlasso will compute it internally if not provided}
+\item{p_hat}{pre-computed estimates on E[W|X] corresponding to the input x. xlasso will compute it internally if not provided}
 }
 \description{
 X-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via glmnet (lasso)
@@ -38,12 +38,12 @@ X-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via 
 \dontrun{
 n = 100; p = 10
 
-X = matrix(rnorm(n*p), n, p)
-W = rbinom(n, 1, 0.5)
-Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+x = matrix(rnorm(n*p), n, p)
+w = rbinom(n, 1, 0.5)
+y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 
-xlasso.fit = xlasso(X, Y, W)
-xlasso.est = predict(xlasso.fit, X)
+xlasso_fit = xlasso(x, w, y)
+xlasso_est = predict(xlasso_fit, x)
 }
 
 

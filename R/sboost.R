@@ -4,12 +4,12 @@
 #' @param w the treatment variable (0 or 1)
 #' @param y the observed response (real valued)
 #' @param k_folds number of folds for cross validation
-#' @param ntrees.max the maximum number of trees to grow for xgboost
-#' @param num.search.rounds the number of random sampling of hyperparameter combinations for cross validating on xgboost trees
-#' @param print.every.n the number of iterations (in each iteration, a tree is grown) by which the code prints out information
-#' @param early.stopping.rounds the number of rounds the test error stops decreasing by which the cross validation in finding the optimal number of trees stops
+#' @param ntrees_max the maximum number of trees to grow for xgboost
+#' @param num_search_rounds the number of random sampling of hyperparameter combinations for cross validating on xgboost trees
+#' @param print_every_n the number of iterations (in each iteration, a tree is grown) by which the code prints out information
+#' @param early_stopping_rounds the number of rounds the test error stops decreasing by which the cross validation in finding the optimal number of trees stops
 #' @param nthread the number of threads to use. The default is NULL, which uses all available threads
-#' @param bayes.opt if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost. if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num.search.rounds). Default is FALSE.
+#' @param bayes_opt if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost. if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num_search_rounds). Default is FALSE.
 #'
 #' @examples
 #' \dontrun{
@@ -19,47 +19,47 @@
 #' w = rbinom(n, 1, 0.5)
 #' y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 #'
-#' sboost.fit = sboost(x, w, y)
-#' sboost.est = predict(sboost.fit, x)
+#' sboost_fit = sboost(x, w, y)
+#' sboost_est = predict(sboost_fit, x)
 #' }
 #'
 #' @export
-sboost = function(X, W, Y,
+sboost = function(x, w, y,
                   k_folds = NULL,
-                  ntrees.max=1000,
-                  num.search.rounds=10,
-                  print.every.n=100,
-                  early.stopping.rounds=10,
-                  nthread=NULL,
-                  bayes.opt=FALSE){
+                  ntrees_max = 1000,
+                  num_search_rounds = 10,
+                  print_every_n = 100,
+                  early_stopping_rounds = 10,
+                  nthread = NULL,
+                  bayes_opt = FALSE){
 
-  nobs = nrow(X)
-  pobs = ncol(X)
+  nobs = nrow(x)
+  pobs = ncol(x)
 
   if (is.null(k_folds)) {
-    k_folds = floor(max(3, min(10,nobs/4)))
+    k_folds = floor(max(3, min(10, nobs/4)))
   }
 
-  s.fit = cvboost(cbind(X, (W-0.5)*X, (W-0.5)),
-                  Y,
-                  objective="reg:linear",
-                  k_folds=k_folds,
-                  ntrees.max=ntrees.max,
-                  num.search.rounds=num.search.rounds,
-                  print.every.n=print.every.n,
-                  early.stopping.rounds=early.stopping.rounds,
-                  nthread=nthread,
-                  bayes.opt=bayes.opt)
+  s_fit = cvboost(cbind(x, (w-0.5)*x, (w-0.5)),
+                  y,
+                  objective = "reg:linear",
+                  k_folds = k_folds,
+                  ntrees_max = ntrees_max,
+                  num_search_rounds = num_search_rounds,
+                  print_every_n = print_every_n,
+                  early_stopping_rounds = early_stopping_rounds,
+                  nthread = nthread,
+                  bayes_opt = bayes_opt)
 
 
-  mu0.hat = predict(s.fit, newx=cbind(X, (0-0.5)*X, (0-0.5)))
-  mu1.hat = predict(s.fit, newx=cbind(X, (1-0.5)*X, (1-0.5)))
-  tau.hat = mu1.hat - mu0.hat
+  mu0_hat = predict(s_fit, newx = cbind(x, (0 - 0.5) * x, (0 - 0.5)))
+  mu1_hat = predict(s_fit, newx = cbind(x, (1 - 0.5) * x, (1 - 0.5)))
+  tau_hat = mu1_hat - mu0_hat
 
-  ret = list(s.fit = s.fit,
-             mu0.hat = mu0.hat,
-             mu1.hat = mu1.hat,
-             tau.hat = tau.hat)
+  ret = list(s_fit = s_fit,
+             mu0_hat = mu0_hat,
+             mu1_hat = mu1_hat,
+             tau_hat = tau_hat)
 
   class(ret) <- "sboost"
   ret
@@ -81,23 +81,23 @@ sboost = function(X, W, Y,
 #' w = rbinom(n, 1, 0.5)
 #' y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 #'
-#' sboost.fit = sboost(x, w, y)
-#' sboost.est = predict(sboost.fit, x)
+#' sboost_fit = sboost(x, w, y)
+#' sboost_est = predict(sboost_fit, x)
 #' }
 #'
 #'
 #' @return vector of predictions
 #' @export
 predict.sboost <- function(object,
-                           newx=NULL,
+                           newx = NULL,
                            ...) {
   if (!is.null(newx)) {
-    mu0.hat = predict(object$s.fit, newx=cbind(newx, (0-0.5)*newx, (0-0.5)))
-    mu1.hat = predict(object$s.fit, newx=cbind(newx, (1-0.5)*newx, (1-0.5)))
-    tau.hat = mu1.hat - mu0.hat
+    mu0_hat = predict(object$s_fit, newx = cbind(newx, (0 - 0.5) * newx, (0 - 0.5)))
+    mu1_hat = predict(object$s_fit, newx = cbind(newx, (1 - 0.5) * newx, (1 - 0.5)))
+    tau_hat = mu1_hat - mu0_hat
   }
   else {
-    tau.hat = object$tau.hat
+    tau_hat = object$tau_hat
   }
-  return(tau.hat)
+  return(tau_hat)
 }

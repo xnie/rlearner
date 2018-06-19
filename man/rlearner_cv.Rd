@@ -7,7 +7,7 @@
 rlearner_cv(x, w, y, tau_model_specs, p_model_specs = tau_model_specs,
   m_model_specs = tau_model_specs, p_hat = NULL, m_hat = NULL,
   k_folds = 5, k_folds_cf = 5, economy = T, select_by = "best",
-  p_min = 0, p_max = 1, rc = FALSE)
+  p_min = 0, p_max = 1)
 }
 \arguments{
 \item{x}{a numeric matrix of \strong{covariates}}
@@ -46,8 +46,9 @@ multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some l
 \item{p_min}{If provided, estimated propensities will be trimmed to have minimum \code{p_min}.}
 
 \item{p_max}{If provided, estimated propensities will be trimmed to have maximum \code{p_max}.}
-
-\item{rc}{If TRUE, predict constant treatment effect first, learn hetereogeneity, and then add constant effect back}
+}
+\description{
+R-learning for heterogenous treatment effects
 }
 \details{
 The R-learner estimates heterogenous treatment effects by learning a custom objective function and minimizing it using

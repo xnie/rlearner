@@ -34,6 +34,9 @@ multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some l
 
 \item{p_max}{If provided, probabilities at prediction time will be trimmed to have maximum \code{p_max}. Used for the X-learner.}
 }
+\description{
+Cross-validated supervised learning
+}
 \details{
 This is a wrapper around \pkg{caret}'s train function, simplifying the interface
 for the purpose of individual treatment effect meta-learners. Applies cross-validation to select

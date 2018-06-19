@@ -25,12 +25,12 @@
 #' model_specs = list(
 #' gbm = list(
 #'     tune_grid = expand.grid(
-#'         n.trees = seq(1,501,20), 
-#'         interaction.depth=3, 
-#'         shrinkage = 0.1, 
+#'         n.trees = seq(1,501,20),
+#'         interaction.depth=3,
+#'         shrinkage = 0.1,
 #'         n.minobsinnode=3),
 #'     extra_args = list(
-#'         verbose=F, 
+#'         verbose=F,
 #'         bag.fraction=1)),
 #' glmnet = list(
 #'     tune_grid = expand.grid(
@@ -39,32 +39,32 @@
 #'     extra_args = list())
 #' )
 #' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
-#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample 
-#' 
-#' tau_hat_model = xlearner_cv(x, w, y, model_specs) 
+#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample
+#'
+#' tau_hat_model = xlearner_cv(x, w, y, model_specs)
 #' tau_hat = predict(tau_hat_model, x)
 #' }
 #' @export
 xlearner_cv = function(x, w, y, tau_model_specs,
-	p_model_specs=tau_model_specs, mu_model_specs=tau_model_specs, 
+	p_model_specs=tau_model_specs, mu_model_specs=tau_model_specs,
 	mu0_hat=NULL, mu1_hat=NULL,
 	k_folds=5, select_by="best",
 	p_min=0, p_max=1) {
-	
+
 	c(x, w, y) %<-% sanitize_input(x,w,y)
 
-	p_hat_model = learner_cv(x, w, p_model_specs, 
+	p_hat_model = learner_cv(x, w, p_model_specs,
 		k_folds=k_folds, select_by=select_by,
 		p_min = p_min, p_max=p_max)
 
 	if (is.null(mu1_hat)) {
-		mu1_hat_model = learner_cv(x[w,], y[w], mu_model_specs, 
+		mu1_hat_model = learner_cv(x[w,], y[w], mu_model_specs,
 			k_folds=k_folds, select_by=select_by)
 		mu1_hat = predict(mu1_hat_model, x)
 	}
 
 	if (is.null(mu0_hat)) {
-		mu0_hat_model = learner_cv(x[!w,], y[!w], mu_model_specs, 
+		mu0_hat_model = learner_cv(x[!w,], y[!w], mu_model_specs,
 			k_folds=k_folds, select_by=select_by)
 		mu0_hat = predict(mu0_hat_model, x)
 	}
@@ -72,9 +72,9 @@ xlearner_cv = function(x, w, y, tau_model_specs,
 	d1 = y[w] - mu0_hat[w]
 	d0 = mu1_hat[!w] - y[!w]
 
-	tau1_hat_model = learner_cv(x[w,], d1, tau_model_specs, 
+	tau1_hat_model = learner_cv(x[w,], d1, tau_model_specs,
 			k_folds=k_folds, select_by=select_by)
-	tau0_hat_model = learner_cv(x[!w,], d0, tau_model_specs, 
+	tau0_hat_model = learner_cv(x[!w,], d0, tau_model_specs,
 		k_folds=k_folds, select_by=select_by)
 
 	xlearner = list(
@@ -87,18 +87,18 @@ xlearner_cv = function(x, w, y, tau_model_specs,
 
 #' @title Prediction for X-learner
 #' @param object a X-learner object
-#' @param x a matrix of covariates for which to predict the treatment effect
+#' @param newx a matrix of covariates for which to predict the treatment effect
 #' @examples
 #' \dontrun{
 #' model_specs = list(
 #' gbm = list(
 #'     tune_grid = expand.grid(
-#'         n.trees = seq(1,501,20), 
-#'         interaction.depth=3, 
-#'         shrinkage = 0.1, 
+#'         n.trees = seq(1,501,20),
+#'         interaction.depth=3,
+#'         shrinkage = 0.1,
 #'         n.minobsinnode=3),
 #'     extra_args = list(
-#'         verbose=F, 
+#'         verbose=F,
 #'         bag.fraction=1)),
 #' glmnet = list(
 #'     tune_grid = expand.grid(
@@ -107,15 +107,15 @@ xlearner_cv = function(x, w, y, tau_model_specs,
 #'     extra_args = list())
 #' )
 #' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
-#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample 
-#' 
-#' tau_hat_model = xlearner_cv(x, w, y, model_specs) 
+#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample
+#'
+#' tau_hat_model = xlearner_cv(x, w, y, model_specs)
 #' tau_hat = predict(tau_hat_model, x)
 #' }
 #' @export predict.xlearner
-predict.xlearner = function(object, x, ...) {
+predict.xlearner = function(object, newx, ...) {
 	object %>% purrr::map(function(model) {
-		predict(model, x)
+		predict(model, newx)
 	}) %->%	c(p_hat, tau0_hat, tau1_hat)
 	p_hat = trim(p_hat, object$p_hat_model$p_min, object$p_hat_model$p_max)
 	return(p_hat*tau0_hat + (1-p_hat)*tau1_hat)

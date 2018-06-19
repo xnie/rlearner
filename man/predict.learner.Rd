@@ -4,10 +4,39 @@
 \alias{predict.learner}
 \title{Prediction for base learner}
 \usage{
-\method{predict}{learner}(object, newdata)
+\method{predict}{learner}(object, x, ...)
 }
 \arguments{
 \item{object}{a learner object}
 
 \item{x}{a matrix of covariates for which to predict a target}
+}
+\description{
+Prediction for base learner
+}
+\examples{
+\dontrun{
+model_specs = list(
+gbm = list(
+    tune_grid = expand.grid(
+        n.trees = seq(1,501,20), 
+        interaction.depth=3, 
+        shrinkage = 0.1, 
+        n.minobsinnode=3),
+    extra_args = list(
+        verbose=F, 
+        bag.fraction=1)),
+glmnet = list(
+    tune_grid = expand.grid(
+       alpha=c(0,0.5,1),
+       lambda=exp(seq(-5,2,0.2))),
+    extra_args = list())
+)
+c(x, w, y, ...) \%<-\% toy_data_simulation(500) # draw a sample 
+
+best_model_y = learner_cv(x, y, model_specs) 
+y_hat = predict(best_model_y, x)
+best_model_w = learner_cv(x, w, model_specs)
+w_hat_prob = predict(best_model_w, x)
+}
 }

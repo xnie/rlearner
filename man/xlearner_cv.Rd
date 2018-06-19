@@ -5,7 +5,7 @@
 \title{X-learning for heterogenous treatment effects}
 \usage{
 xlearner_cv(x, w, y, tau_model_specs, p_model_specs = tau_model_specs,
-  mu_model_specs = tau_model_specs, mu0_hat_1 = NULL, mu1_hat_0 = NULL,
+  mu_model_specs = tau_model_specs, mu0_hat = NULL, mu1_hat = NULL,
   k_folds = 5, select_by = "best", p_min = 0, p_max = 1)
 }
 \arguments{
@@ -21,12 +21,12 @@ xlearner_cv(x, w, y, tau_model_specs, p_model_specs = tau_model_specs,
 Not needed if \code{p_hat} is provided.}
 
 \item{mu_model_specs}{specification for the models of \eqn{m_w(x) = E[Y|W=w,X=x]}. See \code{\link{learner_cv}}.
-Not needed if \code{mu0_hat_0} and \code{mu0_hat_1} are provided.}
+Not needed if \code{mu0_hat_0} and \code{mu0_hat} are provided.}
 
-\item{mu0_hat_1}{a numeric vector of estimates of the outcome under control for the treated observations.
+\item{mu0_hat}{a numeric vector of estimates of the outcome under control for all observations.
 The X-learner will estimate these values internally if not provided.}
 
-\item{mu1_hat_0}{a numeric vector of estimates of the outcome under treatment for the control observations.
+\item{mu1_hat}{a numeric vector of estimates of the outcome under treatment for all observations.
 The X-learner will estimate these values internally if not provided.}
 
 \item{k_folds}{number of cross-validation folds to use in hyperparameter optimization for each model.}
@@ -39,17 +39,20 @@ multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some l
 
 \item{p_max}{If provided, estimated propensities will be trimmed to have maximum \code{p_max}.}
 }
+\description{
+X-learning for heterogenous treatment effects
+}
 \examples{
 \dontrun{
 model_specs = list(
 gbm = list(
     tune_grid = expand.grid(
-        n.trees = seq(1,501,20), 
-        interaction.depth=3, 
-        shrinkage = 0.1, 
+        n.trees = seq(1,501,20),
+        interaction.depth=3,
+        shrinkage = 0.1,
         n.minobsinnode=3),
     extra_args = list(
-        verbose=F, 
+        verbose=F,
         bag.fraction=1)),
 glmnet = list(
     tune_grid = expand.grid(
@@ -58,9 +61,9 @@ glmnet = list(
     extra_args = list())
 )
 library(zeallot) # imports the \%<-\% operator, which is syntactic sugar that performs multiple assignment out of a list
-c(x, w, y, ...) \%<-\% toy_data_simulation(500) # draw a sample 
+c(x, w, y, ...) \%<-\% toy_data_simulation(500) # draw a sample
 
-tau_hat_model = xlearner_cv(x, w, y, model_specs) 
+tau_hat_model = xlearner_cv(x, w, y, model_specs)
 tau_hat = predict(tau_hat_model, x)
 }
 }

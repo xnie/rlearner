@@ -24,12 +24,12 @@ get estimated tau(x) using the trained xlasso model
 \dontrun{
 n = 100; p = 10
 
-X = matrix(rnorm(n*p), n, p)
-W = rbinom(n, 1, 0.5)
-Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+x = matrix(rnorm(n*p), n, p)
+w = rbinom(n, 1, 0.5)
+y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 
-xlasso.fit = xlasso(X, Y, W)
-xlasso.est = predict(xlasso.fit, X)
+xlasso_fit = xlasso(x, w, y)
+xlasso_est = predict(xlasso_fit, x)
 }
 
 

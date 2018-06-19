@@ -5,7 +5,7 @@
 #' @param y the observed response (real valued)
 #' @param alpha tuning parameter for the elastic net
 #' @param k_folds number of folds for cross-fitting
-#' @param lambda.choice how to cross-validate; choose from "lambda.min" or "lambda.1se"
+#' @param lambda_choice how to cross-validate; choose from "lambda.min" or "lambda.1se"
 #' @param rs whether to use the RS-learner (logical).
 #' @param p_hat user-supplied estimate for E[W|X]
 #' @param m_hat user-supplied estimte for E[Y|X]
@@ -18,86 +18,88 @@
 #' w = rbinom(n, 1, 0.5)
 #' y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 #'
-#' rlasso.fit = rlasso(x, w, y)
-#' rlasso.est = predict(rlasso.fit, x)
+#' rlasso_fit = rlasso(x, w, y)
+#' rlasso_est = predict(rlasso_fit, x)
 #' }
 #' @export
-rlasso = function(X, W, Y,
+rlasso = function(x, w, y,
                   alpha = 1,
-                  k_folds=NULL,
-                  lambda.choice=c("lambda.min","lambda.1se"),
+                  k_folds = NULL,
+                  lambda_choice = c("lambda.min","lambda.1se"),
                   rs = FALSE,
                   p_hat = NULL,
                   m_hat = NULL){
 
-    if (is.null(colnames(X))) {
-      stop("The design matrix X must have named columns.")
+    if (is.null(colnames(x))) {
+      stop("The design matrix x must have named columns.")
     }
-    standardization = caret::preProcess(X, method=c("center", "scale")) # get the standardization params
-    X.scl = predict(standardization, X)							 # standardize the input
-    X.scl = X.scl[,!is.na(colSums(X.scl))]
+    standardization = caret::preProcess(x, method=c("center", "scale")) # get the standardization params
+    x_scl = predict(standardization, x)							 # standardize the input
+    x_scl = x_scl[,!is.na(colSums(x_scl))]
 
-    lambda.choice = match.arg(lambda.choice)
+    lambda_choice = match.arg(lambda_choice)
 
-    nobs = nrow(X.scl)
-    pobs = ncol(X.scl)
+    nobs = nrow(x_scl)
+    pobs = ncol(x_scl)
 
     if (is.null(k_folds)) {
-        k_folds = floor(max(3, min(10,length(W)/4)))
+        k_folds = floor(max(3, min(10,length(w)/4)))
     }
 
     # fold ID for cross-validation; balance treatment assignments
-    foldid = sample(rep(seq(k_folds), length = length(W)))
+    foldid = sample(rep(seq(k_folds), length = length(w)))
 
     if (is.null(m_hat)){
-      y.fit = glmnet::cv.glmnet(X, Y, foldid = foldid, keep = TRUE, alpha = alpha)
-      m_hat = y.fit$fit.preval[,!is.na(colSums(y.fit$fit.preval))][, y.fit$lambda == y.fit$lambda.min]
+      y_fit = glmnet::cv.glmnet(x, y, foldid = foldid, keep = TRUE, alpha = alpha)
+      m_hat = y_fit$fit.preval[,!is.na(colSums(y_fit$fit.preval))][, y_fit$lambda == y_fit$lambda.min]
     }
     else {
-      y.fit = NULL
+      y_fit = NULL
     }
 
     if (is.null(p_hat)){
-      w.fit = glmnet::cv.glmnet(X, W, foldid = foldid, keep = TRUE, family = "binomial", type.measure = "deviance", alpha = alpha)
-      p_hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.min]
+      w_fit = glmnet::cv.glmnet(x, w, foldid = foldid, keep = TRUE, family = "binomial", type.measure = "deviance", alpha = alpha)
+      p_hat = w_fit$fit.preval[,!is.na(colSums(w_fit$fit.preval))][, w_fit$lambda == w_fit$lambda.min]
     }
     else{
-      w.fit = NULL
+      w_fit = NULL
     }
 
-    Y.tilde = Y - m_hat
+    y_tilde = y - m_hat
 
     if (rs){
 
-      X.scl.tilde = cbind(as.numeric(W - p_hat) * cbind(1, X.scl), X.scl)
-      X.scl.pred = cbind(1, X.scl, X.scl * 0)
-      penalty.factor = c(0, rep(1, 2 * pobs))
+      x_scl_tilde = cbind(as.numeric(w - p_hat) * cbind(1, x_scl), x_scl)
+      x_scl_pred = cbind(1, x_scl, x_scl * 0)
+      penalty_factor = c(0, rep(1, 2 * pobs))
 
     }
     else{
 
-      X.scl.tilde = cbind(as.numeric(W - p_hat) * cbind(1, X.scl))
-      X.scl.pred = cbind(1, X.scl)
-      penalty.factor = c(0, rep(1, pobs))
+      x_scl_tilde = cbind(as.numeric(w - p_hat) * cbind(1, x_scl))
+      x_scl_pred = cbind(1, x_scl)
+      penalty_factor = c(0, rep(1, pobs))
 
     }
 
-    tau.fit = glmnet::cv.glmnet(X.scl.tilde, Y.tilde, foldid = foldid,
-                             alpha = alpha,
-                             penalty.factor = penalty.factor,
-                             standardize = FALSE)
+    tau_fit = glmnet::cv.glmnet(x_scl_tilde,
+                                y_tilde,
+                                foldid = foldid,
+                                alpha = alpha,
+                                penalty.factor = penalty_factor,
+                                standardize = FALSE)
 
-    tau.beta = as.vector(t(coef(tau.fit, s=lambda.choice)[-1]))
+    tau_beta = as.vector(t(coef(tau_fit, s = lambda_choice)[-1]))
 
-    tau.hat = X.scl.pred %*% tau.beta
+    tau_hat = x_scl_pred %*% tau_beta
 
-    ret = list(tau.fit = tau.fit,
-               tau.beta = tau.beta,
-               w.fit = w.fit,
-               y.fit = y.fit,
+    ret = list(tau_fit = tau_fit,
+               tau_beta = tau_beta,
+               w_fit = w_fit,
+               y_fit = y_fit,
                p_hat = p_hat,
                m_hat = m_hat,
-               tau.hat = tau.hat,
+               tau_hat = tau_hat,
                rs = rs,
                standardization = standardization)
     class(ret) <- "rlasso"
@@ -121,30 +123,30 @@ rlasso = function(X, W, Y,
 #' w = rbinom(n, 1, 0.5)
 #' y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 #'
-#' rlasso.fit = rlasso(x, w, y)
-#' rlasso.est = predict(rlasso.fit, x)
+#' rlasso_fit = rlasso(x, w, y)
+#' rlasso_est = predict(rlasso_fit, x)
 #' }
 #'
 #'
 #' @return vector of predictions
 #' @export
 predict.rlasso <- function(object,
-                           newx=NULL,
+                           newx = NULL,
                            ...) {
   if (!is.null(newx)) {
-    newx.scl = predict(object$standardization, newx) # standardize the new data using the same standardization as with the training data
-    newx.scl = newx.scl[,!is.na(colSums(newx.scl))]
+    newx_scl = predict(object$standardization, newx) # standardize the new data using the same standardization as with the training data
+    newx_scl = newx_scl[,!is.na(colSums(newx_scl))]
 
     if (object$rs){
-      newx.scl.pred = cbind(1, newx.scl, newx.scl * 0)
+      newx_scl_pred = cbind(1, newx_scl, newx_scl * 0)
     }
     else{
-      newx.scl.pred = cbind(1, newx.scl)
+      newx_scl_pred = cbind(1, newx_scl)
     }
-    tau.hat = newx.scl.pred %*% object$tau.beta
+    tau_hat = newx_scl_pred %*% object$tau_beta
   }
   else {
-    tau.hat = object$tau.hat
+    tau_hat = object$tau_hat
   }
-  return(tau.hat)
+  return(tau_hat)
 }

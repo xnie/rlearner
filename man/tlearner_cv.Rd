@@ -21,17 +21,20 @@ tlearner_cv(x, w, y, model_specs, k_folds = 5, select_by = "best")
 error or \code{"oneSE"} for the one-standard-error (1-SE) rule. The implementaion of the 1-SE rule for learners with
 multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some learners. See: \code{\link[caret]{?caret::oneSE}}.}
 }
+\description{
+T-learning for heterogenous treatment effects
+}
 \examples{
 \dontrun{
 model_specs = list(
 gbm = list(
     tune_grid = expand.grid(
-        n.trees = seq(1,501,20), 
-        interaction.depth=3, 
-        shrinkage = 0.1, 
+        n.trees = seq(1,501,20),
+        interaction.depth=3,
+        shrinkage = 0.1,
         n.minobsinnode=3),
     extra_args = list(
-        verbose=F, 
+        verbose=F,
         bag.fraction=1)),
 glmnet = list(
     tune_grid = expand.grid(
@@ -40,9 +43,9 @@ glmnet = list(
     extra_args = list())
 )
 library(zeallot) # imports the \%<-\% operator, which is syntactic sugar that performs multiple assignment out of a list
-c(x, w, y, ...) \%<-\% toy_data_simulation(500) # draw a sample 
+c(x, w, y, ...) \%<-\% toy_data_simulation(500) # draw a sample
 
-tau_hat_model = tlearner_cv(x, w, y, model_specs) 
+tau_hat_model = tlearner_cv(x, w, y, model_specs)
 tau_hat = predict(tau_hat_model, x)
 }
 }

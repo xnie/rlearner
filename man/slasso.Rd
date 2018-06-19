@@ -4,23 +4,23 @@
 \alias{slasso}
 \title{S-learner, as proposed by Imai and Ratkovic 2013, implemented via glmnet (lasso)}
 \usage{
-slasso(X, Y, W, alpha = 1, nfolds = NULL, lambda.choice = c("lambda.min",
-  "lambda.1se"), penalty.search = FALSE)
+slasso(x, w, y, alpha = 1, k_folds = NULL, lambda_choice = c("lambda.min",
+  "lambda.1se"), penalty_search = FALSE)
 }
 \arguments{
-\item{X}{the input features}
+\item{x}{the input features}
 
-\item{Y}{the observed response (real valued)}
+\item{w}{the treatment variable (0 or 1)}
 
-\item{W}{the treatment variable (0 or 1)}
+\item{y}{the observed response (real valued)}
 
 \item{alpha}{tuning parameter for the elastic net}
 
-\item{nfolds}{number of folds for cross validation}
+\item{k_folds}{number of folds for cross validation}
 
-\item{lambda.choice}{how to cross-validate; choose from "lambda.min" or "lambda.1se"}
+\item{lambda_choice}{how to cross-validate; choose from "lambda.min" or "lambda.1se"}
 
-\item{penalty.search}{whether to perform fine grainted penalty factor search (logical)}
+\item{penalty_search}{whether to perform fine grainted penalty_factor search (logical)}
 }
 \description{
 S-learner, as proposed by Imai and Ratkovic 2013, implemented via glmnet (lasso)
@@ -29,11 +29,11 @@ S-learner, as proposed by Imai and Ratkovic 2013, implemented via glmnet (lasso)
 \dontrun{
 n = 100; p = 10
 
-X = matrix(rnorm(n*p), n, p)
-W = rbinom(n, 1, 0.5)
-Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+x = matrix(rnorm(n*p), n, p)
+w = rbinom(n, 1, 0.5)
+y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 
-slasso.fit = slasso(X, Y, W)
-slasso.est = predict(slasso.fit, X)
+slasso_fit = slasso(x, w, y)
+slasso_est = predict(slasso_fit, x)
 }
 }
