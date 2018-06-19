@@ -78,7 +78,7 @@ slearner_cv = function(x, w, y, model_specs, k_folds=5, select_by="best") {
 #' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample
 #'
 #' tau_hat_model = slearner_cv(x, w, y, model_specs)
-#' tau
+#' tau_hat = predict(tau_hat_model, x)
 #' }
 #' @export predict.slearner
 predict.slearner = function(object, newx, ...) {
