@@ -31,7 +31,7 @@ rlasso = function(x, w, y,
                   m_hat = NULL){
 
     if (is.null(colnames(x))) {
-      stop("The design matrix x must have named columns.")
+      x = stats::model.matrix(~.-1, data.frame(x))
     }
     standardization = caret::preProcess(x, method=c("center", "scale")) # get the standardization params
     x_scl = predict(standardization, x)							 # standardize the input
@@ -134,6 +134,9 @@ predict.rlasso <- function(object,
                            newx = NULL,
                            ...) {
   if (!is.null(newx)) {
+    if (is.null(colnames(newx))) {
+      newx = stats::model.matrix(~.-1, data.frame(newx))
+    }
     newx_scl = predict(object$standardization, newx) # standardize the new data using the same standardization as with the training data
     newx_scl = newx_scl[,!is.na(colSums(newx_scl))]
 

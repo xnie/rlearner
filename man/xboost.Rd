@@ -7,7 +7,7 @@
 xboost(x, w, y, k_folds_mu1 = NULL, k_folds_mu0 = NULL, k_folds_p = NULL,
   mu1_hat = NULL, mu0_hat = NULL, p_hat = NULL, ntrees_max = 1000,
   num_search_rounds = 10, print_every_n = 100, early_stopping_rounds = 10,
-  nthread = NULL, bayes_opt = FALSE)
+  nthread = NULL, verbose = FALSE, bayes_opt = FALSE)
 }
 \arguments{
 \item{x}{the input features}
@@ -37,6 +37,8 @@ xboost(x, w, y, k_folds_mu1 = NULL, k_folds_mu0 = NULL, k_folds_p = NULL,
 \item{early_stopping_rounds}{the number of rounds the test error stops decreasing by which the cross validation in finding the optimal number of trees stops}
 
 \item{nthread}{the number of threads to use. The default is NULL, which uses all available threads}
+
+\item{verbose}{boolean; whether to print statistic}
 
 \item{bayes_opt}{if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost. if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num_search_rounds). default is FALSE.}
 }

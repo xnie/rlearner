@@ -25,6 +25,10 @@ slasso = function(x, w, y,
                   lambda_choice = c("lambda.min", "lambda.1se"),
                   penalty_search = FALSE) {
 
+  if (is.null(colnames(x))) {
+    x = stats::model.matrix(~.-1, data.frame(x))
+  }
+
   standardization = caret::preProcess(x, method=c("center", "scale")) # get the standardization params
   x_scl = predict(standardization, x)							 # standardize the input
   x_scl = x_scl[,!is.na(colSums(x_scl))]
@@ -135,6 +139,9 @@ predict.slasso <- function(object,
                            newx = NULL,
                            ...) {
   if (!is.null(newx)) {
+    if (is.null(colnames(newx))) {
+      newx = stats::model.matrix(~.-1, data.frame(newx))
+    }
     newx_scl = predict(object$standardization, newx) # standardize the new data using the same standardization as with the training data
     newx_scl = newx_scl[,!is.na(colSums(newx_scl))]
     newx_scl_pred = cbind(1, newx_scl, 0 * newx_scl)

@@ -10,6 +10,7 @@
 #' @param print_every_n the number of iterations (in each iteration, a tree is grown) by which the code prints out information
 #' @param early_stopping_rounds the number of rounds the test error stops decreasing by which the cross validation in finding the optimal number of trees stops
 #' @param nthread the number of threads to use. The default is NULL, which uses all available threads
+#' @param verbose boolean; whether to print statistic
 #' @param bayes_opt if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost (warning: very slow!). if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num_search_rounds). Default is FALSE.
 #'
 #' @return a cvboost object
@@ -36,6 +37,7 @@ cvboost = function(x,
                    print_every_n=100,
                    early_stopping_rounds=10,
                    nthread=NULL,
+                   verbose=FALSE,
                    bayes_opt=FALSE) {
 
   objective = match.arg(objective)
@@ -80,6 +82,7 @@ cvboost = function(x,
                          early_stopping_rounds = 10,
                          maximize = FALSE,
                          print_every_n = print_every_n,
+                         verbose=verbose,
                          callbacks = list(xgboost::cb.cv.predict(save_models = TRUE)))
       if (!is.null(nthread)){
         xgb_cv_args = c(xgb_cv_args, nthread=nthread)
@@ -110,6 +113,7 @@ cvboost = function(x,
                           early_stopping_rounds = 10,
                           maximize = FALSE,
                           print_every_n = print_every_n,
+                          verbose=verbose,
                           callbacks = list(xgboost::cb.cv.predict(save_models = TRUE)))
 
     if (!is.null(nthread)) {
@@ -142,6 +146,7 @@ cvboost = function(x,
                          maximize = FALSE,
                          nrounds = ntrees_max,
                          print_every_n = print_every_n,
+                         verbose=verbose,
                          callbacks = list(xgboost::cb.cv.predict(save_models = TRUE)))
 
       if (!is.null(nthread)){

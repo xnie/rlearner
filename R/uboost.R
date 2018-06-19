@@ -12,6 +12,7 @@
 #' @param print_every_n the number of iterations (in each iteration, a tree is grown) by which the code prints out information
 #' @param early_stopping_rounds the number of rounds the test error stops decreasing by which the cross validation in finding the optimal number of trees stops
 #' @param nthread the number of threads to use. The default is NULL, which uses all available threads
+#' @param verbose boolean; whether to print statistic
 #' @param bayes_opt if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost. if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num_search_rounds). Default is FALSE.
 #'
 #' @examples
@@ -37,6 +38,7 @@ uboost= function(x, w, y,
                  print_every_n = 100,
                  early_stopping_rounds = 10,
                  nthread = NULL,
+                 verbose = FALSE,
                  bayes_opt = FALSE) {
 
   nobs = nrow(x)
@@ -56,6 +58,7 @@ uboost= function(x, w, y,
                     print_every_n = print_every_n,
                     early_stopping_rounds = early_stopping_rounds,
                     nthread = nthread,
+                    verbose = verbose,
                     bayes_opt = bayes_opt)
 
     m_hat = predict(y_fit)
@@ -74,6 +77,7 @@ uboost= function(x, w, y,
                     print_every_n = print_every_n,
                     early_stopping_rounds = early_stopping_rounds,
                     nthread = nthread,
+                    verbose = verbose,
                     bayes_opt = bayes_opt)
     p_hat = predict(w_fit)
   }
@@ -96,6 +100,7 @@ uboost= function(x, w, y,
                     print_every_n = print_every_n,
                     early_stopping_rounds = early_stopping_rounds,
                     nthread = nthread,
+                    verbose = verbose,
                     bayes_opt = bayes_opt)
 
   ret = list(tau_fit = tau_fit,

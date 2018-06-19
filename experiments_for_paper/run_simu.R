@@ -133,33 +133,33 @@ results_list = lapply(1:NREP, function(iter) {
     else if (learner == "boost") {
       if (alg == 'R') {
 
-        fit <- rboost(X_train, W_train, Y_train, nthread=1)
+        fit <- rboost(X_train, W_train, Y_train, nthread=1, verbose=TRUE)
 
       } else if (alg == 'oracle') {
 
         p_hat_oracle = params_train$e
         m_hat_oracle = params_train$b + (params_train$e-0.5) * params_train$tau
-        fit <- rboost(X_train, W_train, Y_train, p_hat = p_hat_oracle, m_hat = m_hat_oracle, nthread = 1)
+        fit <- rboost(X_train, W_train, Y_train, p_hat = p_hat_oracle, m_hat = m_hat_oracle, nthread = 1, verbose=TRUE)
 
       } else if (alg == 'S') {
 
-        fit <- sboost(X_train, W_train, Y_train, nthread = 1)
+        fit <- sboost(X_train, W_train, Y_train, nthread = 1, verbose = TRUE)
 
       } else if (alg == 'T') {
 
-        fit <- tboost(X_train, W_train, Y_train, nthread = 1)
+        fit <- tboost(X_train, W_train, Y_train, nthread = 1, verbose = TRUE)
 
       } else if (alg == 'X') {
 
-        fit <- xboost(X_train, W_train, Y_train, nthread = 1)
+        fit <- xboost(X_train, W_train, Y_train, nthread = 1, verbose = TRUE)
 
       } else if (alg == 'U') {
 
-        fit <- uboost(X_train, W_train, Y_train, cutoff = 0.05, nthread = 1)
+        fit <- uboost(X_train, W_train, Y_train, cutoff = 0.05, nthread = 1, verbose = TRUE)
 
       } else if (alg == 'causalboost') {
 
-        w_fit = cvboost(X_train, W_train, objective = "binary:logistic", nthread = 1)
+        w_fit = cvboost(X_train, W_train, objective = "binary:logistic", nthread = 1, verbose = TRUE)
         p_hat = predict(w_fit)
 
         stratum = stratify(p_hat, W_train)$stratum
