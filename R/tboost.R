@@ -1,10 +1,10 @@
 #' T-learner, implemented via xgboost (gradient boosting)
 #'
-#' @param X the input features
-#' @param Y the observed response (real valued)
-#' @param W the treatment variable (0 or 1)
-#' @param nfolds.1 number of folds for cross validation for the treated
-#' @param nfolds.0 number of folds for cross validation for the control
+#' @param x the input features
+#' @param w the treatment variable (0 or 1)
+#' @param y the observed response (real valued)
+#' @param k_folds_mu1 number of folds for cross validation for the treated
+#' @param k_folds_mu0 number of folds for cross validation for the control
 #' @param ntrees.max the maximum number of trees to grow for xgboost
 #' @param num.search.rounds the number of random sampling of hyperparameter combinations for cross validating on xgboost trees
 #' @param print.every.n the number of iterations (in each iteration, a tree is grown) by which the code prints out information
@@ -16,20 +16,20 @@
 #' \dontrun{
 #' n = 100; p = 10
 #'
-#' X = matrix(rnorm(n*p), n, p)
-#' W = rbinom(n, 1, 0.5)
-#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#' x = matrix(rnorm(n*p), n, p)
+#' w = rbinom(n, 1, 0.5)
+#' y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 #'
-#' tboost.fit = tboost(X, Y, W)
-#' tboost.est = predict(tboost.fit, X)
+#' tboost.fit = tboost(x, w, y)
+#' tboost.est = predict(tboost.fit, x)
 #' }
 #'
 #' @export
 
-tboost = function(X, Y, W,
+tboost = function(X, W, Y,
                   alpha = 1,
-                  nfolds.1=NULL,
-                  nfolds.0=NULL,
+                  k_folds_mu1=NULL,
+                  k_folds_mu0=NULL,
                   ntrees.max=1000,
                   num.search.rounds=10,
                   print.every.n=100,
@@ -48,18 +48,18 @@ tboost = function(X, Y, W,
 
   pobs = ncol(X)
 
-  if (is.null(nfolds.1)) {
-    nfolds.1 = floor(max(3, min(10,nobs.1/4)))
+  if (is.null(k_folds_mu1)) {
+    k_folds_mu1 = floor(max(3, min(10,nobs.1/4)))
   }
 
-  if (is.null(nfolds.0)) {
-    nfolds.0 = floor(max(3, min(10,nobs.0/4)))
+  if (is.null(k_folds_mu0)) {
+    k_folds_mu0 = floor(max(3, min(10,nobs.0/4)))
   }
 
   t.1.fit = cvboost(X.1,
                     Y.1,
                     objective="reg:linear",
-                    nfolds = nfolds.1,
+                    nfolds = k_folds_mu1,
                     ntrees.max=ntrees.max,
                     num.search.rounds=num.search.rounds,
                     print.every.n=print.every.n,
@@ -70,7 +70,7 @@ tboost = function(X, Y, W,
   t.0.fit = cvboost(X.0,
                     Y.0,
                     objective="reg:linear",
-                    nfolds = nfolds.0,
+                    nfolds = k_folds_mu0,
                     ntrees.max=ntrees.max,
                     num.search.rounds=num.search.rounds,
                     print.every.n=print.every.n,
@@ -104,12 +104,12 @@ tboost = function(X, Y, W,
 #' \dontrun{
 #' n = 100; p = 10
 #'
-#' X = matrix(rnorm(n*p), n, p)
-#' W = rbinom(n, 1, 0.5)
-#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#' x = matrix(rnorm(n*p), n, p)
+#' w = rbinom(n, 1, 0.5)
+#' y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 #'
-#' tboost.fit = tboost(X, Y, W)
-#' tboost.est = predict(tboost.fit, X)
+#' tboost.fit = tboost(x, w, y)
+#' tboost.est = predict(tboost.fit, x)
 #' }
 #'
 #'

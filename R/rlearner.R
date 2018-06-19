@@ -5,7 +5,7 @@
 #' @details The R-learner estimates heterogenous treatment effects by learning a custom objective function and minimizing it using
 #' any suitable machine learning algorithm.
 #' @param x a numeric matrix of \strong{covariates}
-#' @param w a two-class factor vector of \strong{treatments}. The first factor level is treated as the positive class \eqn{w=1}
+#' @param w a logical vector indicating \strong{treatment}
 #' @param y a numeric vector of \strong{outcomes}
 #' @param tau_model_specs specification for the model of \eqn{\tau(x) = E[Y(1) - Y(0)|X=x]}. See \code{\link{learner_cv}}.
 #' @param p_hat a numeric vector of estimates of the treatment propensity \eqn{p(x) = E[W|X=x]} of each observation.
@@ -60,6 +60,8 @@ rlearner_cv = function(x, w, y, tau_model_specs,
 	economy=T, select_by="best",
 	p_min=0, p_max=1, rc=FALSE) {
 
+	c(x, w, y) %<-% sanitize_input(x,w,y)
+
 	if (is.null(p_hat)) {
 		p_hat = xval_xfit(x, w, p_model_specs,
 			k_folds_cf=k_folds_cf, k_folds=k_folds, economy=economy, select_by=select_by) %>%
@@ -70,7 +72,6 @@ rlearner_cv = function(x, w, y, tau_model_specs,
 			k_folds_cf=k_folds_cf, k_folds=k_folds, economy=economy, select_by=select_by)
 	}
 
-	w = w==levels(w)[1] # turn factor to a logical (the first factor level should be the "treated")
 	if (rc) {
 	  y.tilde = y - m_hat
 	  w.tilde = w - p_hat
@@ -100,8 +101,32 @@ rlearner_cv = function(x, w, y, tau_model_specs,
 #' @title Prediction for R-learner
 #' @param object a R-learner object
 #' @param x a matrix of covariates for which to predict the treatment effect
+#' @examples
+#' \dontrun{
+#' model_specs = list(
+#' gbm = list(
+#'     tune_grid = expand.grid(
+#'         n.trees = seq(1,501,20),
+#'         interaction.depth=3,
+#'         shrinkage = 0.1,
+#'         n.minobsinnode=3),
+#'     extra_args = list(
+#'         verbose=F,
+#'         bag.fraction=1)),
+#' glmnet = list(
+#'     tune_grid = expand.grid(
+#'        alpha=c(0,0.5,1),
+#'        lambda=exp(seq(-5,2,0.2))),
+#'     extra_args = list())
+#' )
+#' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
+#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample
+#'
+#' tau_hat_model = rlearner_cv(x, w, y, model_specs)
+#' tau_hat = predict(tau_hat_model, x)
+#' }
 #' @export predict.rlearner
-predict.rlearner = function(object, x) {
+predict.rlearner = function(object, x, ...) {
   if (object$rc){
     object$tau.const + predict(object$model, newdata=x)
   }

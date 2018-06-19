@@ -41,7 +41,7 @@ pick_model = function(models) {
 #' the optimal learning algorithm and hyperparameters. Uses RMSE to select among regression models and 
 #' deviance (Bernouilli log-likelihood) to select among probabilistic classifiers.
 #' @param x a numeric matrix of features
-#' @param y a two-class factor vector for probabilistic classificaton or numeric vector of targets for regression.
+#' @param y a logical vector for probabilistic classificaton or numeric vector for regression.
 #' If y is a factor, the first factor level is treated as the positive class \eqn{c} such that the predicted probabilities 
 #' are \eqn{P(Y=c|X)}.
 #' @param model_specs a data structure specifying which learning algorithms, hyperparameters should 
@@ -85,10 +85,9 @@ pick_model = function(models) {
 #' }
 #' @export
 learner_cv = function(x, y, model_specs, weights=NULL, k_folds=5, select_by="best", p_min=0, p_max=1) {
-	# assume that any binary data coming in is in factor form. 
-	# levels(y)[1] should be the name of the positive class (i.e. "treated", or "had_outcome")
-	# for instance, to convert a boolean vector w representing treatement to a factor, use:
-	# factor(as.factor(w %>% ifelse("treated", "control")), c("treated", "control"))
+	if(is.logical(y)) { 	# caret wants binary input to be a two-class factor. 
+		y = lgl_to_fct(y) 	# This makes sure that TRUE corresponds to the first factor level
+	}
 	if ((select_by=="oneSE") & (length(model_specs)>1)) {
 		rlang::abort("The oneSE rule is only defined when comparing models within a single learning algorithm. It is not always clear how to compare the 'complexity' of the models implicit within two different algorihtms (i.e. LASSO and GBM)")
 	}
@@ -121,13 +120,38 @@ learner_cv = function(x, y, model_specs, weights=NULL, k_folds=5, select_by="bes
 #' @title Prediction for base learner
 #' @param object a learner object
 #' @param x a matrix of covariates for which to predict a target
+#' @examples
+#' \dontrun{
+#' model_specs = list(
+#' gbm = list(
+#'     tune_grid = expand.grid(
+#'         n.trees = seq(1,501,20), 
+#'         interaction.depth=3, 
+#'         shrinkage = 0.1, 
+#'         n.minobsinnode=3),
+#'     extra_args = list(
+#'         verbose=F, 
+#'         bag.fraction=1)),
+#' glmnet = list(
+#'     tune_grid = expand.grid(
+#'        alpha=c(0,0.5,1),
+#'        lambda=exp(seq(-5,2,0.2))),
+#'     extra_args = list())
+#' )
+#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample 
+#' 
+#' best_model_y = learner_cv(x, y, model_specs) 
+#' y_hat = predict(best_model_y, x)
+#' best_model_w = learner_cv(x, w, model_specs)
+#' w_hat_prob = predict(best_model_w, x)
+#' }
 #' @export predict.learner
-predict.learner = function(object, newdata) {
+predict.learner = function(object, x, ...) {
 	if(object$model$modelType == "Classification") {
-		predict(object$model, newdata=newdata, type="prob")[[object$positive_class]] %>%
+		predict(object$model, newdata=x, type="prob")[[object$positive_class]] %>%
 			trim(object$p_min, object$p_max)
 	} else {
-		predict(object$model, newdata=newdata) 
+		predict(object$model, newdata=x) 
 	}
 }
 
@@ -150,9 +174,7 @@ resample_predictions = function(learner) {
 #' do not hold and theoretical guarentees do not follow, but the models fit more quickly. Internal cross validation is
 #' performed via \code{\link{learner_cv}}.
 #' @param x a numeric matrix of features
-#' @param y a two-class factor vector for probabilistic classificaton or numeric vector of targets for regression.
-#' If y is a factor, the first factor level is treated as the positive class \eqn{c} such that the predicted probabilities 
-#' are \eqn{P(Y=c|X)}.
+#' @param y a logical vector for probabilistic classificaton or numeric vector for regression.
 #' @param model_specs a data structure specifying which learning algorithms, hyperparameters should 
 #' be cross validated over, and which additional arguments should be 
 #' passed to each learner. This should be a list where the names of each element are valid \pkg{caret}

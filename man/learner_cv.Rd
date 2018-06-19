@@ -10,7 +10,7 @@ learner_cv(x, y, model_specs, weights = NULL, k_folds = 5,
 \arguments{
 \item{x}{a numeric matrix of features}
 
-\item{y}{a two-class factor vector for probabilistic classificaton or numeric vector of targets for regression.
+\item{y}{a logical vector for probabilistic classificaton or numeric vector for regression.
 If y is a factor, the first factor level is treated as the positive class \eqn{c} such that the predicted probabilities 
 are \eqn{P(Y=c|X)}.}
 
@@ -33,9 +33,6 @@ multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some l
 \item{p_min}{If provided, probabilities at prediction time will be trimmed to have minimum \code{p_min}. Used for the X-learner.}
 
 \item{p_max}{If provided, probabilities at prediction time will be trimmed to have maximum \code{p_max}. Used for the X-learner.}
-}
-\description{
-Cross-validated supervised learning
 }
 \details{
 This is a wrapper around \pkg{caret}'s train function, simplifying the interface

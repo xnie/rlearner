@@ -11,7 +11,7 @@ xlearner_cv(x, w, y, tau_model_specs, p_model_specs = tau_model_specs,
 \arguments{
 \item{x}{a numeric matrix of \strong{covariates}}
 
-\item{w}{a two-class factor vector of \strong{treatments}. The first factor level is treated as the positive class \eqn{w=1}}
+\item{w}{a logical vector indicating \strong{treatment}}
 
 \item{y}{a numeric vector of \strong{outcomes}}
 
@@ -38,9 +38,6 @@ multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some l
 \item{p_min}{If provided, estimated propensities will be trimmed to have minimum \code{p_min}.}
 
 \item{p_max}{If provided, estimated propensities will be trimmed to have maximum \code{p_max}.}
-}
-\description{
-X-learning for heterogenous treatment effects
 }
 \examples{
 \dontrun{

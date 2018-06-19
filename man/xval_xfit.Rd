@@ -10,9 +10,7 @@ xval_xfit(x, y, model_specs, economy = T, weights = NULL, k_folds_cf = 5,
 \arguments{
 \item{x}{a numeric matrix of features}
 
-\item{y}{a two-class factor vector for probabilistic classificaton or numeric vector of targets for regression.
-If y is a factor, the first factor level is treated as the positive class \eqn{c} such that the predicted probabilities 
-are \eqn{P(Y=c|X)}.}
+\item{y}{a logical vector for probabilistic classificaton or numeric vector for regression.}
 
 \item{model_specs}{a data structure specifying which learning algorithms, hyperparameters should 
 be cross validated over, and which additional arguments should be 
@@ -33,9 +31,6 @@ be a list of two elements named \code{tune_grid} (hyperparameters) and \code{ext
 \item{select_by}{optimization method to use for cross-validation: either \code{"best"} for minimum cross-validation
 error or \code{"oneSE"} for the one-standard-error (1-SE) rule. The implementaion of the 1-SE rule for learners with
 multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some learners. See: \code{\link[caret]{?caret::oneSE}}.}
-}
-\description{
-Cross-validated cross-fitting
 }
 \details{
 Provides both a "deluxe" version and an "economy" version. The deluxe version 

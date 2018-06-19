@@ -1,9 +1,9 @@
 #' Gradient boosting for regression and classification with cross validation to search for hyper-parameters (implemented with xgboost)
 #'
-#' @param X the input features
-#' @param Y the observed response (real valued)
+#' @param x the input features
+#' @param y the observed response (real valued)
 #' @param weights weights for input if doing weighted regression/classification. If set to NULL, no weights are used
-#' @param nfolds number of folds used in cross validation
+#' @param k_folds number of folds used in cross validation
 #' @param objective choose from either "reg:linear" for regression or "binary:logistic" for logistic regression
 #' @param ntrees.max the maximum number of trees to grow for xgboost
 #' @param num.search.rounds the number of random sampling of hyperparameter combinations for cross validating on xgboost trees
@@ -18,18 +18,18 @@
 #' \dontrun{
 #' n = 100; p = 10
 #'
-#' X = matrix(rnorm(n*p), n, p)
-#' Y = pmax(X[,1], 0) + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#' x = matrix(rnorm(n*p), n, p)
+#' y = pmax(x[,1], 0) + x[,2] + pmin(x[,3], 0) + rnorm(n)
 #'
-#' fit = cvboost(X, Y, objective="reg:linear")
-#' est = predict(fit, X)
+#' fit = cvboost(x, y, objective="reg:linear")
+#' est = predict(fit, x)
 #' }
 #'
 #' @export
 cvboost = function(X,
                    Y,
                    weights=NULL,
-                   nfolds=NULL,
+                   k_folds=NULL,
                    objective=c("reg:linear", "binary:logistic"),
                    ntrees.max=1000,
                    num.search.rounds=10,
@@ -49,8 +49,8 @@ cvboost = function(X,
     stop("objective not defined.")
   }
 
-  if (is.null(nfolds)) {
-    nfolds = floor(max(3, min(10,length(Y)/4)))
+  if (is.null(k_folds)) {
+    k_folds = floor(max(3, min(10,length(Y)/4)))
   }
   if (is.null(weights)) {
     weights = rep(1, length(Y))
@@ -74,7 +74,7 @@ cvboost = function(X,
                                        eval_metric = eval),
                          data = dtrain,
                          nround = ntrees.max,
-                         nfold = nfolds,
+                         nfold = k_folds,
                          prediction = TRUE,
                          showsd = TRUE,
                          early_stopping_rounds = 10,
@@ -104,7 +104,7 @@ cvboost = function(X,
     xgb.cvfit.args = list(params = best.param,
                           data = dtrain,
                           nround = ntrees.max,
-                          nfold = nfolds,
+                          nfold = k_folds,
                           prediction = TRUE,
                           showsd = TRUE,
                           early_stopping_rounds = 10,
@@ -136,7 +136,7 @@ cvboost = function(X,
       xgb.cv.args = list(data = dtrain,
                          param =param,
                          missing = NA,
-                         nfold = nfolds,
+                         nfold = k_folds,
                          prediction = TRUE,
                          early_stopping_rounds = early.stopping.rounds,
                          maximize = FALSE,

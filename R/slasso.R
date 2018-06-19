@@ -1,27 +1,27 @@
 #' S-learner, as proposed by Imai and Ratkovic 2013, implemented via glmnet (lasso)
 #'
-#' @param X the input features
-#' @param Y the observed response (real valued)
-#' @param W the treatment variable (0 or 1)
+#' @param x the input features
+#' @param w the treatment variable (0 or 1)
+#' @param y the observed response (real valued)
 #' @param alpha tuning parameter for the elastic net
-#' @param nfolds number of folds for cross validation
+#' @param k_folds number of folds for cross validation
 #' @param lambda.choice how to cross-validate; choose from "lambda.min" or "lambda.1se"
 #' @param penalty.search whether to perform fine grainted penalty factor search (logical)
 #' @examples
 #' \dontrun{
 #' n = 100; p = 10
 #'
-#' X = matrix(rnorm(n*p), n, p)
-#' W = rbinom(n, 1, 0.5)
-#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#' x = matrix(rnorm(n*p), n, p)
+#' w = rbinom(n, 1, 0.5)
+#' y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 #'
-#' slasso.fit = slasso(X, Y, W)
-#' slasso.est = predict(slasso.fit, X)
+#' slasso.fit = slasso(x, w, y)
+#' slasso.est = predict(slasso.fit, x)
 #' }
 #' @export
-slasso = function(X, Y, W,
+slasso = function(X, W, Y,
                   alpha = 1,
-                  nfolds = NULL,
+                  k_folds = NULL,
                   lambda.choice = c("lambda.min", "lambda.1se"),
                   penalty.search = FALSE) {
 
@@ -34,12 +34,12 @@ slasso = function(X, Y, W,
   nobs = nrow(X.scl)
   pobs = ncol(X.scl)
 
-  if (is.null(nfolds)) {
-    nfolds = floor(max(3, min(10,nobs/4)))
+  if (is.null(k_folds)) {
+    k_folds = floor(max(3, min(10,nobs/4)))
   }
 
   # fold ID for cross-validation; balance treatment assignments
-  foldid = sample(rep(seq(nfolds), length = nobs))
+  foldid = sample(rep(seq(k_folds), length = nobs))
 
   X.scl.tilde = cbind(as.numeric(2 * W - 1) * cbind(1, X.scl), X.scl)
   X.scl.pred = cbind(1, X.scl, 0 * X.scl)
@@ -122,12 +122,12 @@ slasso = function(X, Y, W,
 #' \dontrun{
 #' n = 100; p = 10
 #'
-#' X = matrix(rnorm(n*p), n, p)
-#' W = rbinom(n, 1, 0.5)
-#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#' x = matrix(rnorm(n*p), n, p)
+#' w = rbinom(n, 1, 0.5)
+#' y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 #'
-#' slasso.fit = slasso(X, Y, W)
-#' slasso.est = predict(slasso.fit, X)
+#' slasso.fit = slasso(x, w, y)
+#' slasso.est = predict(slasso.fit, x)
 #' }
 #'
 #'
