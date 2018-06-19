@@ -1,11 +1,11 @@
 #' U-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via xgboost (gradient boosting)
 #'
-#' @param X the input features
-#' @param Y the observed response (real valued)
-#' @param W the treatment variable (0 or 1)
-#' @param nfolds number of folds used for cross fitting and cross validation
-#' @param w.hat pre-computed estimates on E[W|X] corresponding to the input X. uboost will compute it internally if not provided.
-#' @param y.hat pre-computed estimates on E[Y|X] corresponding to the input X. uboost will compute it internally if not provided.
+#' @param x the input features
+#' @param w the treatment variable (0 or 1)
+#' @param y the observed response (real valued)
+#' @param k_folds number of folds used for cross fitting and cross validation
+#' @param p_hat pre-computed estimates on E[W|X] corresponding to the input X. uboost will compute it internally if not provided.
+#' @param m_hat pre-computed estimates on E[Y|X] corresponding to the input X. uboost will compute it internally if not provided.
 #' @param cutoff the threshold to cutoff propensity estimate
 #' @param ntrees.max the maximum number of trees to grow for xgboost
 #' @param num.search.rounds the number of random sampling of hyperparameter combinations for cross validating on xgboost trees
@@ -18,19 +18,19 @@
 #' \dontrun{
 #' n = 100; p = 10
 #'
-#' X = matrix(rnorm(n*p), n, p)
-#' W = rbinom(n, 1, 0.5)
-#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#' x = matrix(rnorm(n*p), n, p)
+#' w = rbinom(n, 1, 0.5)
+#' y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 #'
-#' uboost.fit = uboost(X, Y, W)
-#' uboost.est = predict(uboost.fit, X)
+#' uboost.fit = uboost(x, y, w)
+#' uboost.est = predict(uboost.fit, x)
 #' }
 #'
 #' @export
-uboost= function(X, Y, W,
-                 nfolds=NULL,
-                 w.hat = NULL,
-                 y.hat = NULL,
+uboost= function(X, W, Y,
+                 k_folds=NULL,
+                 p_hat = NULL,
+                 m_hat = NULL,
                  cutoff=0.05,
                  ntrees.max=1000,
                  num.search.rounds=10,
@@ -42,15 +42,15 @@ uboost= function(X, Y, W,
   nobs = nrow(X)
   pobs = ncol(X)
 
-  if (is.null(nfolds)) {
-    nfolds = floor(max(3, min(10,length(W)/4)))
+  if (is.null(k_folds)) {
+    k_folds = floor(max(3, min(10,length(W)/4)))
   }
 
-  if (is.null(y.hat)){
+  if (is.null(m_hat)){
     y.fit = cvboost(X,
                     Y,
                     objective="reg:linear",
-                    nfolds=nfolds,
+                    k_folds=k_folds,
                     ntrees.max=ntrees.max,
                     num.search.rounds=num.search.rounds,
                     print.every.n=print.every.n,
@@ -58,39 +58,39 @@ uboost= function(X, Y, W,
                     nthread=nthread,
                     bayes.opt=bayes.opt)
 
-    y.hat = predict(y.fit)
+    m_hat = predict(y.fit)
   }
   else {
     y.fit = NULL
   }
 
-  if (is.null(w.hat)){
+  if (is.null(p_hat)){
     w.fit = cvboost(X,
                     W,
                     objective="binary:logistic",
-                    nfolds=nfolds,
+                    k_folds=k_folds,
                     ntrees.max=ntrees.max,
                     num.search.rounds=num.search.rounds,
                     print.every.n=print.every.n,
                     early.stopping.rounds=early.stopping.rounds,
                     nthread=nthread,
                     bayes.opt=bayes.opt)
-    w.hat = predict(w.fit)
+    p_hat = predict(w.fit)
   }
   else{
     w.fit = NULL
   }
 
-  w.hat = pmax(cutoff, pmin(1 - cutoff, w.hat))
+  p_hat = pmax(cutoff, pmin(1 - cutoff, p_hat))
 
-  Y.tilde = Y - y.hat
-  W.tilde = W - w.hat
+  Y.tilde = Y - m_hat
+  W.tilde = W - p_hat
   pseudo.outcome = Y.tilde/W.tilde
 
   tau.fit = cvboost(X,
                     pseudo.outcome,
                     objective="reg:linear",
-                    nfolds=nfolds,
+                    k_folds=k_folds,
                     ntrees.max=ntrees.max,
                     num.search.rounds=num.search.rounds,
                     print.every.n=print.every.n,
@@ -102,8 +102,8 @@ uboost= function(X, Y, W,
              pseudo.outcome = pseudo.outcome,
              w.fit = w.fit,
              y.fit = y.fit,
-             w.hat = w.hat,
-             y.hat = y.hat)
+             p_hat = p_hat,
+             m_hat = m_hat)
   class(ret) <- "uboost"
   ret
 }
@@ -120,12 +120,12 @@ uboost= function(X, Y, W,
 #' \dontrun{
 #' n = 100; p = 10
 #'
-#' X = matrix(rnorm(n*p), n, p)
-#' W = rbinom(n, 1, 0.5)
-#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#' x = matrix(rnorm(n*p), n, p)
+#' w = rbinom(n, 1, 0.5)
+#' y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 #'
-#' uboost.fit = uboost(X, Y, W)
-#' uboost.est = predict(uboost.fit, X)
+#' uboost.fit = uboost(x, w, y)
+#' uboost.est = predict(uboost.fit, x)
 #' }
 #'
 #'

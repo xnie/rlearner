@@ -1,28 +1,28 @@
 #' T-learner, implemented via glmnet (lasso)
 #'
-#' @param X the input features
-#' @param Y the observed response (real valued)
-#' @param W the treatment variable (0 or 1)
+#' @param x the input features
+#' @param w the treatment variable (0 or 1)
+#' @param y the observed response (real valued)
 #' @param alpha tuning parameter for the elastic net
-#' @param nfolds.1 number of folds for cross validation for the treated
-#' @param nfolds.0 number of folds for cross validation for the control
+#' @param k_folds_mu1 number of folds for cross validation for the treated
+#' @param k_folds_mu0 number of folds for cross validation for the control
 #' @param lambda.choice how to cross-validate; choose from "lambda.min" or "lambda.1se"
 #' @examples
 #' \dontrun{
 #' n = 100; p = 10
 #'
-#' X = matrix(rnorm(n*p), n, p)
-#' W = rbinom(n, 1, 0.5)
-#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#' x = matrix(rnorm(n*p), n, p)
+#' w = rbinom(n, 1, 0.5)
+#' y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 #'
-#' tlasso.fit = tlasso(X, Y, W)
-#' tlasso.est = predict(tlasso.fit, X)
+#' tlasso.fit = tlasso(x, w, y)
+#' tlasso.est = predict(tlasso.fit, x)
 #' }
 #' @export
-tlasso = function(X, Y, W,
+tlasso = function(X, W, Y,
                   alpha = 1,
-                  nfolds.1=NULL,
-                  nfolds.0=NULL,
+                  k_folds_mu1=NULL,
+                  k_folds_mu0=NULL,
                   lambda.choice=c("lambda.min", "lambda.1se")) {
 
   lambda.choice = match.arg(lambda.choice)
@@ -38,17 +38,17 @@ tlasso = function(X, Y, W,
 
   pobs = ncol(X)
 
-  if (is.null(nfolds.1)) {
-    nfolds.1 = floor(max(3, min(10,nobs.1/4)))
+  if (is.null(k_folds_mu1)) {
+    k_folds_mu1 = floor(max(3, min(10,nobs.1/4)))
   }
 
-  if (is.null(nfolds.0)) {
-    nfolds.0 = floor(max(3, min(10,nobs.0/4)))
+  if (is.null(k_folds_mu0)) {
+    k_folds_mu0 = floor(max(3, min(10,nobs.0/4)))
   }
 
   # fold ID for cross-validation; balance treatment assignments
-  foldid.1 = sample(rep(seq(nfolds.1), length = nobs.1))
-  foldid.0 = sample(rep(seq(nfolds.0), length = nobs.0))
+  foldid.1 = sample(rep(seq(k_folds_mu1), length = nobs.1))
+  foldid.0 = sample(rep(seq(k_folds_mu0), length = nobs.0))
 
   t.1.fit = glmnet::cv.glmnet(X.1, Y.1, foldid = foldid.1, alpha = alpha)
   t.0.fit = glmnet::cv.glmnet(X.0, Y.0, foldid = foldid.0, alpha = alpha)
@@ -80,12 +80,12 @@ tlasso = function(X, Y, W,
 #' \dontrun{
 #' n = 100; p = 10
 #'
-#' X = matrix(rnorm(n*p), n, p)
-#' W = rbinom(n, 1, 0.5)
-#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#' x = matrix(rnorm(n*p), n, p)
+#' w = rbinom(n, 1, 0.5)
+#' y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 #'
-#' tlasso.fit = tlasso(X, Y, W)
-#' tlasso.est = predict(tlasso.fit, X)
+#' tlasso.fit = tlasso(x, w, y)
+#' tlasso.est = predict(tlasso.fit, x)
 #' }
 #'
 #'

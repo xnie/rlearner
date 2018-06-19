@@ -8,12 +8,12 @@
 #' @param tau_model_specs specification for the model of \eqn{\tau(x) = E[Y(1) - Y(0)|X=x]}. See \code{\link{learner_cv}}.
 #' @param p_model_specs specification for the model of \eqn{p(x) = E[W|X=x]}. See \code{\link{learner_cv}}.
 #' Not needed if \code{p_hat} is provided.
-#' @param mu0_hat_1 a numeric vector of estimates of the outcome under control for the treated observations.
+#' @param mu0_hat a numeric vector of estimates of the outcome under control for all observations.
 #' The X-learner will estimate these values internally if not provided.
-#' @param mu1_hat_0 a numeric vector of estimates of the outcome under treatment for the control observations.
+#' @param mu1_hat a numeric vector of estimates of the outcome under treatment for all observations.
 #' The X-learner will estimate these values internally if not provided.
 #' @param mu_model_specs specification for the models of \eqn{m_w(x) = E[Y|W=w,X=x]}. See \code{\link{learner_cv}}.
-#' Not needed if \code{mu0_hat_0} and \code{mu0_hat_1} are provided.
+#' Not needed if \code{mu0_hat_0} and \code{mu0_hat} are provided.
 #' @param k_folds number of cross-validation folds to use in hyperparameter optimization for each model.
 #' @param select_by optimization method to use for cross-validation in each model: either \code{"best"} for minimum cross-validation
 #' error or \code{"oneSE"} for the one-standard-error (1-SE) rule. The implementaion of the 1-SE rule for learners with
@@ -47,7 +47,7 @@
 #' @export
 xlearner_cv = function(x, w, y, tau_model_specs,
 	p_model_specs=tau_model_specs, mu_model_specs=tau_model_specs, 
-	mu0_hat_1=NULL, mu1_hat_0=NULL,
+	mu0_hat=NULL, mu1_hat=NULL,
 	k_folds=5, select_by="best",
 	p_min=0, p_max=1) {
 	
@@ -57,20 +57,20 @@ xlearner_cv = function(x, w, y, tau_model_specs,
 		k_folds=k_folds, select_by=select_by,
 		p_min = p_min, p_max=p_max)
 
-	if (is.null(mu1_hat_0)) {
+	if (is.null(mu1_hat)) {
 		mu1_hat_model = learner_cv(x[w,], y[w], mu_model_specs, 
 			k_folds=k_folds, select_by=select_by)
-		mu1_hat_0 = predict(mu1_hat_model, x[!w,])
+		mu1_hat = predict(mu1_hat_model, x)
 	}
 
-	if (is.null(mu0_hat_1)) {
+	if (is.null(mu0_hat)) {
 		mu0_hat_model = learner_cv(x[!w,], y[!w], mu_model_specs, 
 			k_folds=k_folds, select_by=select_by)
-		mu0_hat_1 = predict(mu0_hat_model, x[w,])
+		mu0_hat = predict(mu0_hat_model, x)
 	}
 
-	d1 = y[w] - mu0_hat_1
-	d0 = mu1_hat_0 - y[!w]
+	d1 = y[w] - mu0_hat[w]
+	d0 = mu1_hat[!w] - y[!w]
 
 	tau1_hat_model = learner_cv(x[w,], d1, tau_model_specs, 
 			k_folds=k_folds, select_by=select_by)

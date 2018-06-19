@@ -1,34 +1,34 @@
 #' R-learner, as proposed by Nie and Wager 2017, implemented via glmnet (lasso)
 #'
-#' @param X the input features
-#' @param Y the observed response (real valued)
-#' @param W the treatment variable (0 or 1)
+#' @param x the input features
+#' @param w the treatment variable (0 or 1)
+#' @param y the observed response (real valued)
 #' @param alpha tuning parameter for the elastic net
-#' @param nfolds number of folds for cross-fitting
+#' @param k_folds number of folds for cross-fitting
 #' @param lambda.choice how to cross-validate; choose from "lambda.min" or "lambda.1se"
 #' @param rs whether to use the RS-learner (logical).
-#' @param w.hat user-supplied estimate for E[W|X]
-#' @param y.hat user-supplied estimte for E[Y|X]
+#' @param p_hat user-supplied estimate for E[W|X]
+#' @param m_hat user-supplied estimte for E[Y|X]
 #'
 #' @examples
 #' \dontrun{
 #' n = 100; p = 10
 #'
-#' X = matrix(rnorm(n*p), n, p)
-#' W = rbinom(n, 1, 0.5)
-#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#' x = matrix(rnorm(n*p), n, p)
+#' w = rbinom(n, 1, 0.5)
+#' y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 #'
-#' rlasso.fit = rlasso(X, Y, W)
-#' rlasso.est = predict(rlasso.fit, X)
+#' rlasso.fit = rlasso(x, w, y)
+#' rlasso.est = predict(rlasso.fit, x)
 #' }
 #' @export
-rlasso = function(X, Y, W,
+rlasso = function(X, W, Y,
                   alpha = 1,
-                  nfolds=NULL,
+                  k_folds=NULL,
                   lambda.choice=c("lambda.min","lambda.1se"),
                   rs = FALSE,
-                  w.hat = NULL,
-                  y.hat = NULL){
+                  p_hat = NULL,
+                  m_hat = NULL){
 
     if (is.null(colnames(X))) {
       stop("The design matrix X must have named columns.")
@@ -42,41 +42,41 @@ rlasso = function(X, Y, W,
     nobs = nrow(X.scl)
     pobs = ncol(X.scl)
 
-    if (is.null(nfolds)) {
-        nfolds = floor(max(3, min(10,length(W)/4)))
+    if (is.null(k_folds)) {
+        k_folds = floor(max(3, min(10,length(W)/4)))
     }
 
     # fold ID for cross-validation; balance treatment assignments
-    foldid = sample(rep(seq(nfolds), length = length(W)))
+    foldid = sample(rep(seq(k_folds), length = length(W)))
 
-    if (is.null(y.hat)){
+    if (is.null(m_hat)){
       y.fit = glmnet::cv.glmnet(X, Y, foldid = foldid, keep = TRUE, alpha = alpha)
-      y.hat = y.fit$fit.preval[,!is.na(colSums(y.fit$fit.preval))][, y.fit$lambda == y.fit$lambda.min]
+      m_hat = y.fit$fit.preval[,!is.na(colSums(y.fit$fit.preval))][, y.fit$lambda == y.fit$lambda.min]
     }
     else {
       y.fit = NULL
     }
 
-    if (is.null(w.hat)){
+    if (is.null(p_hat)){
       w.fit = glmnet::cv.glmnet(X, W, foldid = foldid, keep = TRUE, family = "binomial", type.measure = "deviance", alpha = alpha)
-      w.hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.min]
+      p_hat = w.fit$fit.preval[,!is.na(colSums(w.fit$fit.preval))][, w.fit$lambda == w.fit$lambda.min]
     }
     else{
       w.fit = NULL
     }
 
-    Y.tilde = Y - y.hat
+    Y.tilde = Y - m_hat
 
     if (rs){
 
-      X.scl.tilde = cbind(as.numeric(W - w.hat) * cbind(1, X.scl), X.scl)
+      X.scl.tilde = cbind(as.numeric(W - p_hat) * cbind(1, X.scl), X.scl)
       X.scl.pred = cbind(1, X.scl, X.scl * 0)
       penalty.factor = c(0, rep(1, 2 * pobs))
 
     }
     else{
 
-      X.scl.tilde = cbind(as.numeric(W - w.hat) * cbind(1, X.scl))
+      X.scl.tilde = cbind(as.numeric(W - p_hat) * cbind(1, X.scl))
       X.scl.pred = cbind(1, X.scl)
       penalty.factor = c(0, rep(1, pobs))
 
@@ -95,8 +95,8 @@ rlasso = function(X, Y, W,
                tau.beta = tau.beta,
                w.fit = w.fit,
                y.fit = y.fit,
-               w.hat = w.hat,
-               y.hat = y.hat,
+               p_hat = p_hat,
+               m_hat = m_hat,
                tau.hat = tau.hat,
                rs = rs,
                standardization = standardization)
@@ -117,12 +117,12 @@ rlasso = function(X, Y, W,
 #' \dontrun{
 #' n = 100; p = 10
 #'
-#' X = matrix(rnorm(n*p), n, p)
-#' W = rbinom(n, 1, 0.5)
-#' Y = pmax(X[,1], 0) * W + X[,2] + pmin(X[,3], 0) + rnorm(n)
+#' x = matrix(rnorm(n*p), n, p)
+#' w = rbinom(n, 1, 0.5)
+#' y = pmax(x[,1], 0) * w + x[,2] + pmin(x[,3], 0) + rnorm(n)
 #'
-#' rlasso.fit = rlasso(X, Y, W)
-#' rlasso.est = predict(rlasso.fit, X)
+#' rlasso.fit = rlasso(x, w, y)
+#' rlasso.est = predict(rlasso.fit, x)
 #' }
 #'
 #'
