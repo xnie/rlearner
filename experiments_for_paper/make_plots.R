@@ -21,6 +21,11 @@ plotsize = function(x,y) options(repr.plot.width=x, repr.plot.height=y)
 
 plotsize(8,8)
 out = read_csv(paste0("output_", method, ".csv"))
+
+
+label_wrap <- function(variable, value) {
+  paste0("Setup ", value)
+}
 out %>%
   select(-n, -p, -sigma, -X1) %>%
   gather(learner, mse, -setup, -oracle) %>%
@@ -30,7 +35,7 @@ out %>%
   scale_colour_manual(breaks=breaks, values = colors) +
   geom_point() +
   geom_abline(slope=1) +
-  facet_wrap(~setup, ncol=2, scales="free") +
+  facet_wrap(~setup, ncol=2, scales="free", labeller = label_wrap) +
   labs(x = "oracle log mean-squared error", y = "log mean-squared error")
 ggsave(paste0("plots/fig_", method, ".pdf"))
 
