@@ -6,8 +6,6 @@ library(purrr)
 library(magrittr)
 
 n = 100
-#  # draw a sample 
-# weights = runif(n)
 
 model_specs = list(
 	gbm = list(
@@ -33,7 +31,7 @@ meta_learner_tests = function(tau_hat, sim_data) {
 	expect_equal(mse<0.01, TRUE)
 }
 
-test_that("meta-learners return sensible things and predict well when the problem is easy", {
+test_that("meta-learners return output of the correct length and type and are accurate when the problem is linear with no noise", {
 	set.seed(1)
 	easy_sim_data = easy_toy_data_simulation(5*n) # draw a sample 
 	list(
@@ -49,7 +47,7 @@ test_that("meta-learners return sensible things and predict well when the proble
 	})
 })
 
-test_that("R-learner internals are good", {
+test_that("R-learner object is correctly constructed", {
 	c(x, w, y, p, m, mu0, mu1, tau) %<-% toy_data_simulation(n)
 	model = rlearner_cv(x, w, y, model_specs)
 	expect_equal(class(model), "rlearner")
@@ -60,7 +58,7 @@ test_that("R-learner internals are good", {
 	expect_equal(is.numeric(model$p_hat), TRUE)
 })
 
-test_that("S-learner internals are good", {
+test_that("S-learner object is correctly constructed", {
 	c(x, w, y, p, m, mu0, mu1, tau) %<-% toy_data_simulation(n)
 	model = slearner_cv(x, w, y, model_specs)
 	expect_equal(class(model), "slearner")
@@ -68,21 +66,21 @@ test_that("S-learner internals are good", {
 	expect_equal(class(model$standardization), "preProcess")
 })
 
-test_that("T-learner internals are good", {
+test_that("T-learner object is correctly constructed", {
 	c(x, w, y, p, m, mu0, mu1, tau) %<-% toy_data_simulation(n)
 	model = tlearner_cv(x, w, y, model_specs)
 	expect_equal(class(model), "tlearner")
 	model %>% map(~expect_equal(class(.), "learner"))
 })
 
-test_that("U-learner internals are good", {
+test_that("U-learner object is correctly constructed", {
 	c(x, w, y, p, m, mu0, mu1, tau) %<-% toy_data_simulation(n)
 	model = ulearner_cv(x, w, y, model_specs)
 	expect_equal(class(model), "ulearner")
 	expect_equal(class(model$model), "learner")
 })
 
-test_that("X-learner internals are good", {
+test_that("X-learner object is correctly constructed", {
 	c(x, w, y, p, m, mu0, mu1, tau) %<-% toy_data_simulation(n)
 	model = xlearner_cv(x, w, y, model_specs)
 	expect_equal(class(model), "xlearner")

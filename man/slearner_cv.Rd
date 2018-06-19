@@ -21,9 +21,6 @@ slearner_cv(x, w, y, model_specs, k_folds = 5, select_by = "best")
 error or \code{"oneSE"} for the one-standard-error (1-SE) rule. The implementaion of the 1-SE rule for learners with
 multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some learners. See: \code{\link[caret]{?caret::oneSE}}.}
 }
-\description{
-S-learning for heterogenous treatment effects
-}
 \examples{
 \dontrun{
 model_specs = list(

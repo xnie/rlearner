@@ -2,17 +2,14 @@
 % Please edit documentation in R/tlearner.R
 \name{predict.tlearner}
 \alias{predict.tlearner}
-\title{Prediction for U-learner}
+\title{Prediction for T-learner}
 \usage{
 \method{predict}{tlearner}(object, newx, ...)
 }
 \arguments{
-\item{object}{a U-learner object}
+\item{object}{a T-learner object}
 
 \item{newx}{a matrix of covariates for which to predict the treatment effect}
-}
-\description{
-Prediction for U-learner
 }
 \examples{
 \dontrun{

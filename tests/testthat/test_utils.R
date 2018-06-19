@@ -19,7 +19,7 @@ sim_tests = function(sim_data) {
 	expect_equal(is.logical(w), TRUE)
 }
 
-test_that("toy simulation returns things that are the right size, shape, and type", {
+test_that("toy simulation returns data that are the right size, shape, and type", {
 	sim_tests(toy_data_simulation(n)) 
 	sim_tests(easy_toy_data_simulation(n))
 })
@@ -33,11 +33,14 @@ sanitization_tests = function(x, w, y){
 	expect_equal(is.numeric(y), TRUE)
 }
 
-test_that("input sanitization works", {
+test_that("input sanitization correctly accepts good data and rejects malformed or wrong-type data", {
 	c(x, w, y, p, m, mu0, mu1, tau) %<-% toy_data_simulation(n)
 
 	sanitization_tests(x, w, y)
 	sanitization_tests(x, ifelse(w, 1, 0), y)
+	x_no_name = x
+	colnames(x_no_name) = NULL
+	sanitization_tests(x_no_name, w, y)
 
 	expect_error(sanitize_input(x, as.factor(ifelse(w, "t", "c")), y))
 	expect_error(sanitize_input(x, ifelse(w, 1, 2), y))

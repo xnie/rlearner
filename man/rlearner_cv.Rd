@@ -47,9 +47,6 @@ multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some l
 
 \item{p_max}{If provided, estimated propensities will be trimmed to have maximum \code{p_max}.}
 }
-\description{
-R-learning for heterogenous treatment effects
-}
 \details{
 The R-learner estimates heterogenous treatment effects by learning a custom objective function and minimizing it using
 any suitable machine learning algorithm.

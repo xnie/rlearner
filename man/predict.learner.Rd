@@ -4,15 +4,12 @@
 \alias{predict.learner}
 \title{Prediction for base learner}
 \usage{
-\method{predict}{learner}(object, x, ...)
+\method{predict}{learner}(object, newx, ...)
 }
 \arguments{
 \item{object}{a learner object}
 
 \item{x}{a matrix of covariates for which to predict a target}
-}
-\description{
-Prediction for base learner
 }
 \examples{
 \dontrun{

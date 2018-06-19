@@ -2,17 +2,14 @@
 % Please edit documentation in R/slearner.R
 \name{predict.slearner}
 \alias{predict.slearner}
-\title{Prediction for U-learner}
+\title{Prediction for S-learner}
 \usage{
 \method{predict}{slearner}(object, newx, ...)
 }
 \arguments{
-\item{object}{a U-learner object}
+\item{object}{a S-learner object}
 
 \item{newx}{a matrix of covariates for which to predict the treatment effect}
-}
-\description{
-Prediction for U-learner
 }
 \examples{
 \dontrun{

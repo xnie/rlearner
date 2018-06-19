@@ -18,7 +18,7 @@ lgl_to_fct = function(w_lgl) {
 	w_lgl %>% 
 		ifelse("treated", "control") %>%
 		as.factor() %>% 
-		factor(c("treated", "control")) # 
+		factor(c("treated", "control"))
 }
 
 sanitize_input = function(x,w,y) {

@@ -114,5 +114,5 @@ rlearner_cv = function(x, w, y, tau_model_specs,
 #' }
 #' @export predict.rlearner
 predict.rlearner = function(object, newx, ...) {
-	predict(object$model, newdata=newx)
+	predict(object$model, newx=newx)
 }

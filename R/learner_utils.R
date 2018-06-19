@@ -146,12 +146,12 @@ learner_cv = function(x, y, model_specs, weights=NULL, k_folds=5, select_by="bes
 #' w_hat_prob = predict(best_model_w, x)
 #' }
 #' @export predict.learner
-predict.learner = function(object, x, ...) {
+predict.learner = function(object, newx, ...) {
 	if(object$model$modelType == "Classification") {
-		predict(object$model, newdata=x, type="prob")[[object$positive_class]] %>%
+		predict(object$model, newdata=newx, type="prob")[[object$positive_class]] %>%
 			trim(object$p_min, object$p_max)
 	} else {
-		predict(object$model, newdata=x) 
+		predict(object$model, newdata=newx) 
 	}
 }
 
@@ -224,7 +224,7 @@ xval_xfit = function(x, y, model_specs, economy=T, weights=NULL, k_folds_cf=5, k
 		purrr::map(function(test_index) {
 			learner_cv(x[-test_index,], y[-test_index], model_specs, weights=weights, 
 				k_folds=k_folds, select_by=select_by) %>%
-				predict(newdata=x[test_index,]) %>%
+				predict(newx=x[test_index,]) %>%
 				data.frame(cross_estimate = ., index=test_index)
 		}) %>% dplyr::bind_rows() %>% dplyr::arrange(index) %>% dplyr::pull(cross_estimate)
 	}

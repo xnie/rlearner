@@ -47,9 +47,6 @@ multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some l
 
 \item{p_max}{If provided, estimated propensities will be trimmed to have maximum \code{p_max}.}
 }
-\description{
-U-learning for heterogenous treatment effects
-}
 \examples{
 \dontrun{
 model_specs = list(

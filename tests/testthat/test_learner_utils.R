@@ -50,14 +50,14 @@ cls_tests = function(cls_model, p_min=0, p_max=1) {
 	expect_equal(all((p_min <= w_hat) & (w_hat <= p_max)), TRUE)
 }
 
-test_that("caret is returning sensible things when doing cross-validated regression", {
+test_that("caret returns a correctly-structured and functional trained model object when doing cross-validated regression", {
 	reg_tests(learner_cv(x, y, model_specs))
 	reg_tests(learner_cv(x, y, model_specs, weights=weights))
 	expect_error(learner_cv(x, y, model_specs, select_by="oneSE"))
 	reg_tests(learner_cv(x, y, model_specs[1], select_by="oneSE"))
 })
 
-test_that("caret is returning sensible things when doing cross-validated probabilistic classification", {
+test_that("caret returns a correctly-structured and functional trained model object when doing cross-validated probabilistic classification", {
 	cls_tests(learner_cv(x, w, model_specs))
 	cls_tests(learner_cv(x, w, model_specs, weights=weights))
 	c(p_min, p_max) %<-% list(0.45, 0.55)
@@ -65,7 +65,7 @@ test_that("caret is returning sensible things when doing cross-validated probabi
 		p_min=p_min, p_max=p_max)
 })
 
-test_that("mean outcome can be easily predicted when the true model is linear and there are many samples", {
+test_that("the conditional mean outcome can be easily predicted when the true model is linear, there is no noise, and there are many samples", {
 	set.seed(1)
 	c(x, w, y, p, m, mu0, mu1, tau) %<-% easy_toy_data_simulation(5*n) # draw a sample
 	y_hat = learner_cv(x, y, model_specs) %>% predict(x)
@@ -78,7 +78,7 @@ xval_xfit_tests = function(est) {
 	expect_equal(is.numeric(est), TRUE)
 }
 
-test_that("cross-validated cross-fitting returns sensible things", {
+test_that("cross-validated cross-fitting returns vectors of predictions that are the right length and type", {
 	list(
 		xval_xfit(x, y, model_specs),
 		xval_xfit(x, w, model_specs, economy=F),

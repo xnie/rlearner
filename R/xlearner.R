@@ -115,7 +115,7 @@ xlearner_cv = function(x, w, y, tau_model_specs,
 #' @export predict.xlearner
 predict.xlearner = function(object, newx, ...) {
 	object %>% purrr::map(function(model) {
-		predict(model, newx)
+		predict(model, newx=newx)
 	}) %->%	c(p_hat, tau0_hat, tau1_hat)
 	p_hat = trim(p_hat, object$p_hat_model$p_min, object$p_hat_model$p_max)
 	return(p_hat*tau0_hat + (1-p_hat)*tau1_hat)

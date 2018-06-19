@@ -47,8 +47,8 @@ tlearner_cv = function(x, w, y, model_specs, k_folds=5, select_by="best") {
 	return(tlearner)
 }
 
-#' @title Prediction for U-learner
-#' @param object a U-learner object
+#' @title Prediction for T-learner
+#' @param object a T-learner object
 #' @param newx a matrix of covariates for which to predict the treatment effect
 #' @examples
 #' \dontrun{
@@ -77,7 +77,7 @@ tlearner_cv = function(x, w, y, model_specs, k_folds=5, select_by="best") {
 #' @export predict.tlearner
 predict.tlearner = function(object, newx, ...) {
 	object %>%
-		map(~predict(., newdata=newx)) %->%
+		map(~predict(., newx=newx)) %->%
 		c(mu1_hat, mu0_hat) # these will come out in this order because of the above: c(T,F) %>% map(...
 	return(mu1_hat - mu0_hat)
 }
