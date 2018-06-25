@@ -2,7 +2,6 @@ rm(list = ls())
 
 library(rlearner)
 library(causalLearning)
-library(xgboost)
 library(magrittr)
 
 start_time <- Sys.time()
