@@ -3,7 +3,7 @@ rm(list = ls())
 library(xtable)
 library(data.table)
 learner = "boost"
-#learner = "lasso" # uncomment for lasso results
+learner = "lasso" # uncomment for lasso results
 
 if (learner != "boost" & learner != "lasso") {
   stop("learner needs to be boost or lasso")
@@ -54,6 +54,7 @@ if (learner == "boost") {
 cols = c(c("setup", "n", "p", "sigma"), algs)
 raw <- raw[, ..cols]
 colnames(raw)[colnames(raw)=="causalboost"] <- "CB"
+colnames(raw)[colnames(raw)=="p"] <- "d"
 
 raw.round = raw
 for (col in (5:11)){
@@ -87,6 +88,6 @@ for (i in seq_along(setup.values)){
   } else if  (learner == "lasso"){
     xtab.setup = xtable(tab.setup, caption = paste0("\\tt Mean-squared error running \\texttt{lasso} from Setup ", setup.values[i], ". Results are averaged across 500 runs, rounded to two decimal places, and reported on an independent test set of size $n$."), align="ccccccccccc", label=paste0("table:setup",i))
   }
-  names(xtab.setup) <- c(c('n','p','$\\sigma$'), algs.tex)
+  names(xtab.setup) <- c(c('n','d','$\\sigma$'), algs.tex)
   print(xtab.setup, include.rownames = FALSE, include.colnames = TRUE, sanitize.text.function = identity, file = paste("tables", "/simulation_results_setup_", setup.values[i], "_", learner, ".tex", sep=""))
 }
