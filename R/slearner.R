@@ -84,6 +84,7 @@ slearner_cv = function(x, w, y, model_specs, k_folds=5, select_by="best") {
 #' }
 #' @export predict.slearner
 predict.slearner = function(object, newx, ...) {
+  newx = sanitize_x(newx)
 	newx = predict(object$standardization, newx) # standardize the new data using the same standardization as with the training data
 	list(0, 1) %>% purrr::map(function(w) {
 		predict(object$model, newx=cbind(newx, (w-0.5)*newx, (w-0.5)))

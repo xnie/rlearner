@@ -116,6 +116,7 @@ xlearner_cv = function(x, w, y, tau_model_specs,
 #' }
 #' @export predict.xlearner
 predict.xlearner = function(object, newx, ...) {
+  newx = sanitize_x(newx)
 	object %>% purrr::map(function(model) {
 		predict(model, newx=newx)
 	}) %->%	c(p_hat, tau0_hat, tau1_hat)

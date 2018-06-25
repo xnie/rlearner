@@ -136,10 +136,8 @@ rlasso = function(x, w, y,
 predict.rlasso <- function(object,
                            newx = NULL,
                            ...) {
+  newx = sanitize_x(newx)
   if (!is.null(newx)) {
-    if (is.null(colnames(newx))) {
-      newx = stats::model.matrix(~.-1, data.frame(newx))
-    }
     newx_scl = predict(object$standardization, newx) # standardize the new data using the same standardization as with the training data
     newx_scl = newx_scl[,!is.na(colSums(newx_scl))]
 

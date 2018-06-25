@@ -78,6 +78,7 @@ tlearner_cv = function(x, w, y, model_specs, k_folds=5, select_by="best") {
 #' }
 #' @export predict.tlearner
 predict.tlearner = function(object, newx, ...) {
+  newx = sanitize_x(newx)
 	object %>%
 		map(~predict(., newx=newx)) %->%
 		c(mu1_hat, mu0_hat) # these will come out in this order because of the above: c(T,F) %>% map(...

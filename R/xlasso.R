@@ -140,6 +140,7 @@ predict.xlasso <- function(object,
                            ...) {
   s = match.arg(s)
   if (!is.null(newx)) {
+    newx = sanitize_x(newx)
     tau_1_pred = predict(object$x_1_fit, newx = newx, s = s)
     tau_0_pred = predict(object$x_0_fit, newx = newx, s = s)
     p_hat = predict(object$w_fit, newx=newx, s = s, type = "response")

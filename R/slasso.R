@@ -141,9 +141,7 @@ predict.slasso <- function(object,
                            newx = NULL,
                            ...) {
   if (!is.null(newx)) {
-    if (is.null(colnames(newx))) {
-      newx = stats::model.matrix(~.-1, data.frame(newx))
-    }
+    newx = sanitize_x(newx)
     newx_scl = predict(object$standardization, newx) # standardize the new data using the same standardization as with the training data
     newx_scl = newx_scl[,!is.na(colSums(newx_scl))]
     newx_scl_pred = cbind(1, newx_scl, 0 * newx_scl)

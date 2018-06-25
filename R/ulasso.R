@@ -115,6 +115,7 @@ predict.ulasso <- function(object,
                            ...) {
   s = match.arg(s)
   if (!is.null(newx)) {
+    newx = sanitize_x(newx)
     tau_hat = predict(object$tau_fit, newx = newx, s = s)
   }
   else {

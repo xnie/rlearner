@@ -195,6 +195,7 @@ predict.xboost <- function(object,
                            newx = NULL,
                            ...) {
   if (!is.null(newx)) {
+    newx = sanitize_x(newx)
     tau_1_pred = predict(object$x_1_fit, newx = newx)
     tau_0_pred = predict(object$x_0_fit, newx = newx)
     p_hat = predict(object$w_fit, newx = newx)

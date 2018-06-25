@@ -145,5 +145,8 @@ uboost= function(x, w, y,
 predict.uboost<- function(object,
                           newx = NULL,
                           ...) {
+  if (!is.null(newx)){
+    newx = sanitize_x(newx)
+  }
   predict(object$tau_fit, newx = newx)
 }

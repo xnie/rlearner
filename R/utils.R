@@ -21,6 +21,15 @@ lgl_to_fct = function(w_lgl) {
 		factor(c("treated", "control"))
 }
 
+sanitize_x = function(x){
+	# make sure x is a numeric matrix with named columns (for caret)
+	if (!is.matrix(x) | !is.numeric(x) | any(is.na(x))) {
+		rlang::abort("x must be a numeric matrix with no missing values")
+	}
+	colnames(x) = str_c("covariate_", 1:ncol(x))
+	return(x)
+}
+
 sanitize_input = function(x,w,y) {
 	# make sure x is a numeric matrix with named columns (for caret)
 	if (!is.matrix(x) | !is.numeric(x) | any(is.na(x))) {

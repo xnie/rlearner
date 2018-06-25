@@ -99,6 +99,7 @@ predict.sboost <- function(object,
                            newx = NULL,
                            ...) {
   if (!is.null(newx)) {
+    newx = sanitize_x(newx)
     mu0_hat = predict(object$s_fit, newx = cbind(newx, (0 - 0.5) * newx, (0 - 0.5)))
     mu1_hat = predict(object$s_fit, newx = cbind(newx, (1 - 0.5) * newx, (1 - 0.5)))
     tau_hat = mu1_hat - mu0_hat

@@ -104,6 +104,7 @@ predict.tlasso <- function(object,
   s = match.arg(s)
 
   if (!is.null(newx)) {
+    newx = sanitize_x(newx)
     y_1_pred = predict(object$t_1_fit, newx = newx, s = s)
     y_0_pred = predict(object$t_0_fit, newx = newx, s = s)
     tau_hat = y_1_pred - y_0_pred
