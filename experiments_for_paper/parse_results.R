@@ -2,9 +2,8 @@ rm(list = ls())
 
 library(xtable)
 library(data.table)
-args=(commandArgs(TRUE))
-learner = as.character(args[1])
-learner = "lasso"
+learner = "boost"
+#learner = "lasso" # uncomment for lasso results
 
 if (learner != "boost" & learner != "lasso") {
   stop("learner needs to be boost or lasso")
@@ -84,9 +83,9 @@ for (i in seq_along(setup.values)){
   print(setup.values[i])
   print(tab.setup)
   if (learner == "boost") {
-    xtab.setup = xtable(tab.setup, caption = paste0("\\tt Mean squared error (MSE) running \\texttt{xgboost} from Setup ", setup.values[i], ". Results are averaged across 200 runs and rounded to two decimal places."), align="ccccccccccc", label=paste0("table:setup",i))
+    xtab.setup = xtable(tab.setup, caption = paste0("\\tt Mean-squared error running \\texttt{boosting} from Setup ", setup.values[i], ". Results are averaged across 200 runs, rounded to two decimal places, and reported on an independent test set of size $n$."), align="ccccccccccc", label=paste0("table:setup",i))
   } else if  (learner == "lasso"){
-    xtab.setup = xtable(tab.setup, caption = paste0("\\tt Mean squared error (MSE) running \\texttt{lasso} from Setup ", setup.values[i], ". Results are averaged across 500 runs and rounded to two decimal places."), align="ccccccccccc", label=paste0("table:setup",i))
+    xtab.setup = xtable(tab.setup, caption = paste0("\\tt Mean-squared error running \\texttt{lasso} from Setup ", setup.values[i], ". Results are averaged across 500 runs, rounded to two decimal places, and reported on an independent test set of size $n$."), align="ccccccccccc", label=paste0("table:setup",i))
   }
   names(xtab.setup) <- c(c('n','p','$\\sigma$'), algs.tex)
   print(xtab.setup, include.rownames = FALSE, include.colnames = TRUE, sanitize.text.function = identity, file = paste("tables", "/simulation_results_setup_", setup.values[i], "_", learner, ".tex", sep=""))
