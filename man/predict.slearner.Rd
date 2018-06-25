@@ -11,6 +11,9 @@
 
 \item{newx}{a matrix of covariates for which to predict the treatment effect}
 }
+\description{
+Prediction for S-learner
+}
 \examples{
 \dontrun{
 model_specs = list(
@@ -33,6 +36,6 @@ library(zeallot) # imports the \%<-\% operator, which is syntactic sugar that pe
 c(x, w, y, ...) \%<-\% toy_data_simulation(500) # draw a sample
 
 tau_hat_model = slearner_cv(x, w, y, model_specs)
-tau
+tau_hat = predict(tau_hat_model, x)
 }
 }

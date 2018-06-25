@@ -1,6 +1,8 @@
 #' @include learner_utils.R utils.R
-
-#' @title R-learning for heterogenous treatment effects
+#'
+#' @title R-learner using generic black-box machine learning model from caret
+#'
+#' @description  R-learner, as proposed by Nie and Wager (2017), using generic black-box machine learning model from caret
 #'
 #' @details The R-learner estimates heterogenous treatment effects by learning a custom objective function and minimizing it using
 #' any suitable machine learning algorithm.

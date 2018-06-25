@@ -2,7 +2,7 @@
 % Please edit documentation in R/slasso.R
 \name{slasso}
 \alias{slasso}
-\title{S-learner, as proposed by Imai and Ratkovic 2013, implemented via glmnet (lasso)}
+\title{S-learner, implemented via glmnet (lasso)}
 \usage{
 slasso(x, w, y, alpha = 1, k_folds = NULL, lambda_choice = c("lambda.min",
   "lambda.1se"), penalty_search = FALSE)
@@ -23,7 +23,7 @@ slasso(x, w, y, alpha = 1, k_folds = NULL, lambda_choice = c("lambda.min",
 \item{penalty_search}{whether to perform fine grainted penalty_factor search (logical)}
 }
 \description{
-S-learner, as proposed by Imai and Ratkovic 2013, implemented via glmnet (lasso)
+S-learner, as proposed by Imai and Ratkovic (2013), implemented via glmnet (lasso)
 }
 \examples{
 \dontrun{

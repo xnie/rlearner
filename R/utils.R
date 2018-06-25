@@ -15,9 +15,9 @@ trim = function(x, min, max) {
 
 #logical treatment to factor treatment
 lgl_to_fct = function(w_lgl) {
-	w_lgl %>% 
+	w_lgl %>%
 		ifelse("treated", "control") %>%
-		as.factor() %>% 
+		as.factor() %>%
 		factor(c("treated", "control"))
 }
 
@@ -60,14 +60,14 @@ sanitize_input = function(x,w,y) {
 #' @examples
 #' toy_data_simulation # show the code- you can modify it to make your own simulations
 #' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
-#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample 
+#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample
 #' # see what kind of objects these are
 #' str(x)
 #' str(w)
 #' str(y)
 #' @export
 toy_data_simulation = function(n) {
-	x = stats::model.matrix(~.-1, data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n))) 
+	x = stats::model.matrix(~.-1, data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n)))
 	logit_p = (x %*% c(1,1))
 	p = exp(logit_p)/(1+exp(logit_p))
 	w = rbinom(n,1,p)==1
@@ -90,20 +90,20 @@ toy_data_simulation = function(n) {
 #' @examples
 #' toy_data_simulation # show the code- you can modify it to make your own simulations
 #' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
-#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample 
+#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample
 #' # see what kind of objects these are
 #' str(x)
 #' str(w)
 #' str(y)
 #' @export
 easy_toy_data_simulation = function(n) {
-	x = stats::model.matrix(~.-1, data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n))) 
+	x = stats::model.matrix(~.-1, data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n)))
 	p = rep(0.5, n)
 	w = rbinom(n,1,p)==1
 	tau = x %*% c(1,1)
 	m = x %*% c(0.5,-0.5)
 	mu1 = m + tau/2
 	mu0 = m - tau/2
-	y = (m + tau/2*(2*w-1))[,1] 
+	y = (m + tau/2*(2*w-1))[,1]
 	list(x=x, w=w, y=y, p=p, m=m, mu0=mu0, mu1=mu1, tau=tau)
 }

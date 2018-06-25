@@ -23,7 +23,7 @@ tlasso(x, w, y, alpha = 1, k_folds_mu1 = NULL, k_folds_mu0 = NULL,
 \item{lambda_choice}{how to cross-validate; choose from "lambda.min" or "lambda.1se"}
 }
 \description{
-T-learner, implemented via glmnet (lasso)
+T-learner learns the treated and control expected outcome respectively by fitting two separate models.
 }
 \examples{
 \dontrun{

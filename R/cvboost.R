@@ -9,7 +9,7 @@
 #' @param num_search_rounds the number of random sampling of hyperparameter combinations for cross validating on xgboost trees
 #' @param print_every_n the number of iterations (in each iteration, a tree is grown) by which the code prints out information
 #' @param early_stopping_rounds the number of rounds the test error stops decreasing by which the cross validation in finding the optimal number of trees stops
-#' @param nthread the number of threads to use. The default is NULL, which uses all available threads
+#' @param nthread the number of threads to use. The default is NULL, which uses all available threads. Note that this does not apply to using bayesian optimization to search for hyperparameters.
 #' @param verbose boolean; whether to print statistic
 #' @param bayes_opt if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost (warning: very slow!). if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num_search_rounds). Default is FALSE.
 #'
@@ -64,7 +64,11 @@ cvboost = function(x,
   best_seednumber = 1234
   best_loss = Inf
 
-  if (bayes_opt){ # WARNING: very slow!
+  if (is.null(nthread)){
+    nthread = parallel::detectCores()
+  }
+
+  if (bayes_opt){ # WARNING: in beta version; very slow!
     xgb_cv_bayes <- function(subsample, eta, max_depth, min_child_weight) {
       xgb_cv_args = list(params = list(subsample = subsample,
                                        eta = eta,
@@ -82,11 +86,10 @@ cvboost = function(x,
                          early_stopping_rounds = 10,
                          maximize = FALSE,
                          print_every_n = print_every_n,
-                         verbose=verbose,
+                         verbose = verbose,
+                         nthread = nthread,
                          callbacks = list(xgboost::cb.cv.predict(save_models = TRUE)))
-      if (!is.null(nthread)){
-        xgb_cv_args = c(xgb_cv_args, nthread=nthread)
-      }
+
       cv <- do.call(xgboost::xgb.cv, xgb_cv_args)
 
       metric = paste('test_', eval, '_mean', sep='')
@@ -98,7 +101,7 @@ cvboost = function(x,
                                                                          eta = c(5e-3, 2e-1),
                                                                          max_depth = c(3L, 20L),
                                                                          min_child_weight = c(1L, 20L)),
-                                                           init_grid_dt = NULL, init_points = 10, n_iter = 1,
+                                                           init_grid_dt = NULL, init_points = 10, n_iter = num_search_rounds,
                                                            acq = "ucb", kappa = 2.576, eps = 0.0,
                                                            verbose = TRUE)
     best_param = as.list(opt_res$Best_Par)
@@ -113,12 +116,9 @@ cvboost = function(x,
                           early_stopping_rounds = 10,
                           maximize = FALSE,
                           print_every_n = print_every_n,
-                          verbose=verbose,
+                          verbose = verbose,
+                          nthread = nthread,
                           callbacks = list(xgboost::cb.cv.predict(save_models = TRUE)))
-
-    if (!is.null(nthread)) {
-      xgb_cvfit_args = c(xgb_cvfit_args, nthread=nthread)
-    }
 
     best_xgb_cvfit <- do.call(xgboost::xgb.cv, xgb_cvfit_args)
 
@@ -146,12 +146,9 @@ cvboost = function(x,
                          maximize = FALSE,
                          nrounds = ntrees_max,
                          print_every_n = print_every_n,
-                         verbose=verbose,
+                         verbose = verbose,
+                         nthread = nthread,
                          callbacks = list(xgboost::cb.cv.predict(save_models = TRUE)))
-
-      if (!is.null(nthread)){
-        xgb_cv_args = c(list(nthread=nthread), xgb_cv_args)
-      }
 
       xgb_cvfit <- do.call(xgboost::xgb.cv, xgb_cv_args)
 
@@ -172,11 +169,8 @@ cvboost = function(x,
 
   xgb_train_args = list(data = dtrain,
                         params = best_param,
+                        nthread = nthread,
                         nrounds = best_xgb_cvfit$best_ntreelimit)
-
-  if (!is.null(nthread)){
-    xgb_train_args = c(xgb_train_args, nthread=nthread)
-  }
 
   xgb_fit <- do.call(xgboost::xgb.train, xgb_train_args)
 

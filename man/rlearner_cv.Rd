@@ -2,7 +2,7 @@
 % Please edit documentation in R/rlearner.R
 \name{rlearner_cv}
 \alias{rlearner_cv}
-\title{R-learning for heterogenous treatment effects}
+\title{R-learner using generic black-box machine learning model from caret}
 \usage{
 rlearner_cv(x, w, y, tau_model_specs, p_model_specs = tau_model_specs,
   m_model_specs = tau_model_specs, p_hat = NULL, m_hat = NULL,
@@ -46,6 +46,9 @@ multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some l
 \item{p_min}{If provided, estimated propensities will be trimmed to have minimum \code{p_min}.}
 
 \item{p_max}{If provided, estimated propensities will be trimmed to have maximum \code{p_max}.}
+}
+\description{
+R-learner, as proposed by Nie and Wager (2017), using generic black-box machine learning model from caret
 }
 \details{
 The R-learner estimates heterogenous treatment effects by learning a custom objective function and minimizing it using

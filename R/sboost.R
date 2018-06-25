@@ -1,5 +1,8 @@
-#' S-learner, as proposed by Imai and Ratkovic 2013, implemented via xgboost (gradient boosting)
+#' @include utils.R
 #'
+#' @title S-learner, implemented via xgboost (boosting)
+#'
+#' @description  S-learner, as proposed by Imai and Ratkovic (2013), implemented via xgboost (boosting)
 #' @param x the input features
 #' @param w the treatment variable (0 or 1)
 #' @param y the observed response (real valued)
@@ -34,6 +37,7 @@ sboost = function(x, w, y,
                   nthread = NULL,
                   verbose = FALSE,
                   bayes_opt = FALSE){
+  c(x, w, y) %<-% sanitize_input(x,w,y)
 
   nobs = nrow(x)
   pobs = ncol(x)

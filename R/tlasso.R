@@ -1,4 +1,8 @@
-#' T-learner, implemented via glmnet (lasso)
+#' @include utils.R
+#'
+#' @title T-learner, implemented via glmnet (lasso)
+#'
+#' @description T-learner learns the treated and control expected outcome respectively by fitting two separate models.
 #'
 #' @param x the input features
 #' @param w the treatment variable (0 or 1)
@@ -24,6 +28,8 @@ tlasso = function(x, w, y,
                   k_folds_mu1 = NULL,
                   k_folds_mu0 = NULL,
                   lambda_choice = c("lambda.min", "lambda.1se")) {
+
+  c(x, w, y) %<-% sanitize_input(x,w,y)
 
   lambda_choice = match.arg(lambda_choice)
 

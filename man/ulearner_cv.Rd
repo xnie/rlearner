@@ -2,7 +2,7 @@
 % Please edit documentation in R/ulearner.R
 \name{ulearner_cv}
 \alias{ulearner_cv}
-\title{U-learning for heterogenous treatment effects}
+\title{U-learner using generic black-box machine learning model from caret}
 \usage{
 ulearner_cv(x, w, y, tau_model_specs, p_model_specs = tau_model_specs,
   m_model_specs = tau_model_specs, p_hat = NULL, m_hat = NULL,
@@ -46,6 +46,9 @@ multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some l
 \item{p_min}{If provided, estimated propensities will be trimmed to have minimum \code{p_min}.}
 
 \item{p_max}{If provided, estimated propensities will be trimmed to have maximum \code{p_max}.}
+}
+\description{
+U-learner as proposed by Künzel, Sekhon, Bickel, and Yu (2017), using generic black-box machine learning model from caret
 }
 \examples{
 \dontrun{

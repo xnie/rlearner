@@ -1,6 +1,8 @@
 #' @include learner_utils.R utils.R
-
-#' @title X-learning for heterogenous treatment effects
+#'
+#' @title X-learner using generic black-box machine learning model from caret
+#'
+#' @description X-learner as proposed by Künzel, Sekhon, Bickel, and Yu (2017), using generic black-box machine learning model from caret
 #'
 #' @param x a numeric matrix of \strong{covariates}
 #' @param w a logical vector indicating \strong{treatment}

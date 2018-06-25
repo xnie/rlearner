@@ -1,4 +1,8 @@
-#' X-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via xgboost (gradient boosting)
+#' @include utils.R
+#'
+#' @title X-learner implemented via xgboost (boosting)
+#'
+#' @description X-learner as proposed by Künzel, Sekhon, Bickel, and Yu (2017), implemented via xgboost (boosting)
 #'
 #' @param x the input features
 #' @param w the treatment variable (0 or 1)
@@ -44,6 +48,8 @@ xboost = function(x, w, y,
                   nthread=NULL,
                   verbose=FALSE,
                   bayes_opt=FALSE) {
+
+  c(x, w, y) %<-% sanitize_input(x,w,y)
 
   x_1 = x[which(w==1),]
   x_0 = x[which(w==0),]

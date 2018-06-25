@@ -2,7 +2,7 @@
 % Please edit documentation in R/rlasso.R
 \name{rlasso}
 \alias{rlasso}
-\title{R-learner, as proposed by Nie and Wager 2017, implemented via glmnet (lasso)}
+\title{R-learner, implemented via glmnet (lasso)}
 \usage{
 rlasso(x, w, y, alpha = 1, k_folds = NULL, lambda_choice = c("lambda.min",
   "lambda.1se"), rs = FALSE, p_hat = NULL, m_hat = NULL)
@@ -27,7 +27,7 @@ rlasso(x, w, y, alpha = 1, k_folds = NULL, lambda_choice = c("lambda.min",
 \item{m_hat}{user-supplied estimte for E[Y|X]}
 }
 \description{
-R-learner, as proposed by Nie and Wager 2017, implemented via glmnet (lasso)
+R-learner, as proposed by Nie and Wager (2017), implemented via glmnet (lasso)
 }
 \examples{
 \dontrun{

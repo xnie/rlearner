@@ -1,4 +1,8 @@
-#' U-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via xgboost (gradient boosting)
+#' @include utils.R
+#'
+#' @title U-learner implemented via xgboost (boosting)
+#'
+#' @description U-learner as proposed by Künzel, Sekhon, Bickel, and Yu (2017), implemented via xgboost (boosting)
 #'
 #' @param x the input features
 #' @param w the treatment variable (0 or 1)
@@ -40,6 +44,8 @@ uboost= function(x, w, y,
                  nthread = NULL,
                  verbose = FALSE,
                  bayes_opt = FALSE) {
+
+  c(x, w, y) %<-% sanitize_input(x,w,y)
 
   nobs = nrow(x)
   pobs = ncol(x)

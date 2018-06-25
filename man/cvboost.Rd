@@ -28,7 +28,7 @@ cvboost(x, y, weights = NULL, k_folds = NULL, objective = c("reg:linear",
 
 \item{early_stopping_rounds}{the number of rounds the test error stops decreasing by which the cross validation in finding the optimal number of trees stops}
 
-\item{nthread}{the number of threads to use. The default is NULL, which uses all available threads}
+\item{nthread}{the number of threads to use. The default is NULL, which uses all available threads. Note that this does not apply to using bayesian optimization to search for hyperparameters.}
 
 \item{verbose}{boolean; whether to print statistic}
 

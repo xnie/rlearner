@@ -1,4 +1,8 @@
-#' U-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via glmnet (lasso)
+#' @include utils.R
+#'
+#' @title U-learner implemented via glmnet (lasso)
+#'
+#' @description U-learner as proposed by Künzel, Sekhon, Bickel, and Yu (2017), implemented via glmnet (lasso)
 #'
 #' @param x the input features
 #' @param y the observed response (real valued)
@@ -29,6 +33,8 @@ ulasso = function(x, w, y,
                   p_hat = NULL,
                   m_hat = NULL,
                   cutoff = 0.05){
+
+  c(x, w, y) %<-% sanitize_input(x,w,y)
 
   lambda_choice = match.arg(lambda_choice)
 

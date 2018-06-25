@@ -2,7 +2,7 @@
 % Please edit documentation in R/xlearner.R
 \name{xlearner_cv}
 \alias{xlearner_cv}
-\title{X-learning for heterogenous treatment effects}
+\title{X-learner using generic black-box machine learning model from caret}
 \usage{
 xlearner_cv(x, w, y, tau_model_specs, p_model_specs = tau_model_specs,
   mu_model_specs = tau_model_specs, mu0_hat = NULL, mu1_hat = NULL,
@@ -38,6 +38,9 @@ multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some l
 \item{p_min}{If provided, estimated propensities will be trimmed to have minimum \code{p_min}.}
 
 \item{p_max}{If provided, estimated propensities will be trimmed to have maximum \code{p_max}.}
+}
+\description{
+X-learner as proposed by Künzel, Sekhon, Bickel, and Yu (2017), using generic black-box machine learning model from caret
 }
 \examples{
 \dontrun{

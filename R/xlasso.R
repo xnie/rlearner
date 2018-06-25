@@ -1,4 +1,8 @@
-#' X-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via glmnet (lasso)
+#' @include utils.R
+#'
+#' @title X-learner implemented via glmnet (lasso)
+#'
+#' @description X-learner as proposed by Künzel, Sekhon, Bickel, and Yu (2017), implemented via glmnet (lasso)
 #'
 #' @param x the input features
 #' @param w the treatment variable (0 or 1)
@@ -33,6 +37,8 @@ xlasso = function(x, w, y,
                   lambda_choice = c("lambda.min", "lambda.1se"),
                   mu1_hat = NULL,
                   mu0_hat = NULL){
+
+  c(x, w, y) %<-% sanitize_input(x,w,y)
 
   lambda_choice = match.arg(lambda_choice)
 

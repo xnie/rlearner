@@ -1,4 +1,8 @@
-#' S-learner, as proposed by Imai and Ratkovic 2013, implemented via glmnet (lasso)
+#' @include utils.R
+#'
+#' @title S-learner, implemented via glmnet (lasso)
+#'
+#' @description  S-learner, as proposed by Imai and Ratkovic (2013), implemented via glmnet (lasso)
 #'
 #' @param x the input features
 #' @param w the treatment variable (0 or 1)
@@ -25,9 +29,7 @@ slasso = function(x, w, y,
                   lambda_choice = c("lambda.min", "lambda.1se"),
                   penalty_search = FALSE) {
 
-  if (is.null(colnames(x))) {
-    x = stats::model.matrix(~.-1, data.frame(x))
-  }
+  c(x, w, y) %<-% sanitize_input(x,w,y)
 
   standardization = caret::preProcess(x, method=c("center", "scale")) # get the standardization params
   x_scl = predict(standardization, x)							 # standardize the input

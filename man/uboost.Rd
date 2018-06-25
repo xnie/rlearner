@@ -2,7 +2,7 @@
 % Please edit documentation in R/uboost.R
 \name{uboost}
 \alias{uboost}
-\title{U-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via xgboost (gradient boosting)}
+\title{U-learner implemented via xgboost (boosting)}
 \usage{
 uboost(x, w, y, k_folds = NULL, p_hat = NULL, m_hat = NULL,
   cutoff = 0.05, ntrees_max = 1000, num_search_rounds = 10,
@@ -39,7 +39,7 @@ uboost(x, w, y, k_folds = NULL, p_hat = NULL, m_hat = NULL,
 \item{bayes_opt}{if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost. if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num_search_rounds). Default is FALSE.}
 }
 \description{
-U-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via xgboost (gradient boosting)
+U-learner as proposed by Künzel, Sekhon, Bickel, and Yu (2017), implemented via xgboost (boosting)
 }
 \examples{
 \dontrun{

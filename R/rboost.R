@@ -1,4 +1,8 @@
-#' R-learner, as proposed by Nie and Wager 2017, implemented via xgboost (gradient boosting)
+#' @include utils.R
+#'
+#' @title R-learner, implemented via xgboost (boosting)
+#'
+#' @description  R-learner, as proposed by Nie and Wager (2017), implemented via xgboost (boosting)
 #'
 #' @param x the input features
 #' @param w the treatment variable (0 or 1)
@@ -38,6 +42,8 @@ rboost= function(x, w, y,
                  nthread = NULL,
                  verbose = FALSE,
                  bayes_opt = FALSE) {
+
+  c(x, w, y) %<-% sanitize_input(x,w,y)
 
   nobs = nrow(x)
   pobs = ncol(x)

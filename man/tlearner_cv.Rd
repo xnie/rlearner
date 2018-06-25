@@ -2,7 +2,7 @@
 % Please edit documentation in R/tlearner.R
 \name{tlearner_cv}
 \alias{tlearner_cv}
-\title{T-learning for heterogenous treatment effects}
+\title{T-learner using generic black-box machine learning model from caret}
 \usage{
 tlearner_cv(x, w, y, model_specs, k_folds = 5, select_by = "best")
 }
@@ -20,6 +20,9 @@ tlearner_cv(x, w, y, model_specs, k_folds = 5, select_by = "best")
 \item{select_by}{optimization method to use for cross-validation in each model: either \code{"best"} for minimum cross-validation
 error or \code{"oneSE"} for the one-standard-error (1-SE) rule. The implementaion of the 1-SE rule for learners with
 multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some learners. See: \code{\link[caret]{?caret::oneSE}}.}
+}
+\description{
+T-learner learns the treated and control expected outcome respectively by fitting two separate models.
 }
 \examples{
 \dontrun{

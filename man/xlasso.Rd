@@ -2,7 +2,7 @@
 % Please edit documentation in R/xlasso.R
 \name{xlasso}
 \alias{xlasso}
-\title{X-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via glmnet (lasso)}
+\title{X-learner implemented via glmnet (lasso)}
 \usage{
 xlasso(x, w, y, alpha = 1, k_folds_mu1 = NULL, k_folds_mu0 = NULL,
   k_folds_p = NULL, lambda_choice = c("lambda.min", "lambda.1se"),
@@ -32,7 +32,7 @@ xlasso(x, w, y, alpha = 1, k_folds_mu1 = NULL, k_folds_mu0 = NULL,
 \item{p_hat}{pre-computed estimates on E[W|X] corresponding to the input x. xlasso will compute it internally if not provided}
 }
 \description{
-X-learner, as proposed by Künzel, Sekhon, Bickel, and Yu 2017, implemented via glmnet (lasso)
+X-learner as proposed by Künzel, Sekhon, Bickel, and Yu (2017), implemented via glmnet (lasso)
 }
 \examples{
 \dontrun{

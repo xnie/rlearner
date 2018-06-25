@@ -1,4 +1,8 @@
-#' R-learner, as proposed by Nie and Wager 2017, implemented via glmnet (lasso)
+#' @include utils.R
+#'
+#' @title R-learner, implemented via glmnet (lasso)
+#'
+#' @description  R-learner, as proposed by Nie and Wager (2017), implemented via glmnet (lasso)
 #'
 #' @param x the input features
 #' @param w the treatment variable (0 or 1)
@@ -30,9 +34,8 @@ rlasso = function(x, w, y,
                   p_hat = NULL,
                   m_hat = NULL){
 
-    if (is.null(colnames(x))) {
-      x = stats::model.matrix(~.-1, data.frame(x))
-    }
+    c(x, w, y) %<-% sanitize_input(x,w,y)
+
     standardization = caret::preProcess(x, method=c("center", "scale")) # get the standardization params
     x_scl = predict(standardization, x)							 # standardize the input
     x_scl = x_scl[,!is.na(colSums(x_scl))]

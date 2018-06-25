@@ -2,7 +2,7 @@
 % Please edit documentation in R/slearner.R
 \name{slearner_cv}
 \alias{slearner_cv}
-\title{S-learning for heterogenous treatment effects}
+\title{S-learner using generic black-box machine learning model from caret}
 \usage{
 slearner_cv(x, w, y, model_specs, k_folds = 5, select_by = "best")
 }
@@ -20,6 +20,9 @@ slearner_cv(x, w, y, model_specs, k_folds = 5, select_by = "best")
 \item{select_by}{optimization method to use for cross-validation in each model: either \code{"best"} for minimum cross-validation
 error or \code{"oneSE"} for the one-standard-error (1-SE) rule. The implementaion of the 1-SE rule for learners with
 multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some learners. See: \code{\link[caret]{?caret::oneSE}}.}
+}
+\description{
+S-learner, as proposed by Imai and Ratkovic (2013), using generic black-box machine learning model from caret
 }
 \examples{
 \dontrun{

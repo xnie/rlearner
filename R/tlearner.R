@@ -1,6 +1,8 @@
 #' @include learner_utils.R utils.R
-
-#' @title T-learning for heterogenous treatment effects
+#'
+#' @title T-learner using generic black-box machine learning model from caret
+#'
+#' @description T-learner learns the treated and control expected outcome respectively by fitting two separate models.
 #'
 #' @param x a numeric matrix of \strong{covariates}
 #' @param w a logical vector indicating \strong{treatment}

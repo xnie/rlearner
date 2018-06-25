@@ -2,7 +2,7 @@
 % Please edit documentation in R/sboost.R
 \name{sboost}
 \alias{sboost}
-\title{S-learner, as proposed by Imai and Ratkovic 2013, implemented via xgboost (gradient boosting)}
+\title{S-learner, implemented via xgboost (boosting)}
 \usage{
 sboost(x, w, y, k_folds = NULL, ntrees_max = 1000, num_search_rounds = 10,
   print_every_n = 100, early_stopping_rounds = 10, nthread = NULL,
@@ -32,7 +32,7 @@ sboost(x, w, y, k_folds = NULL, ntrees_max = 1000, num_search_rounds = 10,
 \item{bayes_opt}{if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost. if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num_search_rounds). Default is FALSE.}
 }
 \description{
-S-learner, as proposed by Imai and Ratkovic 2013, implemented via xgboost (gradient boosting)
+S-learner, as proposed by Imai and Ratkovic (2013), implemented via xgboost (boosting)
 }
 \examples{
 \dontrun{

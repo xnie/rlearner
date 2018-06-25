@@ -1,6 +1,8 @@
 #' @include learner_utils.R utils.R
-
-#' @title S-learning for heterogenous treatment effects
+#'
+#' @title S-learner using generic black-box machine learning model from caret
+#'
+#' @description  S-learner, as proposed by Imai and Ratkovic (2013), using generic black-box machine learning model from caret
 #'
 #' @param x a numeric matrix of \strong{covariates}
 #' @param w a logical vector indicating \strong{treatment}

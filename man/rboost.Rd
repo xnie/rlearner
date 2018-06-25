@@ -2,7 +2,7 @@
 % Please edit documentation in R/rboost.R
 \name{rboost}
 \alias{rboost}
-\title{R-learner, as proposed by Nie and Wager 2017, implemented via xgboost (gradient boosting)}
+\title{R-learner, implemented via xgboost (boosting)}
 \usage{
 rboost(x, w, y, k_folds = NULL, p_hat = NULL, m_hat = NULL,
   ntrees_max = 1000, num_search_rounds = 10, print_every_n = 100,
@@ -37,7 +37,7 @@ rboost(x, w, y, k_folds = NULL, p_hat = NULL, m_hat = NULL,
 \item{bayes_opt}{if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost. if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num_search_rounds). Default is FALSE.}
 }
 \description{
-R-learner, as proposed by Nie and Wager 2017, implemented via xgboost (gradient boosting)
+R-learner, as proposed by Nie and Wager (2017), implemented via xgboost (boosting)
 }
 \examples{
 \dontrun{
