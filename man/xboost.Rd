@@ -40,7 +40,7 @@ xboost(x, w, y, k_folds_mu1 = NULL, k_folds_mu0 = NULL, k_folds_p = NULL,
 
 \item{verbose}{boolean; whether to print statistic}
 
-\item{bayes_opt}{if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost. if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num_search_rounds). default is FALSE.}
+\item{bayes_opt}{if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost. if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num_search_rounds). Default is FALSE. CAUTION: current implementation is in beta and is not recommended for usage yet}
 }
 \description{
 X-learner as proposed by Künzel, Sekhon, Bickel, and Yu (2017), implemented via xgboost (boosting)

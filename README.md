@@ -71,10 +71,10 @@ model_specs = list(
 	    extra_args = list())
 )
 
-r.fit = rlearner_cv(data$x, data$w, data$y, model_specs=model_specs)
-tau.hat = predict(r.fit, data$x)
+r_fit = rlearner_cv(data$x, data$w, data$y, tau_model_specs=model_specs)
+tau_hat = predict(r_fit, data$x)
 
-print(paste("MSE of tau estimate:", mean((data$tau - tau.hat)^2), 2))
+print(paste("MSE of tau estimate:", mean((data$tau - tau_hat)^2)))
 ```
 
 Using different machine learning models is as simple as changing the model specification:
@@ -93,8 +93,8 @@ model_specs = list(
 	        bag.fraction=1))
 )
 
-r.fit = rlearner_cv(data$x, data$w, data$y, model_specs=model_specs)
-tau.hat = predict(r.fit, data$x)
+r_fit = rlearner_cv(data$x, data$w, data$y, tau_model_specs=model_specs)
+tau_hat = predict(r_fit, data$x)
 ```
 
 See `?learner_cv` for details of specifying the machine learning models and hyperparameters.

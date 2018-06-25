@@ -32,7 +32,7 @@ cvboost(x, y, weights = NULL, k_folds = NULL, objective = c("reg:linear",
 
 \item{verbose}{boolean; whether to print statistic}
 
-\item{bayes_opt}{if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost (warning: very slow!). if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num_search_rounds). Default is FALSE.}
+\item{bayes_opt}{if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost (warning: very slow!). if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num_search_rounds). Default is FALSE. CAUTION: current implementation is in beta and is not recommended for usage yet}
 }
 \value{
 a cvboost object

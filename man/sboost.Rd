@@ -29,7 +29,7 @@ sboost(x, w, y, k_folds = NULL, ntrees_max = 1000, num_search_rounds = 10,
 
 \item{verbose}{boolean; whether to print statistic}
 
-\item{bayes_opt}{if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost. if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num_search_rounds). Default is FALSE.}
+\item{bayes_opt}{if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost. if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num_search_rounds). Default is FALSE. CAUTION: current implementation is in beta and is not recommended for usage yet.}
 }
 \description{
 S-learner, as proposed by Imai and Ratkovic (2013), implemented via xgboost (boosting)
