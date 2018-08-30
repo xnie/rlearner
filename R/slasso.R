@@ -33,7 +33,7 @@ slasso = function(x, w, y,
 
   standardization = caret::preProcess(x, method=c("center", "scale")) # get the standardization params
   x_scl = predict(standardization, x)							 # standardize the input
-  x_scl = x_scl[,!is.na(colSums(x_scl))]
+  x_scl = x_scl[,!is.na(colSums(x_scl)), drop = FALSE]
 
   lambda_choice = match.arg(lambda_choice)
 
@@ -143,7 +143,7 @@ predict.slasso <- function(object,
   if (!is.null(newx)) {
     newx = sanitize_x(newx)
     newx_scl = predict(object$standardization, newx) # standardize the new data using the same standardization as with the training data
-    newx_scl = newx_scl[,!is.na(colSums(newx_scl))]
+    newx_scl = newx_scl[,!is.na(colSums(newx_scl)), drop = FALSE]
     newx_scl_pred = cbind(1, newx_scl, 0 * newx_scl)
     tau_hat = 2 * newx_scl_pred %*% object$s_beta
   }

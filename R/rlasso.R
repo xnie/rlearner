@@ -38,7 +38,7 @@ rlasso = function(x, w, y,
 
     standardization = caret::preProcess(x, method=c("center", "scale")) # get the standardization params
     x_scl = predict(standardization, x)							 # standardize the input
-    x_scl = x_scl[,!is.na(colSums(x_scl))]
+    x_scl = x_scl[,!is.na(colSums(x_scl)), drop = FALSE]
 
     lambda_choice = match.arg(lambda_choice)
 
@@ -55,7 +55,7 @@ rlasso = function(x, w, y,
     if (is.null(m_hat)){
       y_fit = glmnet::cv.glmnet(x, y, foldid = foldid, keep = TRUE, alpha = alpha)
       y.lambda.min = min(y_fit$lambda[!is.na(colSums(y_fit$fit.preval))]) 
-      m_hat = y_fit$fit.preval[,!is.na(colSums(y_fit$fit.preval))][, y_fit$lambda == y.lambda.min]
+      m_hat = y_fit$fit.preval[,!is.na(colSums(y_fit$fit.preval))][, y_fit$lambda[!is.na(colSums(y_fit$fit.preval))] == y.lambda.min]
     }
     else {
       y_fit = NULL
@@ -64,7 +64,7 @@ rlasso = function(x, w, y,
     if (is.null(p_hat)){
       w_fit = glmnet::cv.glmnet(x, w, foldid = foldid, keep = TRUE, family = "binomial", type.measure = "deviance", alpha = alpha)
       w.lambda.min = min(w_fit$lambda[!is.na(colSums(w_fit$fit.preval))]) 
-      p_hat = w_fit$fit.preval[,!is.na(colSums(w_fit$fit.preval))][, w_fit$lambda == w.lambda.min]
+      p_hat = w_fit$fit.preval[,!is.na(colSums(w_fit$fit.preval))][,  w_fit$lambda[!is.na(colSums(w_fit$fit.preval))] == w.lambda.min]
     }
     else{
       w_fit = NULL
@@ -142,7 +142,7 @@ predict.rlasso <- function(object,
 
     newx = sanitize_x(newx)
     newx_scl = predict(object$standardization, newx) # standardize the new data using the same standardization as with the training data
-    newx_scl = newx_scl[,!is.na(colSums(newx_scl))]
+    newx_scl = newx_scl[,!is.na(colSums(newx_scl)), drop = FALSE]
 
     if (object$rs){
       newx_scl_pred = cbind(1, newx_scl, newx_scl * 0)
