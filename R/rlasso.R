@@ -54,7 +54,8 @@ rlasso = function(x, w, y,
 
     if (is.null(m_hat)){
       y_fit = glmnet::cv.glmnet(x, y, foldid = foldid, keep = TRUE, alpha = alpha)
-      m_hat = y_fit$fit.preval[,!is.na(colSums(y_fit$fit.preval))][, y_fit$lambda == y_fit$lambda.min]
+      y.lambda.min = min(y_fit$lambda[!is.na(colSums(y_fit$fit.preval))]) 
+      m_hat = y_fit$fit.preval[,!is.na(colSums(y_fit$fit.preval))][, y_fit$lambda == y.lambda.min]
     }
     else {
       y_fit = NULL
@@ -62,7 +63,8 @@ rlasso = function(x, w, y,
 
     if (is.null(p_hat)){
       w_fit = glmnet::cv.glmnet(x, w, foldid = foldid, keep = TRUE, family = "binomial", type.measure = "deviance", alpha = alpha)
-      p_hat = w_fit$fit.preval[,!is.na(colSums(w_fit$fit.preval))][, w_fit$lambda == w_fit$lambda.min]
+      w.lambda.min = min(w_fit$lambda[!is.na(colSums(w_fit$fit.preval))]) 
+      p_hat = w_fit$fit.preval[,!is.na(colSums(w_fit$fit.preval))][, w_fit$lambda == w.lambda.min]
     }
     else{
       w_fit = NULL
