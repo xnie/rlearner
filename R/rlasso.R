@@ -32,7 +32,8 @@ rlasso = function(x, w, y,
                   lambda_choice = c("lambda.min","lambda.1se"),
                   rs = FALSE,
                   p_hat = NULL,
-                  m_hat = NULL){
+                  m_hat = NULL,
+                  penalty_factor = NULL){
 
     c(x, w, y) %<-% sanitize_input(x,w,y)
 
@@ -52,19 +53,55 @@ rlasso = function(x, w, y,
     # fold ID for cross-validation; balance treatment assignments
     foldid = sample(rep(seq(k_folds), length = length(w)))
 
+
+    # penalty factor for nuisance and tau estimators
+    if (is.null(penalty_factor) || (length(penalty_factor) != pobs)) {
+      penalty_factor_nuisance = rep(1, pobs)
+      if (rs) {
+        penalty_factor_tau = c(0, rep(1, 2 * pobs))
+      }
+      else {
+        penalty_factor_tau = c(0, rep(1, pobs))
+      }
+      if (length(penalty_factor) != pobs) {
+        warning("penalty_factor supplied is not of the same length as the number of columns in x after removing NA columns. Using all ones instead.")
+      }
+    }
+    else {
+      penalty_factor_nuisance = penalty_factor
+      if (rs) {
+        penalty_factor_tau = c(0, penalty_factor, penalty_factor)
+      }
+      else {
+        penalty_factor_tau = c(0, penalty_factor)
+      }
+    }
+
     if (is.null(m_hat)){
-      y_fit = glmnet::cv.glmnet(x, y, foldid = foldid, keep = TRUE, alpha = alpha)
-      y.lambda.min = min(y_fit$lambda[!is.na(colSums(y_fit$fit.preval))]) 
-      m_hat = y_fit$fit.preval[,!is.na(colSums(y_fit$fit.preval))][, y_fit$lambda[!is.na(colSums(y_fit$fit.preval))] == y.lambda.min]
+      y_fit = glmnet::cv.glmnet(x, y,
+                                foldid = foldid,
+                                keep = TRUE,
+                                alpha = alpha,
+                                penalty.factor = penalty_factor_nuisance)
+
+      y_lambda_min = y_fit$lambda[which.min(y_fit$cvm[!is.na(colSums(y_fit$fit.preval))])]
+      m_hat = y_fit$fit.preval[,!is.na(colSums(y_fit$fit.preval))][, y_fit$lambda[!is.na(colSums(y_fit$fit.preval))] == y_lambda_min]
     }
     else {
       y_fit = NULL
     }
 
     if (is.null(p_hat)){
-      w_fit = glmnet::cv.glmnet(x, w, foldid = foldid, keep = TRUE, family = "binomial", type.measure = "deviance", alpha = alpha)
-      w.lambda.min = min(w_fit$lambda[!is.na(colSums(w_fit$fit.preval))]) 
-      p_hat = w_fit$fit.preval[,!is.na(colSums(w_fit$fit.preval))][,  w_fit$lambda[!is.na(colSums(w_fit$fit.preval))] == w.lambda.min]
+      w_fit = glmnet::cv.glmnet(x, w,
+                                foldid = foldid,
+                                keep = TRUE,
+                                family = "binomial",
+                                type.measure = "deviance",
+                                alpha = alpha,
+                                penalty.factor = penalty_factor_nuisance)
+
+      w_lambda_min = w_fit$lambda[which.min(w_fit$cvm[!is.na(colSums(w_fit$fit.preval))])]
+      p_hat = w_fit$fit.preval[,!is.na(colSums(w_fit$fit.preval))][, w_fit$lambda[!is.na(colSums(w_fit$fit.preval))] == w_lambda_min]
     }
     else{
       w_fit = NULL
@@ -73,25 +110,19 @@ rlasso = function(x, w, y,
     y_tilde = y - m_hat
 
     if (rs){
-
       x_scl_tilde = cbind(as.numeric(w - p_hat) * cbind(1, x_scl), x_scl)
       x_scl_pred = cbind(1, x_scl, x_scl * 0)
-      penalty_factor = c(0, rep(1, 2 * pobs))
-
     }
     else{
-
       x_scl_tilde = cbind(as.numeric(w - p_hat) * cbind(1, x_scl))
       x_scl_pred = cbind(1, x_scl)
-      penalty_factor = c(0, rep(1, pobs))
-
     }
 
     tau_fit = glmnet::cv.glmnet(x_scl_tilde,
                                 y_tilde,
                                 foldid = foldid,
                                 alpha = alpha,
-                                penalty.factor = penalty_factor,
+                                penalty.factor = penalty_factor_tau,
                                 standardize = FALSE)
 
     tau_beta = as.vector(t(coef(tau_fit, s = lambda_choice)[-1]))
