@@ -4,8 +4,9 @@
 \alias{rlasso}
 \title{R-learner, implemented via glmnet (lasso)}
 \usage{
-rlasso(x, w, y, alpha = 1, k_folds = NULL, lambda_choice = c("lambda.min",
-  "lambda.1se"), rs = FALSE, p_hat = NULL, m_hat = NULL)
+rlasso(x, w, y, alpha = 1, k_folds = NULL, foldid = NULL,
+  lambda_choice = c("lambda.min", "lambda.1se"), rs = FALSE, p_hat = NULL,
+  m_hat = NULL, penalty_factor = NULL)
 }
 \arguments{
 \item{x}{the input features}
@@ -18,6 +19,8 @@ rlasso(x, w, y, alpha = 1, k_folds = NULL, lambda_choice = c("lambda.min",
 
 \item{k_folds}{number of folds for cross-fitting}
 
+\item{foldid}{user-supplied foldid. Must have length equal to length(w)}
+
 \item{lambda_choice}{how to cross-validate; choose from "lambda.min" or "lambda.1se"}
 
 \item{rs}{whether to use the RS-learner (logical).}
@@ -25,6 +28,8 @@ rlasso(x, w, y, alpha = 1, k_folds = NULL, lambda_choice = c("lambda.min",
 \item{p_hat}{user-supplied estimate for E[W|X]}
 
 \item{m_hat}{user-supplied estimte for E[Y|X]}
+
+\item{penalty_factor}{user-supplied penalty factor, a vector of length the same as the number of covariates in x.}
 }
 \description{
 R-learner, as proposed by Nie and Wager (2017), implemented via glmnet (lasso)

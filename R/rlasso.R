@@ -9,10 +9,12 @@
 #' @param y the observed response (real valued)
 #' @param alpha tuning parameter for the elastic net
 #' @param k_folds number of folds for cross-fitting
+#' @param foldid user-supplied foldid. Must have length equal to length(w). If provided, it overrides the k_folds option.
 #' @param lambda_choice how to cross-validate; choose from "lambda.min" or "lambda.1se"
 #' @param rs whether to use the RS-learner (logical).
 #' @param p_hat user-supplied estimate for E[W|X]
 #' @param m_hat user-supplied estimte for E[Y|X]
+#' @param penalty_factor user-supplied penalty factor, a vector of length the same as the number of covariates in x.
 #'
 #' @examples
 #' \dontrun{
@@ -29,6 +31,7 @@
 rlasso = function(x, w, y,
                   alpha = 1,
                   k_folds = NULL,
+                  foldid = NULL,
                   lambda_choice = c("lambda.min","lambda.1se"),
                   rs = FALSE,
                   p_hat = NULL,
@@ -46,13 +49,20 @@ rlasso = function(x, w, y,
     nobs = nrow(x_scl)
     pobs = ncol(x_scl)
 
-    if (is.null(k_folds)) {
-        k_folds = floor(max(3, min(10,length(w)/4)))
+    if (is.null(foldid) || length(foldid) != length(w)) {
+
+      if (!is.null(foldid) && length(foldid) != length(w)) {
+        warning("supplied foldid does not have the same length ")
+      }
+
+      if (is.null(k_folds)) {
+          k_folds = floor(max(3, min(10,length(w)/4)))
+      }
+
+      # fold ID for cross-validation; balance treatment assignments
+      foldid = sample(rep(seq(k_folds), length = length(w)))
+
     }
-
-    # fold ID for cross-validation; balance treatment assignments
-    foldid = sample(rep(seq(k_folds), length = length(w)))
-
 
     # penalty factor for nuisance and tau estimators
     if (is.null(penalty_factor) || (length(penalty_factor) != pobs)) {
@@ -63,7 +73,7 @@ rlasso = function(x, w, y,
       else {
         penalty_factor_tau = c(0, rep(1, pobs))
       }
-      if (length(penalty_factor) != pobs) {
+      if (!is.null(penalty_factor) && length(penalty_factor) != pobs) {
         warning("penalty_factor supplied is not of the same length as the number of columns in x after removing NA columns. Using all ones instead.")
       }
     }
