@@ -112,3 +112,32 @@ easy_toy_data_simulation = function(n) {
 	y = (m + tau/2*(2*w-1))[,1]
 	list(x=x, w=w, y=y, p=p, m=m, mu0=mu0, mu1=mu1, tau=tau)
 }
+
+#' @title Toy data simulation for T-learner
+#'
+#' @description Generates a toy dataset of size \eqn{n} that can be used to experiment with T-learners
+#' in this package. The generative process should be easy to learn with linear methods.
+#'
+#' @param n the number of samples to draw from the distribution
+#' @return a list containing the covariate matrix, treatment vector, outcome vector, true propensity vector, true marginal outcome vector,
+#' true control potential outcome vector, true treated potential outcome vector, and true treatment effect vector, in that order.
+#' @examples
+#' toy_data_simulation # show the code- you can modify it to make your own simulations
+#' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
+#' c(x, w, y, ...) %<-% t_toy_data_simulation(500) # draw a sample
+#' # see what kind of objects these are
+#' str(x)
+#' str(w)
+#' str(y)
+#' @export
+t_toy_data_simulation = function(n) {
+	x = stats::model.matrix(~.-1, data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n)))
+	p = rep(0.5, n)
+	w = rbinom(n,1,p)==1
+	mu1 = sin(x[,1] * 2)
+	mu0 = x[,2] * 3 + 10
+	y = w * mu1 + (1-w) * mu0
+	tau = mu1 - mu0
+	m = p * mu1 + (1-p) * mu0
+	list(x=x, w=w, y=y, p=p, m=m, mu0=mu0, mu1=mu1, tau=tau)
+}

@@ -19,7 +19,7 @@ rlasso(x, w, y, alpha = 1, k_folds = NULL, foldid = NULL,
 
 \item{k_folds}{number of folds for cross-fitting}
 
-\item{foldid}{user-supplied foldid. Must have length equal to length(w)}
+\item{foldid}{user-supplied foldid. Must have length equal to length(w). If provided, it overrides the k_folds option.}
 
 \item{lambda_choice}{how to cross-validate; choose from "lambda.min" or "lambda.1se"}
 
