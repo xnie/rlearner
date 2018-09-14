@@ -110,6 +110,6 @@ ulearner_cv = function(x, w, y, tau_model_specs,
 #' }
 #' @export predict.ulearner
 predict.ulearner = function(object, newx, ...) {
-  newx = sanitize(newx)
+  newx = sanitize_x(newx)
 	predict(object$model, newx=newx)
 }

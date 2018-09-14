@@ -11,9 +11,6 @@
 
 \item{newx}{a matrix of covariates for which to predict the treatment effect}
 }
-\description{
-Prediction for S-learner
-}
 \examples{
 \dontrun{
 model_specs = list(
