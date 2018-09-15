@@ -58,6 +58,7 @@ slearner_cv = function(x, w, y, model_specs, k_folds=5, select_by="best") {
 #' @title Prediction for S-learner
 #' @param object a S-learner object
 #' @param newx a matrix of covariates for which to predict the treatment effect
+#' @param ... additional arguments (currently not used)
 #' @examples
 #' \dontrun{
 #' model_specs = list(

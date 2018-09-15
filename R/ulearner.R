@@ -84,6 +84,7 @@ ulearner_cv = function(x, w, y, tau_model_specs,
 #' @title Prediction for U-learner
 #' @param object a U-learner object
 #' @param newx a matrix of covariates for which to predict the treatment effect
+#' @param ... additional arguments (currently not used)
 #' @examples
 #' \dontrun{
 #' model_specs = list(

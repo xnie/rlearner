@@ -10,6 +10,8 @@
 \item{object}{a S-learner object}
 
 \item{newx}{a matrix of covariates for which to predict the treatment effect}
+
+\item{...}{additional arguments (currently not used)}
 }
 \description{
 Prediction for S-learner

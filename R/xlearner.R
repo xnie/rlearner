@@ -90,6 +90,7 @@ xlearner_cv = function(x, w, y, tau_model_specs,
 #' @title Prediction for X-learner
 #' @param object a X-learner object
 #' @param newx a matrix of covariates for which to predict the treatment effect
+#' @param ... additional arguments (currently not used)
 #' @examples
 #' \dontrun{
 #' model_specs = list(

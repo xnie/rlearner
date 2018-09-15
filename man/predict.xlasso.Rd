@@ -12,6 +12,8 @@
 
 \item{newx}{covariate matrix to make predictions on. If null, return the tau(x) predictions on the training data}
 
+\item{s}{choose from "lambda.min" or "lambda.1se}
+
 \item{...}{additional arguments (currently not used)}
 }
 \value{

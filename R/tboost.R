@@ -32,7 +32,6 @@
 #' @export
 
 tboost = function(x, w, y,
-                  alpha = 1,
                   k_folds_mu1 = NULL,
                   k_folds_mu0 = NULL,
                   ntrees_max = 1000,

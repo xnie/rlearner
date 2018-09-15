@@ -11,14 +11,14 @@ learner_cv(x, y, model_specs, weights = NULL, k_folds = 5,
 \item{x}{a numeric matrix of features}
 
 \item{y}{a logical vector for probabilistic classificaton or numeric vector for regression.
-If y is a factor, the first factor level is treated as the positive class \eqn{c} such that the predicted probabilities 
+If y is a factor, the first factor level is treated as the positive class \eqn{c} such that the predicted probabilities
 are \eqn{P(Y=c|X)}.}
 
-\item{model_specs}{a data structure specifying which learning algorithms, hyperparameters should 
-be cross validated over, and which additional arguments should be 
+\item{model_specs}{a data structure specifying which learning algorithms, hyperparameters should
+be cross validated over, and which additional arguments should be
 passed to each learner. This should be a list where the names of each element are valid \pkg{caret}
 methods (learning algorithms). The list element corresponding to each learning algorithm should itself
-be a list of two elements named \code{tune_grid} (hyperparameters) and \code{extra_args}. 
+be a list of two elements named \code{tune_grid} (hyperparameters) and \code{extra_args}.
 \code{tune_grid} should be a valid \pkg{caret} tune grid of hyperparameters corresponing to the learning algorithm.
 \code{extra_args} is a named list of additional arguments to be passed on to the learning algorithm. See example.}
 
@@ -40,7 +40,7 @@ Cross-validated supervised learning
 \details{
 This is a wrapper around \pkg{caret}'s train function, simplifying the interface
 for the purpose of individual treatment effect meta-learners. Applies cross-validation to select
-the optimal learning algorithm and hyperparameters. Uses RMSE to select among regression models and 
+the optimal learning algorithm and hyperparameters. Uses RMSE to select among regression models and
 deviance (Bernouilli log-likelihood) to select among probabilistic classifiers.
 }
 \examples{
@@ -48,12 +48,12 @@ deviance (Bernouilli log-likelihood) to select among probabilistic classifiers.
 model_specs = list(
 gbm = list(
     tune_grid = expand.grid(
-        n.trees = seq(1,501,20), 
-        interaction.depth=3, 
-        shrinkage = 0.1, 
+        n.trees = seq(1,501,20),
+        interaction.depth=3,
+        shrinkage = 0.1,
         n.minobsinnode=3),
     extra_args = list(
-        verbose=F, 
+        verbose=F,
         bag.fraction=1)),
 glmnet = list(
     tune_grid = expand.grid(
@@ -61,9 +61,9 @@ glmnet = list(
        lambda=exp(seq(-5,2,0.2))),
     extra_args = list())
 )
-c(x, w, y, ...) \%<-\% toy_data_simulation(500) # draw a sample 
+c(x, w, y, ...) \%<-\% toy_data_simulation(500) # draw a sample
 
-best_model_y = learner_cv(x, y, model_specs) 
+best_model_y = learner_cv(x, y, model_specs)
 y_hat = predict(best_model_y, x)
 best_model_w = learner_cv(x, w, model_specs)
 w_hat_prob = predict(best_model_w, x)

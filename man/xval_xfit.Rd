@@ -12,11 +12,11 @@ xval_xfit(x, y, model_specs, economy = T, weights = NULL, k_folds_cf = 5,
 
 \item{y}{a logical vector for probabilistic classificaton or numeric vector for regression.}
 
-\item{model_specs}{a data structure specifying which learning algorithms, hyperparameters should 
-be cross validated over, and which additional arguments should be 
+\item{model_specs}{a data structure specifying which learning algorithms, hyperparameters should
+be cross validated over, and which additional arguments should be
 passed to each learner. This should be a list where the names of each element are valid \pkg{caret}
 methods (learning algorithms). The list element corresponding to each learning algorithm should itself
-be a list of two elements named \code{tune_grid} (hyperparameters) and \code{extra_args}. 
+be a list of two elements named \code{tune_grid} (hyperparameters) and \code{extra_args}.
 \code{tune_grid} should be a valid \pkg{caret} tune grid of hyperparameters corresponing to the learning algorithm.
 \code{extra_args} is a named list of additional arguments to be passed on to the learning algorithm. See example.}
 
@@ -36,9 +36,9 @@ multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some l
 Cross-validated cross-fitting
 }
 \details{
-Provides both a "deluxe" version and an "economy" version. The deluxe version 
-preserves data-splitting independence relations. The "economy version" leaks information from the held-out folds 
-into the predictions on the held-out folds via the hyperparameter selection: data-splitting independence assumptions 
+Provides both a "deluxe" version and an "economy" version. The deluxe version
+preserves data-splitting independence relations. The "economy version" leaks information from the held-out folds
+into the predictions on the held-out folds via the hyperparameter selection: data-splitting independence assumptions
 do not hold and theoretical guarentees do not follow, but the models fit more quickly. Internal cross validation is
 performed via \code{\link{learner_cv}}.
 }
@@ -47,12 +47,12 @@ performed via \code{\link{learner_cv}}.
 model_specs = list(
 gbm = list(
     tune_grid = expand.grid(
-        n.trees = seq(1,501,20), 
-        interaction.depth=3, 
-        shrinkage = 0.1, 
+        n.trees = seq(1,501,20),
+        interaction.depth=3,
+        shrinkage = 0.1,
         n.minobsinnode=3),
     extra_args = list(
-        verbose=F, 
+        verbose=F,
         bag.fraction=1)),
 glmnet = list(
     tune_grid = expand.grid(
@@ -61,9 +61,9 @@ glmnet = list(
     extra_args = list())
 )
 library(zeallot) # imports the \%<-\% operator, which is syntactic sugar that performs multiple assignment out of a list
-c(x, w, y, ...) \%<-\% toy_data_simulation(500) # draw a sample 
+c(x, w, y, ...) \%<-\% toy_data_simulation(500) # draw a sample
 
-y_hat = xval_xfit(x, y, model_specs) 
+y_hat = xval_xfit(x, y, model_specs)
 w_hat_prob = xval_xfit(x, w, model_specs)
 }
 }

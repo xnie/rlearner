@@ -14,7 +14,6 @@
 #' @param lambda_choice how to cross-validate; choose from "lambda.min" or "lambda.1se"
 #' @param mu1_hat pre-computed estimates on E[Y|X,W=1] corresponding to the input x. xlasso will compute it internally if not provided.
 #' @param mu0_hat pre-computed estimates on E[Y|X,W=0] corresponding to the input x. xlasso will compute it internally if not provided.
-#' @param p_hat pre-computed estimates on E[W|X] corresponding to the input x. xlasso will compute it internally if not provided
 #' @examples
 #' \dontrun{
 #' n = 100; p = 10
@@ -117,6 +116,7 @@ xlasso = function(x, w, y,
 #'
 #' @param object a xlasso object
 #' @param newx covariate matrix to make predictions on. If null, return the tau(x) predictions on the training data
+#' @param s choose from "lambda.min" or "lambda.1se
 #' @param ... additional arguments (currently not used)
 #'
 #' @examples
