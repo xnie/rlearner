@@ -11,6 +11,7 @@
 #' @param k_folds_mu1 number of folds for cross validation for the treated
 #' @param k_folds_mu0 number of folds for cross validation for the control
 #' @param lambda_choice how to cross-validate; choose from "lambda.min" or "lambda.1se"
+#' @param penalty_factor user-supplied penalty factor, must be of length the same as number of features in x
 #' @examples
 #' \dontrun{
 #' n = 100; p = 10
@@ -27,7 +28,8 @@ tlasso = function(x, w, y,
                   alpha = 1,
                   k_folds_mu1 = NULL,
                   k_folds_mu0 = NULL,
-                  lambda_choice = c("lambda.min", "lambda.1se")) {
+                  lambda_choice = c("lambda.min", "lambda.1se"),
+                  penalty_factor= NULL) {
 
   c(x, w, y) %<-% sanitize_input(x,w,y)
 
@@ -56,8 +58,15 @@ tlasso = function(x, w, y,
   foldid_1 = sample(rep(seq(k_folds_mu1), length = nobs_1))
   foldid_0 = sample(rep(seq(k_folds_mu0), length = nobs_0))
 
-  t_1_fit = glmnet::cv.glmnet(x_1, y_1, foldid = foldid_1, alpha = alpha)
-  t_0_fit = glmnet::cv.glmnet(x_0, y_0, foldid = foldid_0, alpha = alpha)
+  if (is.null(penalty_factor) || (length(penalty_factor) != pobs)) {
+    penalty_factor = rep(1, pobs)
+    if (!is.null(penalty_factor) && length(penalty_factor) != pobs) {
+      warning("penalty_factor supplied is not of the same length as the number of columns in x. Using all ones instead.")
+    }
+  }
+
+  t_1_fit = glmnet::cv.glmnet(x_1, y_1, foldid = foldid_1, alpha = alpha, penalty.factor=penalty_factor)
+  t_0_fit = glmnet::cv.glmnet(x_0, y_0, foldid = foldid_0, alpha = alpha, penalty.factor=penalty_factor)
 
   y_1_pred = predict(t_1_fit, newx = x, s = lambda_choice)
   y_0_pred = predict(t_0_fit, newx = x, s = lambda_choice)
