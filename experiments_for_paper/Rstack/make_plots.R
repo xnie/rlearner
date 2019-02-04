@@ -4,6 +4,8 @@
 
 rm(list = ls())
 library(RColorBrewer)
+library(latex2exp)
+
 
 sigmas = c(0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4)
 in_use = 1:8
@@ -33,7 +35,7 @@ cols = brewer.pal(3, "Set1")
 
 pdf("rstack_sharp.pdf")
 pardef = par(xpd = FALSE, mar = c(4.5, 5, 3, 3) + 0.5, cex.lab=1.4, cex.axis=1.4, cex.main=1.4, cex.sub=1.4)
-plot(to_plot_a$sigma, to_plot_a$CF, xlab = "sigma", ylab = "RMSE",
+plot(to_plot_a$sigma, to_plot_a$CF, xlab = TeX('noise level $\\sigma$'), ylab = "RMSE",
      log = "xy", ylim = rng, col = cols[1], pch = 15, cex = 1.75)
 lines(to_plot_a$sigma, to_plot_a$CF, col = cols[1])
 points(to_plot_a$sigma, to_plot_a$BART, col = cols[2], pch = 16, cex = 1.75)
