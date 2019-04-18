@@ -1,4 +1,4 @@
-# rlearner: R-learner for Quasi-Oracle Estimation of Heterogenerous Treatment Effects
+# rlearner: R-learner for Quasi-Oracle Estimation of Heterogeneous Treatment Effects
 
 This package implements the R-learner for estimating
 heterogeneous treatment effects, as proposed by Nie and Wager (2017). We consider a
