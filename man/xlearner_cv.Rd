@@ -6,7 +6,7 @@
 \usage{
 xlearner_cv(x, w, y, tau_model_specs, p_model_specs = tau_model_specs,
   mu_model_specs = tau_model_specs, mu0_hat = NULL, mu1_hat = NULL,
-  k_folds = 5, select_by = "best", p_min = 0, p_max = 1)
+  k_folds = 5, select_by = "best", p_min = 0.05, p_max = 0.95)
 }
 \arguments{
 \item{x}{a numeric matrix of \strong{covariates}}
@@ -40,7 +40,7 @@ multiple hyperparameters is governed by \pkg{caret} and may be ad-hoc for some l
 \item{p_max}{If provided, estimated propensities will be trimmed to have maximum \code{p_max}.}
 }
 \description{
-X-learner as proposed by Künzel, Sekhon, Bickel, and Yu (2017), using generic black-box machine learning model from caret
+X-learner as proposed by Kunzel, Sekhon, Bickel, and Yu (2017), using generic black-box machine learning model from caret
 }
 \examples{
 \dontrun{

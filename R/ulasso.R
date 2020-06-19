@@ -2,11 +2,11 @@
 #'
 #' @title U-learner implemented via glmnet (lasso)
 #'
-#' @description U-learner as proposed by Künzel, Sekhon, Bickel, and Yu (2017), implemented via glmnet (lasso)
+#' @description U-learner as proposed by Kunzel, Sekhon, Bickel, and Yu (2017), implemented via glmnet (lasso)
 #'
 #' @param x the input features
-#' @param y the observed response (real valued)
 #' @param w the treatment variable (0 or 1)
+#' @param y the observed response (real valued)
 #' @param alpha tuning parameter for the elastic net
 #' @param k_folds number of folds for cross-fitting
 #' @param lambda_choice how to cross-validate; choose from "lambda.1se" or "lambda.min"

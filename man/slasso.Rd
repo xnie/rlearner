@@ -4,8 +4,9 @@
 \alias{slasso}
 \title{S-learner, implemented via glmnet (lasso)}
 \usage{
-slasso(x, w, y, alpha = 1, k_folds = NULL, lambda_choice = c("lambda.min",
-  "lambda.1se"), penalty_search = FALSE)
+slasso(x, w, y, alpha = 1, k_folds = NULL, foldid = NULL,
+  lambda_choice = c("lambda.min", "lambda.1se"),
+  penalty_search = FALSE)
 }
 \arguments{
 \item{x}{the input features}

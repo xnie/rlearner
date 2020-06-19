@@ -2,7 +2,7 @@
 #'
 #' @title X-learner implemented via xgboost (boosting)
 #'
-#' @description X-learner as proposed by Künzel, Sekhon, Bickel, and Yu (2017), implemented via xgboost (boosting)
+#' @description X-learner as proposed by Kunzel, Sekhon, Bickel, and Yu (2017), implemented via xgboost (boosting)
 #'
 #' @param x the input features
 #' @param w the treatment variable (0 or 1)

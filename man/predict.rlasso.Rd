@@ -7,7 +7,7 @@
 \method{predict}{rlasso}(object, newx = NULL, ...)
 }
 \arguments{
-\item{object}{a rlasso object}
+\item{object}{an rlasso object}
 
 \item{newx}{covariate matrix to make predictions on. If null, return the tau(x) predictions on the training data}
 

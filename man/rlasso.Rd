@@ -5,8 +5,8 @@
 \title{R-learner, implemented via glmnet (lasso)}
 \usage{
 rlasso(x, w, y, alpha = 1, k_folds = NULL, foldid = NULL,
-  lambda_choice = c("lambda.min", "lambda.1se"), rs = FALSE, p_hat = NULL,
-  m_hat = NULL, penalty_factor = NULL)
+  lambda_choice = c("lambda.min", "lambda.1se"), rs = FALSE,
+  p_hat = NULL, m_hat = NULL, penalty_factor = NULL)
 }
 \arguments{
 \item{x}{the input features}
@@ -30,6 +30,9 @@ rlasso(x, w, y, alpha = 1, k_folds = NULL, foldid = NULL,
 \item{m_hat}{user-supplied estimte for E[Y|X]}
 
 \item{penalty_factor}{user-supplied penalty factor, a vector of length the same as the number of covariates in x.}
+}
+\value{
+an rlasso object
 }
 \description{
 R-learner, as proposed by Nie and Wager (2017), implemented via glmnet (lasso)

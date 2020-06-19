@@ -51,7 +51,7 @@ pick_model = function(models) {
 #' be a list of two elements named \code{tune_grid} (hyperparameters) and \code{extra_args}.
 #' \code{tune_grid} should be a valid \pkg{caret} tune grid of hyperparameters corresponing to the learning algorithm.
 #' \code{extra_args} is a named list of additional arguments to be passed on to the learning algorithm. See example.
-#' @param weights optional case weights
+#' @param weights optional case weights. Note that only some caret models support this option for weighted regression. Details see https://topepo.github.io/caret/train-models-by-tag.html#accepts-case-weights
 #' @param k_folds number of cross-validation folds
 #' @param select_by optimization method to use for cross-validation: either \code{"best"} for minimum cross-validation
 #' error or \code{"oneSE"} for the one-standard-error (1-SE) rule. The implementaion of the 1-SE rule for learners with
@@ -184,7 +184,7 @@ resample_predictions = function(learner) {
 #' \code{tune_grid} should be a valid \pkg{caret} tune grid of hyperparameters corresponing to the learning algorithm.
 #' \code{extra_args} is a named list of additional arguments to be passed on to the learning algorithm. See example.
 #' @param economy flag that determines if "economy" or "deluxe" cross-validated cross-estimation is performed
-#' @param weights optional case weights
+#' @param weights optional case weights. Note that only some caret models support this option for weighted regression. Details see https://topepo.github.io/caret/train-models-by-tag.html#accepts-case-weights
 #' @param k_folds_cf number of cross-fitting folds. Unecessary if \code{economy=T}.
 #' @param k_folds number of cross-validation folds
 #' @param select_by optimization method to use for cross-validation: either \code{"best"} for minimum cross-validation

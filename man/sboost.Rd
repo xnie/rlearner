@@ -4,9 +4,10 @@
 \alias{sboost}
 \title{S-learner, implemented via xgboost (boosting)}
 \usage{
-sboost(x, w, y, k_folds = NULL, ntrees_max = 1000, num_search_rounds = 10,
-  print_every_n = 100, early_stopping_rounds = 10, nthread = NULL,
-  verbose = FALSE, bayes_opt = FALSE)
+sboost(x, w, y, k_folds = NULL, ntrees_max = 1000,
+  num_search_rounds = 10, print_every_n = 100,
+  early_stopping_rounds = 10, nthread = NULL, verbose = FALSE,
+  bayes_opt = FALSE)
 }
 \arguments{
 \item{x}{the input features}

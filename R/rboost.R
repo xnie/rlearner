@@ -32,6 +32,7 @@
 #'
 #' @export
 rboost= function(x, w, y,
+                 folds = NULL,
                  k_folds = NULL,
                  p_hat = NULL,
                  m_hat = NULL,
@@ -48,15 +49,17 @@ rboost= function(x, w, y,
   nobs = nrow(x)
   pobs = ncol(x)
 
-  if (is.null(k_folds)) {
-    k_folds = floor(max(3, min(10,length(w)/4)))
+  if (is.null(folds) & is.null(k_folds)) {
+    k_folds = floor(max(3, min(10,length(y)/4)))
   }
+
 
   if (is.null(m_hat)){
     y_fit = cvboost(x,
                     y,
                     objective = "reg:linear",
                     k_folds = k_folds,
+                    folds = folds,
                     ntrees_max = ntrees_max,
                     num_search_rounds = num_search_rounds,
                     print_every_n = print_every_n,
@@ -76,6 +79,7 @@ rboost= function(x, w, y,
                     w,
                     objective = "binary:logistic",
                     k_folds = k_folds,
+                    folds = folds,
                     ntrees_max = ntrees_max,
                     num_search_rounds = num_search_rounds,
                     print_every_n = print_every_n,
@@ -100,6 +104,7 @@ rboost= function(x, w, y,
                     objective = "reg:linear",
                     weights = weights,
                     k_folds = k_folds,
+                    folds = folds,
                     ntrees_max = ntrees_max,
                     num_search_rounds = num_search_rounds,
                     print_every_n = print_every_n,
@@ -143,10 +148,20 @@ rboost= function(x, w, y,
 #' @return vector of predictions
 #' @export
 predict.rboost<- function(object,
-                           newx = NULL,
-                           ...) {
+                          newx = NULL,
+                          tau_only = T,
+                          ...) {
   if (!is.null(newx)){
     newx = sanitize_x(newx)
   }
-  predict(object$tau_fit, newx = newx)
+  if (tau_only) {
+    predict(object$tau_fit, newx = newx)
+  } else {
+    tau = predict(object$tau_fit, newx = newx)
+    e = predict(object$w_fit, newx = newx)
+    m = predict(object$y_fit, newx = newx)
+    mu1 = m + (1-e) * tau
+    mu0 = m - e * tau
+    return(list(tau=tau, e=e, m=m, mu1 = mu1, mu0 = mu0))
+  }
 }

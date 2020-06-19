@@ -2,7 +2,7 @@
 #'
 #' @title U-learner using generic black-box machine learning model from caret
 #'
-#' @description U-learner as proposed by Künzel, Sekhon, Bickel, and Yu (2017), using generic black-box machine learning model from caret
+#' @description U-learner as proposed by Kunzel, Sekhon, Bickel, and Yu (2017), using generic black-box machine learning model from caret
 #'
 #' @param x a numeric matrix of \strong{covariates}
 #' @param w a logical vector indicating \strong{treatment}
@@ -57,25 +57,32 @@ ulearner_cv = function(x, w, y, tau_model_specs,
 	p_hat=NULL, m_hat=NULL,
 	k_folds=5, k_folds_cf=5,
 	economy=T, select_by="best",
-	p_min=0, p_max=1) {
+	p_min=0.05, p_max=0.95) {
 
 	c(x, w, y) %<-% sanitize_input(x,w,y)
 
-	if (is.null(p_hat)) {
-		p_hat = xval_xfit(x, w, p_model_specs,
-			k_folds_cf=k_folds_cf, k_folds=k_folds, economy=economy, select_by=select_by) %>%
-			trim(p_min, p_max)
-	}
-	if (is.null(m_hat)) {
-		m_hat = xval_xfit(x, y, m_model_specs,
-			k_folds_cf=k_folds_cf, k_folds=k_folds, economy=economy, select_by=select_by)
-	}
+  if (is.null(p_hat)) {
+    p_cf = xval_xfit(x, w, p_model_specs,
+                     k_folds_cf=k_folds_cf, k_folds=k_folds, economy=economy, select_by=select_by)
+    p_hat = p_cf$prediction %>% trim(p_min, p_max)
+    p_model = p_cf$model
+  }
+  if (is.null(m_hat)) {
+    m_cf = xval_xfit(x, y, m_model_specs,
+                     k_folds_cf=k_folds_cf, k_folds=k_folds, economy=economy, select_by=select_by)
+    m_hat = m_cf$prediction
+    m_model = m_cf$model
+  }
 
 	r_pseudo_outcome = (y - m_hat)/(w - p_hat)
 
 	ulearner = list(
 		model=learner_cv(x, r_pseudo_outcome, tau_model_specs,
-			k_folds=k_folds, select_by=select_by)
+			k_folds=k_folds, select_by=select_by),
+		p_hat = p_hat,
+		m_hat = m_hat,
+		p_model = p_model,
+		m_model = m_model
 		)
 	class(ulearner) = "ulearner"
 	return(ulearner)

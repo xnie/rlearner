@@ -2,20 +2,20 @@ rm(list = ls())
 
 library(xtable)
 library(data.table)
-learner = "boost"
-learner = "lasso" # uncomment for lasso results
+#learner = "lasso" # uncomment for lasso results
+#learner = "boost" # uncomment for boost results
+#learner = "kernel" # uncomment for kernel results
 
-if (learner != "boost" & learner != "lasso") {
-  stop("learner needs to be boost or lasso")
+if (learner != "boost" & learner != "lasso" & learner != "kernel") {
+  stop("learner needs to be boost or lasso or kernel")
 }
 
-filenames = list.files("results", pattern="*", full.names=TRUE)
+filenames = list.files("resultslasso", pattern="*", full.names=TRUE)
 
 param.names = c("alg", "learner", "setup", "n", "p", "sigma")
 setup.values = c('A', 'B', 'C', 'D')
 
 raw = data.frame(t(sapply(filenames, function(fnm) {
-
   output = read.csv(fnm)[,-1]
   params = strsplit(fnm, "-")[[1]][2:7]
 
@@ -48,8 +48,12 @@ if (learner == "boost") {
 } else if (learner == "lasso") {
   algs = c("S", "T", "X", "U", "R", "RS", "oracle")
   algs.tex = algs
+} else if (learner == "kernel") {
+  algs = c("S", "T", "X", "U", "R", "oracle")
+  algs.tex = algs
 } else {
   stop("learner needs to be boost or lasso")
+
 }
 cols = c(c("setup", "n", "p", "sigma"), algs)
 raw <- raw[, ..cols]
@@ -57,8 +61,15 @@ colnames(raw)[colnames(raw)=="causalboost"] <- "CB"
 colnames(raw)[colnames(raw)=="p"] <- "d"
 
 raw.round = raw
-for (col in (5:11)){
-  raw.round[,col] <- round(as.numeric(unlist(raw[,..col])),2)
+if (learner == "lasso" | learner == "boost"){
+  for (col in (5:11)){
+    raw.round[,col] <- round(as.numeric(unlist(raw[,..col])),2)
+  }
+}
+if (learner == "kernel") {
+  for (col in (5:10)){
+    raw.round[,col] <- round(as.numeric(unlist(raw[,..col])),2)
+  }
 }
 raw = data.frame(apply(raw, 1:2, as.character))
 raw.round = data.frame(apply(raw.round, 1:2, as.character))
@@ -72,7 +83,11 @@ raw.by.setup = lapply(c(setup.values), function(x) raw.round[raw.round$setup==x,
 # write to latex tables
 for (i in seq_along(setup.values)){
   tab.setup = cbind("", raw.by.setup[[i]][,-1])
-  mse.idx = 1 + c(4:9)
+  if (learner == "kernel") {
+    mse.idx = 1 + c(4:8)
+  } else {
+    mse.idx = 1 + c(4:9)
+  }
   for(iter in 1:nrow(tab.setup)) {
     best.idx = mse.idx[which(as.numeric(tab.setup[iter,mse.idx]) == min(as.numeric(tab.setup[iter,mse.idx])))]
     for (j in 1:length(best.idx)) {
@@ -87,6 +102,8 @@ for (i in seq_along(setup.values)){
     xtab.setup = xtable(tab.setup, caption = paste0("\\tt Mean-squared error running \\texttt{boosting} from Setup ", setup.values[i], ". Results are averaged across 200 runs, rounded to two decimal places, and reported on an independent test set of size $n$."), align="ccccccccccc", label=paste0("table:setup",i))
   } else if  (learner == "lasso"){
     xtab.setup = xtable(tab.setup, caption = paste0("\\tt Mean-squared error running \\texttt{lasso} from Setup ", setup.values[i], ". Results are averaged across 500 runs, rounded to two decimal places, and reported on an independent test set of size $n$."), align="ccccccccccc", label=paste0("table:setup",i))
+  } else if  (learner == "kernel"){
+    xtab.setup = xtable(tab.setup, caption = paste0("\\tt Mean-squared error running \\texttt{kernel} from Setup ", setup.values[i], ". Results are averaged across 200 runs, rounded to two decimal places, and reported on an independent test set of size $n$."), align="cccccccccc", label=paste0("table:setup",i))
   }
   names(xtab.setup) <- c(c('n','d','$\\sigma$'), algs.tex)
   print(xtab.setup, include.rownames = FALSE, include.colnames = TRUE, sanitize.text.function = identity, file = paste("tables", "/simulation_results_setup_", setup.values[i], "_", learner, ".tex", sep=""))

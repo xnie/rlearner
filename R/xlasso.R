@@ -2,7 +2,7 @@
 #'
 #' @title X-learner implemented via glmnet (lasso)
 #'
-#' @description X-learner as proposed by Künzel, Sekhon, Bickel, and Yu (2017), implemented via glmnet (lasso)
+#' @description X-learner as proposed by Kunzel, Sekhon, Bickel, and Yu (2017), implemented via glmnet (lasso)
 #'
 #' @param x the input features
 #' @param w the treatment variable (0 or 1)

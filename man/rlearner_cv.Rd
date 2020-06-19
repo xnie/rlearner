@@ -7,7 +7,7 @@
 rlearner_cv(x, w, y, tau_model_specs, p_model_specs = tau_model_specs,
   m_model_specs = tau_model_specs, p_hat = NULL, m_hat = NULL,
   k_folds = 5, k_folds_cf = 5, economy = T, select_by = "best",
-  p_min = 0, p_max = 1)
+  p_min = 0.05, p_max = 0.95)
 }
 \arguments{
 \item{x}{a numeric matrix of \strong{covariates}}

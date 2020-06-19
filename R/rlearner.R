@@ -59,18 +59,27 @@ rlearner_cv = function(x, w, y, tau_model_specs,
 	p_hat=NULL, m_hat=NULL,
 	k_folds=5, k_folds_cf=5,
 	economy=T, select_by="best",
-	p_min=0, p_max=1) {
+	p_min=0.05, p_max=0.95) {
 
 	c(x, w, y) %<-% sanitize_input(x,w,y)
+  m_model = NULL
+  p_model = NULL
 
+
+  start_time <- Sys.time()
 	if (is.null(p_hat)) {
-		p_hat = xval_xfit(x, w, p_model_specs,
-			k_folds_cf=k_folds_cf, k_folds=k_folds, economy=economy, select_by=select_by) %>%
-			trim(p_min, p_max)
+	  print("start getting e hat")
+		p_cf = xval_xfit(x, w, p_model_specs,
+			k_folds_cf=k_folds_cf, k_folds=k_folds, economy=economy, select_by=select_by)
+		p_hat = p_cf$prediction %>% trim(p_min, p_max)
+		p_model = p_cf$model
 	}
 	if (is.null(m_hat)) {
-		m_hat = xval_xfit(x, y, m_model_specs,
+	  print("start getting m hat")
+		m_cf = xval_xfit(x, y, m_model_specs,
 			k_folds_cf=k_folds_cf, k_folds=k_folds, economy=economy, select_by=select_by)
+		m_hat = m_cf$prediction
+		m_model = m_cf$model
 	}
 
 	r_pseudo_outcome = (y - m_hat)/(w - p_hat)
@@ -81,7 +90,9 @@ rlearner_cv = function(x, w, y, tau_model_specs,
 		model=learner_cv(x, r_pseudo_outcome, tau_model_specs, weights=r_weights,
 			k_folds=k_folds, select_by=select_by),
 		m_hat=m_hat,
-		p_hat=p_hat
+		p_hat=p_hat,
+		m_model=m_model,
+		p_model=p_model
 		)
 	class(rlearner) = "rlearner"
 	return(rlearner)

@@ -4,8 +4,8 @@
 \alias{xval_xfit}
 \title{Cross-validated cross-fitting}
 \usage{
-xval_xfit(x, y, model_specs, economy = T, weights = NULL, k_folds_cf = 5,
-  k_folds = 5, select_by = "best")
+xval_xfit(x, y, model_specs, economy = T, weights = NULL,
+  k_folds_cf = 5, k_folds = 5, select_by = "best")
 }
 \arguments{
 \item{x}{a numeric matrix of features}
@@ -22,7 +22,7 @@ be a list of two elements named \code{tune_grid} (hyperparameters) and \code{ext
 
 \item{economy}{flag that determines if "economy" or "deluxe" cross-validated cross-estimation is performed}
 
-\item{weights}{optional case weights}
+\item{weights}{optional case weights. Note that only some caret models support this option for weighted regression. Details see https://topepo.github.io/caret/train-models-by-tag.html#accepts-case-weights}
 
 \item{k_folds_cf}{number of cross-fitting folds. Unecessary if \code{economy=T}.}
 

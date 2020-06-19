@@ -30,7 +30,7 @@ xlasso(x, w, y, alpha = 1, k_folds_mu1 = NULL, k_folds_mu0 = NULL,
 \item{mu0_hat}{pre-computed estimates on E[Y|X,W=0] corresponding to the input x. xlasso will compute it internally if not provided.}
 }
 \description{
-X-learner as proposed by Künzel, Sekhon, Bickel, and Yu (2017), implemented via glmnet (lasso)
+X-learner as proposed by Kunzel, Sekhon, Bickel, and Yu (2017), implemented via glmnet (lasso)
 }
 \examples{
 \dontrun{

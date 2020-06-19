@@ -15,6 +15,7 @@
 #' @param p_hat user-supplied estimate for E[W|X]
 #' @param m_hat user-supplied estimte for E[Y|X]
 #' @param penalty_factor user-supplied penalty factor, a vector of length the same as the number of covariates in x.
+#' @return an rlasso object
 #'
 #' @examples
 #' \dontrun{
@@ -157,7 +158,7 @@ rlasso = function(x, w, y,
 #'
 #' get estimated tau(x) using the trained rlasso model
 #'
-#' @param object a rlasso object
+#' @param object an rlasso object
 #' @param newx covariate matrix to make predictions on. If null, return the tau(x) predictions on the training data
 #' @param ... additional arguments (currently not used)
 #'

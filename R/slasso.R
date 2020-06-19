@@ -26,6 +26,7 @@
 slasso = function(x, w, y,
                   alpha = 1,
                   k_folds = NULL,
+                  foldid = NULL,
                   lambda_choice = c("lambda.min", "lambda.1se"),
                   penalty_search = FALSE) {
 
@@ -40,12 +41,21 @@ slasso = function(x, w, y,
   nobs = nrow(x_scl)
   pobs = ncol(x_scl)
 
-  if (is.null(k_folds)) {
-    k_folds = floor(max(3, min(10, nobs/4)))
-  }
 
-  # fold ID for cross-validation; balance treatment assignments
-  foldid = sample(rep(seq(k_folds), length = nobs))
+    if (is.null(foldid) || length(foldid) != length(w)) {
+
+      if (!is.null(foldid) && length(foldid) != length(w)) {
+        warning("supplied foldid does not have the same length ")
+      }
+
+      if (is.null(k_folds)) {
+          k_folds = floor(max(3, min(10,length(w)/4)))
+      }
+
+      # fold ID for cross-validation; balance treatment assignments
+      foldid = sample(rep(seq(k_folds), length = length(w)))
+
+    }
 
   x_scl_tilde = cbind(as.numeric(2 * w - 1) * cbind(1, x_scl), x_scl)
   x_scl_pred = cbind(1, x_scl, 0 * x_scl)

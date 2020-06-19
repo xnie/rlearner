@@ -1,29 +1,36 @@
 Package: rlearner
 Title: R-learner for Hetereogeneous Treatment Effect Estimation
-Version: 0.0.0.1
+Version: 1.1.0
 Authors@R: c(person("Xinkun", "Nie", email = "xinkun@stanford.edu",role = c("aut", "cre")), person("Alejandro", "Schuler", email = "aschuler@stanford.edu", role = "aut"), person("Stefan", "Wager", email = "swager@stanford.edu", role = "aut"))
 Description: R-learner for quasi-oracle estimation of hetereogeneous treatment effects
 Depends: R (>= 3.4.0)
-Imports: splines, stats, Rlab, glmnet, magrittr, caret, zeallot, dplyr, tidyr, purrr, xgboost, rBayesianOptimization, parallel, stringr
-Suggests: testthat
+Imports: splines, stats, Rlab, glmnet, magrittr, caret, zeallot, dplyr, tidyr, purrr, xgboost, parallel, stringr
+Suggests: testthat, KRLS2, causalLearning, rBayesianOptimization
 License: none
-RoxygenNote: 6.0.1.9000
+RoxygenNote: 6.1.1
+Encoding: UTF-8
 Collate:
     'cvboost.R'
+    'cvkern.R'
     'utils.R'
     'learner_utils.R'
     'rboost.R'
+    'rkern.R'
     'rlasso.R'
     'rlearner.R'
     'sboost.R'
+    'skern.R'
     'slasso.R'
     'slearner.R'
     'tboost.R'
+    'tkern.R'
     'tlasso.R'
     'tlearner.R'
     'uboost.R'
+    'ukern.R'
     'ulasso.R'
     'ulearner.R'
     'xboost.R'
+    'xkern.R'
     'xlasso.R'
     'xlearner.R'

@@ -2,7 +2,7 @@
 #'
 #' @title X-learner using generic black-box machine learning model from caret
 #'
-#' @description X-learner as proposed by Künzel, Sekhon, Bickel, and Yu (2017), using generic black-box machine learning model from caret
+#' @description X-learner as proposed by Kunzel, Sekhon, Bickel, and Yu (2017), using generic black-box machine learning model from caret
 #'
 #' @param x a numeric matrix of \strong{covariates}
 #' @param w a logical vector indicating \strong{treatment}
@@ -51,7 +51,7 @@ xlearner_cv = function(x, w, y, tau_model_specs,
 	p_model_specs=tau_model_specs, mu_model_specs=tau_model_specs,
 	mu0_hat=NULL, mu1_hat=NULL,
 	k_folds=5, select_by="best",
-	p_min=0, p_max=1) {
+	p_min=0.05, p_max=0.95) {
 
 	c(x, w, y) %<-% sanitize_input(x,w,y)
 

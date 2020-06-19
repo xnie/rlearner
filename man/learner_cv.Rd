@@ -22,7 +22,7 @@ be a list of two elements named \code{tune_grid} (hyperparameters) and \code{ext
 \code{tune_grid} should be a valid \pkg{caret} tune grid of hyperparameters corresponing to the learning algorithm.
 \code{extra_args} is a named list of additional arguments to be passed on to the learning algorithm. See example.}
 
-\item{weights}{optional case weights}
+\item{weights}{optional case weights. Note that only some caret models support this option for weighted regression. Details see https://topepo.github.io/caret/train-models-by-tag.html#accepts-case-weights}
 
 \item{k_folds}{number of cross-validation folds}
 

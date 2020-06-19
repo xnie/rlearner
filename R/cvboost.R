@@ -30,6 +30,7 @@
 cvboost = function(x,
                    y,
                    weights=NULL,
+                   folds=NULL,
                    k_folds=NULL,
                    objective=c("reg:linear", "binary:logistic"),
                    ntrees_max=1000,
@@ -51,7 +52,7 @@ cvboost = function(x,
     stop("objective not defined.")
   }
 
-  if (is.null(k_folds)) {
+  if (is.null(folds) & is.null(k_folds)) {
     k_folds = floor(max(3, min(10,length(y)/4)))
   }
   if (is.null(weights)) {
@@ -69,6 +70,10 @@ cvboost = function(x,
   }
 
   if (bayes_opt){ # WARNING: in beta version; very slow!
+    bayesopt_available = requireNamespace("rBayesianOptimization", quietly = TRUE)
+    if (!bayesopt_available) {
+      stop("rBayesianOptimization needs to be installed for running with bayes_opt=T for boosting.")
+    }
     xgb_cv_bayes <- function(subsample, eta, max_depth, min_child_weight) {
       xgb_cv_args = list(params = list(subsample = subsample,
                                        eta = eta,
@@ -81,6 +86,7 @@ cvboost = function(x,
                          data = dtrain,
                          nround = ntrees_max,
                          nfold = k_folds,
+                         folds = folds,
                          prediction = TRUE,
                          showsd = TRUE,
                          early_stopping_rounds = 10,
@@ -111,6 +117,7 @@ cvboost = function(x,
                           data = dtrain,
                           nround = ntrees_max,
                           nfold = k_folds,
+                          folds = folds,
                           prediction = TRUE,
                           showsd = TRUE,
                           early_stopping_rounds = 10,
@@ -141,6 +148,7 @@ cvboost = function(x,
                          param = param,
                          missing = NA,
                          nfold = k_folds,
+                         folds = folds,
                          prediction = TRUE,
                          early_stopping_rounds = early_stopping_rounds,
                          maximize = FALSE,

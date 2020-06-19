@@ -4,8 +4,9 @@
 \alias{ulasso}
 \title{U-learner implemented via glmnet (lasso)}
 \usage{
-ulasso(x, w, y, alpha = 1, k_folds = NULL, lambda_choice = c("lambda.1se",
-  "lambda.min"), p_hat = NULL, m_hat = NULL, cutoff = 0.05)
+ulasso(x, w, y, alpha = 1, k_folds = NULL,
+  lambda_choice = c("lambda.1se", "lambda.min"), p_hat = NULL,
+  m_hat = NULL, cutoff = 0.05)
 }
 \arguments{
 \item{x}{the input features}
@@ -27,7 +28,7 @@ ulasso(x, w, y, alpha = 1, k_folds = NULL, lambda_choice = c("lambda.1se",
 \item{cutoff}{the threshold to cutoff propensity estimate}
 }
 \description{
-U-learner as proposed by Künzel, Sekhon, Bickel, and Yu (2017), implemented via glmnet (lasso)
+U-learner as proposed by Kunzel, Sekhon, Bickel, and Yu (2017), implemented via glmnet (lasso)
 }
 \examples{
 \dontrun{

@@ -4,10 +4,11 @@
 \alias{cvboost}
 \title{Gradient boosting for regression and classification with cross validation to search for hyper-parameters (implemented with xgboost)}
 \usage{
-cvboost(x, y, weights = NULL, k_folds = NULL, objective = c("reg:linear",
-  "binary:logistic"), ntrees_max = 1000, num_search_rounds = 10,
-  print_every_n = 100, early_stopping_rounds = 10, nthread = NULL,
-  verbose = FALSE, bayes_opt = FALSE)
+cvboost(x, y, weights = NULL, folds = NULL, k_folds = NULL,
+  objective = c("reg:linear", "binary:logistic"), ntrees_max = 1000,
+  num_search_rounds = 10, print_every_n = 100,
+  early_stopping_rounds = 10, nthread = NULL, verbose = FALSE,
+  bayes_opt = FALSE)
 }
 \arguments{
 \item{x}{the input features}

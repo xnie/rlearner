@@ -4,10 +4,10 @@
 \alias{rboost}
 \title{R-learner, implemented via xgboost (boosting)}
 \usage{
-rboost(x, w, y, k_folds = NULL, p_hat = NULL, m_hat = NULL,
-  ntrees_max = 1000, num_search_rounds = 10, print_every_n = 100,
-  early_stopping_rounds = 10, nthread = NULL, verbose = FALSE,
-  bayes_opt = FALSE)
+rboost(x, w, y, folds = NULL, k_folds = NULL, p_hat = NULL,
+  m_hat = NULL, ntrees_max = 1000, num_search_rounds = 10,
+  print_every_n = 100, early_stopping_rounds = 10, nthread = NULL,
+  verbose = FALSE, bayes_opt = FALSE)
 }
 \arguments{
 \item{x}{the input features}
