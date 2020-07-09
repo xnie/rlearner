@@ -58,7 +58,13 @@ ulasso = function(x, w, y,
 
   if (is.null(p_hat)){
     w_fit = glmnet::cv.glmnet(x, w, foldid = foldid, keep = TRUE, family = "binomial", type.measure = "deviance", alpha = alpha)
-    p_hat = w_fit$fit.preval[,!is.na(colSums(w_fit$fit.preval))][, w_fit$lambda == w_fit$lambda.min]
+    theta_hat = w_fit$fit.preval[,!is.na(colSums(w_fit$fit.preval))][, w_fit$lambda == w_fit$lambda.min]
+
+    if (packageVersion("glmnet") >= "4.0.2") {
+      p_hat = 1/(1 + exp(-theta_hat))
+    } else {
+      stop("Only tested on glmnet version 4.0.2. Older versions might not work. Please upgrade glmnet.")
+    }
   }
   else{
     w_fit = NULL

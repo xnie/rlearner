@@ -104,15 +104,20 @@ rlasso = function(x, w, y,
 
     if (is.null(p_hat)){
       w_fit = glmnet::cv.glmnet(x, w,
-                                foldid = foldid,
-                                keep = TRUE,
-                                family = "binomial",
-                                type.measure = "deviance",
-                                alpha = alpha,
-                                penalty.factor = penalty_factor_nuisance)
+                               foldid = foldid,
+                               family="binomial",
+                               type.measure="deviance",
+                               keep = TRUE,
+                               alpha = alpha,
+                               penalty.factor = penalty_factor_nuisance)
 
       w_lambda_min = w_fit$lambda[which.min(w_fit$cvm[!is.na(colSums(w_fit$fit.preval))])]
-      p_hat = w_fit$fit.preval[,!is.na(colSums(w_fit$fit.preval))][, w_fit$lambda[!is.na(colSums(w_fit$fit.preval))] == w_lambda_min]
+      theta_hat = w_fit$fit.preval[,!is.na(colSums(w_fit$fit.preval))][, w_fit$lambda[!is.na(colSums(w_fit$fit.preval))] == w_lambda_min]
+      if (packageVersion("glmnet") >= "4.0.2") {
+        p_hat = 1/(1 + exp(-theta_hat))
+      } else {
+        stop("Only tested on glmnet version 4.0.2. Older versions might not work. Please upgrade glmnet.")
+      }
     }
     else{
       w_fit = NULL
