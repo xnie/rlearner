@@ -113,11 +113,7 @@ rlasso = function(x, w, y,
 
       w_lambda_min = w_fit$lambda[which.min(w_fit$cvm[!is.na(colSums(w_fit$fit.preval))])]
       theta_hat = w_fit$fit.preval[,!is.na(colSums(w_fit$fit.preval))][, w_fit$lambda[!is.na(colSums(w_fit$fit.preval))] == w_lambda_min]
-      if (packageVersion("glmnet") >= "4.0.2") {
-        p_hat = 1/(1 + exp(-theta_hat))
-      } else {
-        stop("Only tested on glmnet version 4.0.2. Older versions might not work. Please upgrade glmnet.")
-      }
+      p_hat = 1/(1 + exp(-theta_hat))
     }
     else{
       w_fit = NULL
