@@ -4,9 +4,9 @@
 \alias{ulasso}
 \title{U-learner implemented via glmnet (lasso)}
 \usage{
-ulasso(x, w, y, alpha = 1, k_folds = NULL,
-  lambda_choice = c("lambda.1se", "lambda.min"), p_hat = NULL,
-  m_hat = NULL, cutoff = 0.05)
+ulasso(x, w, y, alpha = 1, k_folds = NULL, lambda_y = NULL,
+  lambda_w = NULL, lambda_tau = NULL, lambda_choice = c("lambda.1se",
+  "lambda.min"), p_hat = NULL, m_hat = NULL, cutoff = 0.05)
 }
 \arguments{
 \item{x}{the input features}
@@ -18,6 +18,12 @@ ulasso(x, w, y, alpha = 1, k_folds = NULL,
 \item{alpha}{tuning parameter for the elastic net}
 
 \item{k_folds}{number of folds for cross-fitting}
+
+\item{lambda_y}{user-supplied lambda sequence for cross validation in learning E[y|x]}
+
+\item{lambda_w}{user-supplied lambda sequence for cross validation in learning E[w|x]}
+
+\item{lambda_tau}{user-supplied lambda sequence for cross validation in learning the treatment effect E[y(1) - y(0) | x]}
 
 \item{lambda_choice}{how to cross-validate; choose from "lambda.1se" or "lambda.min"}
 

@@ -5,8 +5,8 @@
 \title{S-learner, implemented via glmnet (lasso)}
 \usage{
 slasso(x, w, y, alpha = 1, k_folds = NULL, foldid = NULL,
-  lambda_choice = c("lambda.min", "lambda.1se"),
-  penalty_search = FALSE)
+  lambda = NULL, lambda_choice = c("lambda.min", "lambda.1se"),
+  penalty_factor = NULL)
 }
 \arguments{
 \item{x}{the input features}
@@ -19,9 +19,11 @@ slasso(x, w, y, alpha = 1, k_folds = NULL, foldid = NULL,
 
 \item{k_folds}{number of folds for cross validation}
 
+\item{lambda}{user-supplied lambda sequence for cross validation}
+
 \item{lambda_choice}{how to cross-validate; choose from "lambda.min" or "lambda.1se"}
 
-\item{penalty_search}{whether to perform fine grainted penalty_factor search (logical)}
+\item{penalty_factor}{user-supplied penalty factor, must be of length the same as number of features in x}
 }
 \description{
 S-learner, as proposed by Imai and Ratkovic (2013), implemented via glmnet (lasso)

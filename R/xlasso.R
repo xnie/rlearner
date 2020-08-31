@@ -11,6 +11,9 @@
 #' @param k_folds_mu1 number of folds for learning E[Y|X,W=1]
 #' @param k_folds_mu0 number of folds for learning E[Y|X,W=0]
 #' @param k_folds_p number of folds for learning E[W|X]
+#' @param lambda_t user-supplied lambda sequence for cross validation in learning E[y|x,w=0] and E[y|x,w=1]
+#' @param lambda_x user-supplied lambda sequence for cross validation in learning E[d1|x] and E[d0|x] where d1 = y1 - E[y|x,w=0] and d0 = y0 - E[y|x,w=1]
+#' @param lambda_w user-supplied lambda sequence for cross validation in learning E[w|x]
 #' @param lambda_choice how to cross-validate; choose from "lambda.min" or "lambda.1se"
 #' @param mu1_hat pre-computed estimates on E[Y|X,W=1] corresponding to the input x. xlasso will compute it internally if not provided.
 #' @param mu0_hat pre-computed estimates on E[Y|X,W=0] corresponding to the input x. xlasso will compute it internally if not provided.
@@ -33,11 +36,17 @@ xlasso = function(x, w, y,
                   k_folds_mu1 = NULL,
                   k_folds_mu0 = NULL,
                   k_folds_p = NULL,
+                  lambda_t = NULL,
+                  lambda_x = NULL,
+                  lambda_w = NULL,
                   lambda_choice = c("lambda.min", "lambda.1se"),
                   mu1_hat = NULL,
                   mu0_hat = NULL){
 
   c(x, w, y) %<-% sanitize_input(x,w,y)
+  if (!is.logical(w)) {
+    stop("w should be a logical vector")
+  }
 
   lambda_choice = match.arg(lambda_choice)
 
@@ -71,27 +80,36 @@ xlasso = function(x, w, y,
   foldid_w = sample(rep(seq(k_folds_p), length = nobs))
 
   if (is.null(mu1_hat)){
-    t_1_fit = glmnet::cv.glmnet(x_1, y_1, foldid = foldid_1, alpha = alpha)
+    t_1_fit = glmnet::cv.glmnet(x_1, y_1, foldid = foldid_1, lambda = lambda_t, alpha = alpha)
     mu1_hat = predict(t_1_fit, newx = x, s = lambda_choice)
   }
 
   if (is.null(mu0_hat)){
-    t_0_fit = glmnet::cv.glmnet(x_0, y_0, foldid = foldid_0, alpha = alpha)
+    t_0_fit = glmnet::cv.glmnet(x_0, y_0, foldid = foldid_0, lambda = lambda_t, alpha = alpha)
     mu0_hat = predict(t_0_fit, newx = x, s = lambda_choice)
   }
 
   d_1 = y_1 - mu0_hat[w==1]
   d_0 = mu1_hat[w==0] - y_0
 
-  x_1_fit = glmnet::cv.glmnet(x_1, d_1, foldid = foldid_1, alpha = alpha)
-  x_0_fit = glmnet::cv.glmnet(x_0, d_0, foldid = foldid_0, alpha = alpha)
+  x_1_fit = glmnet::cv.glmnet(x_1, d_1, foldid = foldid_1, lambda = lambda_x, alpha = alpha)
+  x_0_fit = glmnet::cv.glmnet(x_0, d_0, foldid = foldid_0, lambda = lambda_x, alpha = alpha)
 
   tau_1_pred = predict(x_1_fit, newx = x, s = lambda_choice)
   tau_0_pred = predict(x_0_fit, newx = x, s = lambda_choice)
 
-  w_fit = glmnet::cv.glmnet(x, w, foldid = foldid_w, keep = TRUE, family = "binomial", type.measure = "deviance", alpha = alpha)
-  theta_hat = w_fit$fit.preval[,!is.na(colSums(w_fit$fit.preval))][, w_fit$lambda == w_fit$lambda.min]
-  p_hat = 1/(1 + exp(-theta_hat))
+    w_fit = glmnet::cv.glmnet(x, w,
+                             foldid = foldid,
+                             family="binomial",
+                             type.measure="deviance",
+                             lambda = lambda_w,
+                             keep = TRUE,
+                             alpha = alpha,
+                             penalty.factor = penalty_factor_nuisance)
+
+    w_lambda_min = w_fit$lambda[which.min(w_fit$cvm[!is.na(colSums(w_fit$fit.preval))])]
+    theta_hat = w_fit$fit.preval[,!is.na(colSums(w_fit$fit.preval))][, w_fit$lambda[!is.na(colSums(w_fit$fit.preval))] == w_lambda_min]
+    p_hat = 1/(1 + exp(-theta_hat))
 
   tau_hat = tau_1_pred * (1 - p_hat) + tau_0_pred * p_hat
 

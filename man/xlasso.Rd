@@ -5,7 +5,8 @@
 \title{X-learner implemented via glmnet (lasso)}
 \usage{
 xlasso(x, w, y, alpha = 1, k_folds_mu1 = NULL, k_folds_mu0 = NULL,
-  k_folds_p = NULL, lambda_choice = c("lambda.min", "lambda.1se"),
+  k_folds_p = NULL, lambda_t = NULL, lambda_x = NULL,
+  lambda_w = NULL, lambda_choice = c("lambda.min", "lambda.1se"),
   mu1_hat = NULL, mu0_hat = NULL)
 }
 \arguments{
@@ -22,6 +23,12 @@ xlasso(x, w, y, alpha = 1, k_folds_mu1 = NULL, k_folds_mu0 = NULL,
 \item{k_folds_mu0}{number of folds for learning E[Y|X,W=0]}
 
 \item{k_folds_p}{number of folds for learning E[W|X]}
+
+\item{lambda_t}{user-supplied lambda sequence for cross validation in learning E[y|x,w=0] and E[y|x,w=1]}
+
+\item{lambda_x}{user-supplied lambda sequence for cross validation in learning E[d1|x] and E[d0|x] where d1 = y1 - E[y|x,w=0] and d0 = y0 - E[y|x,w=1]}
+
+\item{lambda_w}{user-supplied lambda sequence for cross validation in learning E[w|x]}
 
 \item{lambda_choice}{how to cross-validate; choose from "lambda.min" or "lambda.1se"}
 

@@ -10,7 +10,10 @@
 #' @param alpha tuning parameter for the elastic net
 #' @param k_folds number of folds for cross-fitting
 #' @param foldid user-supplied foldid. Must have length equal to length(w). If provided, it overrides the k_folds option.
-#' @param lambda_choice how to cross-validate; choose from "lambda.min" or "lambda.1se"
+#' @param lambda_y user-supplied lambda sequence for cross validation in learning E[y|x]
+#' @param lambda_w user-supplied lambda sequence for cross validation in learning E[w|x]
+#' @param lambda_tau user-supplied lambda sequence for cross validation in learning the treatment effect E[y(1) - y(0) | x]
+#' @param lambda_choice how to cross-validate for learning the treatment effect tau; choose from "lambda.min" or "lambda.1se"
 #' @param rs whether to use the RS-learner (logical).
 #' @param p_hat user-supplied estimate for E[W|X]
 #' @param m_hat user-supplied estimte for E[Y|X]
@@ -33,6 +36,9 @@ rlasso = function(x, w, y,
                   alpha = 1,
                   k_folds = NULL,
                   foldid = NULL,
+                  lambda_y = NULL,
+                  lambda_w = NULL,
+                  lambda_tau = NULL,
                   lambda_choice = c("lambda.min","lambda.1se"),
                   rs = FALSE,
                   p_hat = NULL,
@@ -92,6 +98,7 @@ rlasso = function(x, w, y,
       y_fit = glmnet::cv.glmnet(x, y,
                                 foldid = foldid,
                                 keep = TRUE,
+                                lambda = lambda_y,
                                 alpha = alpha,
                                 penalty.factor = penalty_factor_nuisance)
 
@@ -103,17 +110,31 @@ rlasso = function(x, w, y,
     }
 
     if (is.null(p_hat)){
+
+    if (is.logical(w)) {
       w_fit = glmnet::cv.glmnet(x, w,
                                foldid = foldid,
                                family="binomial",
                                type.measure="deviance",
                                keep = TRUE,
+                               lambda = lambda_w,
                                alpha = alpha,
                                penalty.factor = penalty_factor_nuisance)
 
       w_lambda_min = w_fit$lambda[which.min(w_fit$cvm[!is.na(colSums(w_fit$fit.preval))])]
       theta_hat = w_fit$fit.preval[,!is.na(colSums(w_fit$fit.preval))][, w_fit$lambda[!is.na(colSums(w_fit$fit.preval))] == w_lambda_min]
       p_hat = 1/(1 + exp(-theta_hat))
+  	} else {
+      w_fit = glmnet::cv.glmnet(x, w,
+                               foldid = foldid,
+                               lambda = lambda_w,
+                               keep = TRUE,
+                               alpha = alpha,
+                               penalty.factor = penalty_factor_nuisance)
+
+      w_lambda_min = w_fit$lambda[which.min(w_fit$cvm[!is.na(colSums(w_fit$fit.preval))])]
+      p_hat = w_fit$fit.preval[,!is.na(colSums(w_fit$fit.preval))][, w_fit$lambda[!is.na(colSums(w_fit$fit.preval))] == w_lambda_min]
+  	}
     }
     else{
       w_fit = NULL
@@ -134,6 +155,7 @@ rlasso = function(x, w, y,
                                 y_tilde,
                                 foldid = foldid,
                                 alpha = alpha,
+                                lambda = lambda_tau,
                                 penalty.factor = penalty_factor_tau,
                                 standardize = FALSE)
 

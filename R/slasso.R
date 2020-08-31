@@ -9,8 +9,9 @@
 #' @param y the observed response (real valued)
 #' @param alpha tuning parameter for the elastic net
 #' @param k_folds number of folds for cross validation
+#' @param lambda user-supplied lambda sequence for cross validation
 #' @param lambda_choice how to cross-validate; choose from "lambda.min" or "lambda.1se"
-#' @param penalty_search whether to perform fine grainted penalty_factor search (logical)
+#' @param penalty_factor user-supplied penalty factor, must be of length the same as number of features in x
 #' @examples
 #' \dontrun{
 #' n = 100; p = 10
@@ -27,8 +28,9 @@ slasso = function(x, w, y,
                   alpha = 1,
                   k_folds = NULL,
                   foldid = NULL,
+                  lambda = NULL,
                   lambda_choice = c("lambda.min", "lambda.1se"),
-                  penalty_search = FALSE) {
+                  penalty_factor = NULL){
 
   c(x, w, y) %<-% sanitize_input(x,w,y)
 
@@ -59,55 +61,15 @@ slasso = function(x, w, y,
 
   x_scl_tilde = cbind(as.numeric(2 * w - 1) * cbind(1, x_scl), x_scl)
   x_scl_pred = cbind(1, x_scl, 0 * x_scl)
-  if (penalty_search) {
-    search_range = 5
-    cvm_min = Inf
-    last_best = NULL
-    for (l in 0:2){
 
-      updated = FALSE
-
-      for (i in 1:search_range){
-
-        if (l==0){
-          penalty_factor = c(0, rep(10^(i- ceiling(search_range / 2.0)), pobs), rep(1, pobs))
-        }
-        else{
-          penalty_factor = c(0, rep(10^(last_best - 10^(-l + 1) + 20.0 / search_range * 10^(-l) * i), pobs), rep(1, pobs))
-        }
-        s_fit <- glmnet::cv.glmnet(x = x_scl_tilde, y = y, foldid = foldid, penalty.factor = penalty_factor, standardize = FALSE, alpha = alpha)
-        s_fit_cvm = s_fit$cvm[s_fit$lambda == s_fit$lambda.min]
-        s_beta = as.vector(t(coef(s_fit, s=lambda_choice)[-1]))
-        if (s_fit_cvm < cvm_min){
-          cvm_min = s_fit_cvm
-          s_fit_best = s_fit
-          if (l==0){
-            best_i = i - ceiling(search_range/2.0)
-          }
-          else{
-            best_i = i
-          }
-          best_penalty_factor = penalty_factor
-          updated = TRUE
-        }
-      }
-
-      if (l==0){
-        last_best = best_i
-      }
-      else{
-        if (updated){
-          last_best = last_best - 10^(-l + 1) + 20 / search_range * 10^(-l) * best_i
-        }
-      }
-    }
-    penalty_factor = best_penalty_factor
-  }
-  else{
+  if (is.null(penalty_factor) || (length(penalty_factor) != pobs)) {
     penalty_factor = c(0, rep(1, 2 * pobs))
+    if (!is.null(penalty_factor) && length(penalty_factor) != pobs) {
+      warning("penalty_factor supplied is not of the same length as the number of columns in x. Using all ones instead.")
+    }
   }
 
-  s_fit = glmnet::cv.glmnet(x_scl_tilde, y, foldid = foldid,
+  s_fit = glmnet::cv.glmnet(x_scl_tilde, y, foldid = foldid, lambda = lambda,
                             penalty.factor = penalty_factor,
                             standardize = FALSE, alpha = alpha)
 

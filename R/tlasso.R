@@ -10,6 +10,7 @@
 #' @param alpha tuning parameter for the elastic net
 #' @param k_folds_mu1 number of folds for cross validation for the treated
 #' @param k_folds_mu0 number of folds for cross validation for the control
+#' @param lambda user-supplied lambda sequence for cross validation
 #' @param lambda_choice how to cross-validate; choose from "lambda.min" or "lambda.1se"
 #' @param penalty_factor user-supplied penalty factor, must be of length the same as number of features in x
 #' @examples
@@ -28,10 +29,15 @@ tlasso = function(x, w, y,
                   alpha = 1,
                   k_folds_mu1 = NULL,
                   k_folds_mu0 = NULL,
+                  lambda = NULL,
                   lambda_choice = c("lambda.min", "lambda.1se"),
                   penalty_factor= NULL) {
 
   c(x, w, y) %<-% sanitize_input(x,w,y)
+  if (!is.logical(w)) {
+    stop("w should be a logical vector")
+  }
+
 
   lambda_choice = match.arg(lambda_choice)
 
@@ -65,8 +71,8 @@ tlasso = function(x, w, y,
     }
   }
 
-  t_1_fit = glmnet::cv.glmnet(x_1, y_1, foldid = foldid_1, alpha = alpha, penalty.factor=penalty_factor)
-  t_0_fit = glmnet::cv.glmnet(x_0, y_0, foldid = foldid_0, alpha = alpha, penalty.factor=penalty_factor)
+  t_1_fit = glmnet::cv.glmnet(x_1, y_1, foldid = foldid_1, alpha = alpha, lambda = lambda, penalty.factor=penalty_factor)
+  t_0_fit = glmnet::cv.glmnet(x_0, y_0, foldid = foldid_0, alpha = alpha, lambda = lambda, penalty.factor=penalty_factor)
 
   y_1_pred = predict(t_1_fit, newx = x, s = lambda_choice)
   y_0_pred = predict(t_0_fit, newx = x, s = lambda_choice)

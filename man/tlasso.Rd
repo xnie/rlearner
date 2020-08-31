@@ -5,7 +5,8 @@
 \title{T-learner, implemented via glmnet (lasso)}
 \usage{
 tlasso(x, w, y, alpha = 1, k_folds_mu1 = NULL, k_folds_mu0 = NULL,
-  lambda_choice = c("lambda.min", "lambda.1se"), penalty_factor = NULL)
+  lambda = NULL, lambda_choice = c("lambda.min", "lambda.1se"),
+  penalty_factor = NULL)
 }
 \arguments{
 \item{x}{the input features}
@@ -19,6 +20,8 @@ tlasso(x, w, y, alpha = 1, k_folds_mu1 = NULL, k_folds_mu0 = NULL,
 \item{k_folds_mu1}{number of folds for cross validation for the treated}
 
 \item{k_folds_mu0}{number of folds for cross validation for the control}
+
+\item{lambda}{user-supplied lambda sequence for cross validation}
 
 \item{lambda_choice}{how to cross-validate; choose from "lambda.min" or "lambda.1se"}
 

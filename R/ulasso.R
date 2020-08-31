@@ -9,7 +9,10 @@
 #' @param y the observed response (real valued)
 #' @param alpha tuning parameter for the elastic net
 #' @param k_folds number of folds for cross-fitting
-#' @param lambda_choice how to cross-validate; choose from "lambda.1se" or "lambda.min"
+#' @param lambda_y user-supplied lambda sequence for cross validation in learning E[y|x]
+#' @param lambda_w user-supplied lambda sequence for cross validation in learning E[w|x]
+#' @param lambda_tau user-supplied lambda sequence for cross validation in learning the treatment effect E[y(1) - y(0) | x]
+#' @param lambda_choice how to cross-validate for the treatment effect tau; choose from "lambda.1se" or "lambda.min"
 #' @param p_hat user-supplied estimate for E[W|X]
 #' @param m_hat user-supplied estimte for E[Y|X]
 #' @param cutoff the threshold to cutoff propensity estimate
@@ -29,6 +32,9 @@
 ulasso = function(x, w, y,
                   alpha = 1,
                   k_folds = NULL,
+                  lambda_y = NULL,
+                  lambda_w = NULL,
+                  lambda_tau = NULL,
                   lambda_choice=c("lambda.1se", "lambda.min"),
                   p_hat = NULL,
                   m_hat = NULL,
@@ -49,21 +55,43 @@ ulasso = function(x, w, y,
   foldid = sample(rep(seq(k_folds), length = length(w)))
 
   if (is.null(m_hat)){
-    y_fit = glmnet::cv.glmnet(x, y, foldid = foldid, keep = TRUE, alpha = alpha)
+    y_fit = glmnet::cv.glmnet(x, y, foldid = foldid, keep = TRUE, lambda = lambda_y, alpha = alpha)
     m_hat = y_fit$fit.preval[,!is.na(colSums(y_fit$fit.preval))][, y_fit$lambda == y_fit$lambda.min]
   }
   else {
     y_fit = NULL
   }
 
-  if (is.null(p_hat)){
-    w_fit = glmnet::cv.glmnet(x, w, foldid = foldid, keep = TRUE, family = "binomial", type.measure = "deviance", alpha = alpha)
-    theta_hat = w_fit$fit.preval[,!is.na(colSums(w_fit$fit.preval))][, w_fit$lambda == w_fit$lambda.min]
-    p_hat = 1/(1 + exp(-theta_hat))
-  }
-  else{
-    w_fit = NULL
-  }
+    if (is.null(p_hat)){
+
+    if (is.logical(w)) {
+      w_fit = glmnet::cv.glmnet(x, w,
+                               foldid = foldid,
+                               family="binomial",
+                               type.measure="deviance",
+                               keep = TRUE,
+                               lambda = lambda_w,
+                               alpha = alpha,
+                               penalty.factor = penalty_factor_nuisance)
+
+      w_lambda_min = w_fit$lambda[which.min(w_fit$cvm[!is.na(colSums(w_fit$fit.preval))])]
+      theta_hat = w_fit$fit.preval[,!is.na(colSums(w_fit$fit.preval))][, w_fit$lambda[!is.na(colSums(w_fit$fit.preval))] == w_lambda_min]
+      p_hat = 1/(1 + exp(-theta_hat))
+  	} else {
+      w_fit = glmnet::cv.glmnet(x, w,
+                               foldid = foldid,
+                               keep = TRUE,
+                               lambda = lambda_w,
+                               alpha = alpha,
+                               penalty.factor = penalty_factor_nuisance)
+
+      w_lambda_min = w_fit$lambda[which.min(w_fit$cvm[!is.na(colSums(w_fit$fit.preval))])]
+      p_hat = w_fit$fit.preval[,!is.na(colSums(w_fit$fit.preval))][, w_fit$lambda[!is.na(colSums(w_fit$fit.preval))] == w_lambda_min]
+  	}
+    }
+    else{
+      w_fit = NULL
+    }
 
   p_hat_thresh = pmax(cutoff, pmin(1 - cutoff, p_hat))
 
@@ -72,7 +100,7 @@ ulasso = function(x, w, y,
 
   u = y_tilde / w_tilde
 
-  tau_fit = glmnet::cv.glmnet(x, u, nfolds = k_folds, alpha = alpha)
+  tau_fit = glmnet::cv.glmnet(x, u, nfolds = k_folds, alpha = alpha, lambda = lambda_tau)
   tau_hat = predict(tau_fit, newx = x, s = lambda_choice)
 
   ret = list(tau_fit = tau_fit,

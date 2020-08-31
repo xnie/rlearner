@@ -13,14 +13,6 @@ trim = function(x, min, max) {
 	return(x)
 }
 
-#logical treatment to factor treatment
-lgl_to_fct = function(w_lgl) {
-	w_lgl %>%
-		ifelse("treated", "control") %>%
-		as.factor() %>%
-		factor(c("treated", "control"))
-}
-
 sanitize_x = function(x){
 	# make sure x is a numeric matrix with named columns (for caret)
 	if (!is.matrix(x) | !is.numeric(x) | any(is.na(x))) {
@@ -33,12 +25,8 @@ sanitize_x = function(x){
 sanitize_input = function(x,w,y) {
   x = sanitize_x(x)
 
-	# make sure w is logical (learner_cv will convert to factor when necessary)
 	if (is.numeric(w) & all(w %in% c(0,1))) {
 		w = w==1
-	}
-	if (!is.logical(w)) {
-		rlang::abort("w should be a logical vector")
 	}
 
 	# make sure y is a numeric vector
