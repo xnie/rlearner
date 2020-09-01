@@ -11,7 +11,6 @@
 #' @param early_stopping_rounds the number of rounds the test error stops decreasing by which the cross validation in finding the optimal number of trees stops
 #' @param nthread the number of threads to use. The default is NULL, which uses all available threads. Note that this does not apply to using bayesian optimization to search for hyperparameters.
 #' @param verbose boolean; whether to print statistic
-#' @param bayes_opt if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost (warning: very slow!). if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num_search_rounds). Default is FALSE. CAUTION: current implementation is in beta and is not recommended for usage yet
 #'
 #' @return a cvboost object
 #'
@@ -38,8 +37,7 @@ cvboost = function(x,
                    print_every_n=100,
                    early_stopping_rounds=10,
                    nthread=NULL,
-                   verbose=FALSE,
-                   bayes_opt=FALSE) {
+                   verbose=FALSE){
 
   objective = match.arg(objective)
   if (objective == "reg:linear") {
@@ -69,68 +67,6 @@ cvboost = function(x,
     nthread = parallel::detectCores()
   }
 
-  if (bayes_opt){ # WARNING: in beta version; very slow!
-    bayesopt_available = requireNamespace("rBayesianOptimization", quietly = TRUE)
-    if (!bayesopt_available) {
-      stop("rBayesianOptimization needs to be installed for running with bayes_opt=T for boosting.")
-    }
-    xgb_cv_bayes <- function(subsample, eta, max_depth, min_child_weight) {
-      xgb_cv_args = list(params = list(subsample = subsample,
-                                       eta = eta,
-                                       max_depth = max_depth,
-                                       min_child_weight = min_child_weight,
-                                       lambda = 1,
-                                       alpha = 0,
-                                       objective = objective,
-                                       eval_metric = eval),
-                         data = dtrain,
-                         nround = ntrees_max,
-                         nfold = k_folds,
-                         folds = folds,
-                         prediction = TRUE,
-                         showsd = TRUE,
-                         early_stopping_rounds = 10,
-                         maximize = FALSE,
-                         print_every_n = print_every_n,
-                         verbose = verbose,
-                         nthread = nthread,
-                         callbacks = list(xgboost::cb.cv.predict(save_models = TRUE)))
-
-      cv <- do.call(xgboost::xgb.cv, xgb_cv_args)
-
-      metric = paste('test_', eval, '_mean', sep='')
-      list(Score = min(cv$evaluation_log[, metric]),
-           Pred = cv$pred)
-    }
-    opt_res <- rBayesianOptimization::BayesianOptimization(xgb_cv_bayes,
-                                                           bounds = list(subsample = c(0.5, 1),
-                                                                         eta = c(5e-3, 2e-1),
-                                                                         max_depth = c(3L, 20L),
-                                                                         min_child_weight = c(1L, 20L)),
-                                                           init_grid_dt = NULL, init_points = 10, n_iter = num_search_rounds,
-                                                           acq = "ucb", kappa = 2.576, eps = 0.0,
-                                                           verbose = TRUE)
-    best_param = as.list(opt_res$Best_Par)
-    best_loss = opt_res$Best_Value
-
-    xgb_cvfit_args = list(params = best_param,
-                          data = dtrain,
-                          nround = ntrees_max,
-                          nfold = k_folds,
-                          folds = folds,
-                          prediction = TRUE,
-                          showsd = TRUE,
-                          early_stopping_rounds = 10,
-                          maximize = FALSE,
-                          print_every_n = print_every_n,
-                          verbose = verbose,
-                          nthread = nthread,
-                          callbacks = list(xgboost::cb.cv.predict(save_models = TRUE)))
-
-    best_xgb_cvfit <- do.call(xgboost::xgb.cv, xgb_cvfit_args)
-
-  }
-  else{
     for (iter in 1:num_search_rounds) {
       param <- list(objective = objective,
                     eval_metric = eval,
@@ -171,7 +107,6 @@ cvboost = function(x,
         best_xgb_cvfit = xgb_cvfit
       }
     }
-  }
 
   set.seed(best_seednumber)
 

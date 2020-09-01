@@ -15,7 +15,6 @@
 #' @param early_stopping_rounds the number of rounds the test error stops decreasing by which the cross validation in finding the optimal number of trees stops
 #' @param nthread the number of threads to use. The default is NULL, which uses all available threads
 #' @param verbose boolean; whether to print statistic
-#' @param bayes_opt if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost. if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num_search_rounds). Default is FALSE. CAUTION: current implementation is in beta and is not recommended for usage yet.
 #'
 #' @examples
 #' \dontrun{
@@ -39,8 +38,7 @@ tboost = function(x, w, y,
                   print_every_n = 100,
                   early_stopping_rounds = 10,
                   nthread = NULL,
-                  verbose = FALSE,
-                  bayes_opt = FALSE) {
+                  verbose = FALSE){
 
   c(x, w, y) %<-% sanitize_input(x,w,y)
 
@@ -72,8 +70,7 @@ tboost = function(x, w, y,
                     print_every_n = print_every_n,
                     early_stopping_rounds = early_stopping_rounds,
                     nthread = nthread,
-                    verbose = verbose,
-                    bayes_opt = bayes_opt)
+                    verbose = verbose)
 
   t_0_fit = cvboost(x_0,
                     y_0,
@@ -84,8 +81,7 @@ tboost = function(x, w, y,
                     print_every_n = print_every_n,
                     early_stopping_rounds = early_stopping_rounds,
                     nthread = nthread,
-                    verbose = verbose,
-                    bayes_opt = bayes_opt)
+                    verbose = verbose)
 
   y_1_pred = predict(t_1_fit, newx=x)
   y_0_pred = predict(t_0_fit, newx=x)

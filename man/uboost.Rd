@@ -7,7 +7,7 @@
 uboost(x, w, y, k_folds = NULL, p_hat = NULL, m_hat = NULL,
   cutoff = 0.05, ntrees_max = 1000, num_search_rounds = 10,
   print_every_n = 100, early_stopping_rounds = 10, nthread = NULL,
-  verbose = FALSE, bayes_opt = FALSE)
+  verbose = FALSE)
 }
 \arguments{
 \item{x}{the input features}
@@ -35,8 +35,6 @@ uboost(x, w, y, k_folds = NULL, p_hat = NULL, m_hat = NULL,
 \item{nthread}{the number of threads to use. The default is NULL, which uses all available threads}
 
 \item{verbose}{boolean; whether to print statistic}
-
-\item{bayes_opt}{if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost. if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num_search_rounds). Default is FALSE. CAUTION: current implementation is in beta and is not recommended for usage yet}
 }
 \description{
 U-learner as proposed by Kunzel, Sekhon, Bickel, and Yu (2017), implemented via xgboost (boosting)

@@ -7,8 +7,7 @@
 cvboost(x, y, weights = NULL, folds = NULL, k_folds = NULL,
   objective = c("reg:linear", "binary:logistic"), ntrees_max = 1000,
   num_search_rounds = 10, print_every_n = 100,
-  early_stopping_rounds = 10, nthread = NULL, verbose = FALSE,
-  bayes_opt = FALSE)
+  early_stopping_rounds = 10, nthread = NULL, verbose = FALSE)
 }
 \arguments{
 \item{x}{the input features}
@@ -32,8 +31,6 @@ cvboost(x, y, weights = NULL, folds = NULL, k_folds = NULL,
 \item{nthread}{the number of threads to use. The default is NULL, which uses all available threads. Note that this does not apply to using bayesian optimization to search for hyperparameters.}
 
 \item{verbose}{boolean; whether to print statistic}
-
-\item{bayes_opt}{if set to TRUE, use bayesian optimization to do hyper-parameter search in xgboost (warning: very slow!). if set to FALSE, randomly draw combinations of hyperparameters to search from (as specified by num_search_rounds). Default is FALSE. CAUTION: current implementation is in beta and is not recommended for usage yet}
 }
 \value{
 a cvboost object

@@ -159,3 +159,18 @@ t_toy_data_simulation = function(n) {
 	m = p * mu1 + (1-p) * mu0
 	list(x=x, w=w, y=y, p=p, m=m, mu0=mu0, mu1=mu1, tau=tau)
 }
+
+#' @title helper function for result comparison
+#' @description helper function to check if the learned tau_hat is within some bounded error from the groundtruth
+#' @param tau_hat user-supplied treatment effect estimate
+#' @param sim_data simulated groundtruth data
+#' @param mse user-supplied error tolerance
+#'
+#' @export
+meta_learner_tests = function(tau_hat, sim_data, mse=0.01) {
+  expect_equal(length(tau_hat), length(sim_data$tau))
+  expect_equal(is.numeric(tau_hat), TRUE)
+  learner_mse = mean((tau_hat - sim_data$tau)^2)
+  print(learner_mse)
+  expect_equal(learner_mse<mse, TRUE)
+}
