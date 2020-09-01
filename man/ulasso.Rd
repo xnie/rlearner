@@ -25,7 +25,7 @@ ulasso(x, w, y, alpha = 1, k_folds = NULL, lambda_y = NULL,
 
 \item{lambda_tau}{user-supplied lambda sequence for cross validation in learning the treatment effect E[y(1) - y(0) | x]}
 
-\item{lambda_choice}{how to cross-validate; choose from "lambda.1se" or "lambda.min"}
+\item{lambda_choice}{how to cross-validate for the treatment effect tau; choose from "lambda.1se" or "lambda.min"}
 
 \item{p_hat}{user-supplied estimate for E[W|X]}
 

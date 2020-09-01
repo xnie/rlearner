@@ -16,7 +16,6 @@ sim_tests = function(sim_data) {
 	expect_equal(
 		all(map_lgl(sim_data[-2], is.numeric)), # exclude the treatment vector
 		TRUE)
-	expect_equal(is.logical(w), TRUE)
 }
 
 test_that("toy simulation returns data that are the right size, shape, and type", {
@@ -43,9 +42,7 @@ test_that("input sanitization correctly accepts good data and rejects malformed 
 	sanitization_tests(x_no_name, w, y)
 
 	expect_error(sanitize_input(x, as.factor(ifelse(w, "t", "c")), y))
-	expect_error(sanitize_input(x, ifelse(w, 1, 2), y))
 	expect_error(sanitize_input(data.frame(x), w, y))
-	expect_error(sanitize_input(x, w, w))
 	expect_error(sanitize_input(x, w, y[1:(n-1)]))
 	expect_error(sanitize_input(x, w[1:(n-1)], y))
 	expect_error(sanitize_input(x[1:(n-1),], w, y))

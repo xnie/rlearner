@@ -1,4 +1,4 @@
-context("Lasso- and boosting-based learners")
+context("Lasso-based learners")
 library(rlearner)
 library(caret)
 library(zeallot)
@@ -17,59 +17,97 @@ meta_learner_tests = function(tau_hat, sim_data, mse=0.01) {
   expect_equal(learner_mse<mse, TRUE)
 }
 
+ test_that("lasso based r- and s-learners return the correct output format and predict well when the problem has continuous treatments", {
+   set.seed(1)
+   easy_sim_data = continuous_toy_data_simulation(5*n) # draw a sample
+
+   r.fit = rlasso(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y, rs=F)
+   r.pred = predict(r.fit)
+   meta_learner_tests(r.pred, easy_sim_data)
+
+   s.fit = slasso(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
+   s.pred = predict(s.fit)
+   meta_learner_tests(s.pred, easy_sim_data)
+
+   rs.fit = rlasso(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y, rs=TRUE)
+   rs.pred = predict(rs.fit)
+   meta_learner_tests(rs.pred, easy_sim_data)
+ })
+
 test_that("lasso based learners return the correct output format and predict well when the problem is easy", {
   set.seed(1)
   easy_sim_data = easy_toy_data_simulation(5*n) # draw a sample
-  list(
-    rlasso,
-    slasso,
-    tlasso,
-    ulasso,
-    xlasso) %>%
-    map(function(meta_learner) {
-      meta_learner(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y) %>%
-        predict(easy_sim_data$x) %>%
-        meta_learner_tests(easy_sim_data)
-    })
+  #list(
+  #  rlasso,
+  #  slasso,
+  #  tlasso,
+  #  ulasso,
+  #  xlasso) %>%
+  #  map(function(meta_learner) {
+  #    meta_learner(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y) %>%
+  #      predict(easy_sim_data$x) %>%
+  #      meta_learner_tests(easy_sim_data)
+  #  })
+  r.fit = rlasso(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y, rs=F)
+  r.pred = predict(r.fit)
+  meta_learner_tests(r.pred, easy_sim_data)
+
+  s.fit = slasso(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
+  s.pred = predict(s.fit)
+  meta_learner_tests(s.pred, easy_sim_data)
+
+  t.fit = tlasso(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
+  t.pred = predict(t.fit)
+  meta_learner_tests(t.pred, easy_sim_data)
+
+  u.fit = ulasso(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
+  u.pred = predict(u.fit)
+  meta_learner_tests(u.pred, easy_sim_data)
+
+  x.fit = xlasso(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
+  x.pred = predict(x.fit)
+  meta_learner_tests(x.pred, easy_sim_data)
+
   rs.fit = rlasso(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y, rs=TRUE)
   rs.pred = predict(rs.fit)
   meta_learner_tests(rs.pred, easy_sim_data)
 })
 
-test_that("rlasso learns reasonable m_hat on simple data", {
-  set.seed(1)
-  easy_sim_data = easy_toy_data_simulation(5*n) # draw a sample
-  rlasso_fit = rlasso(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
-  #print(max(rlasso_fit$m_hat))
-  #print(max(easy_sim_data$y))
-  #print(min(rlasso_fit$m_hat))
-  #print(min(easy_sim_data$y))
-  expect_equal((abs(max(rlasso_fit$m_hat) - max(easy_sim_data$y)))/ max(easy_sim_data$y) < max_tol, TRUE)
-  expect_equal((abs(min(rlasso_fit$m_hat) - min(easy_sim_data$y)))/ min(easy_sim_data$y) < min_tol, TRUE)
-})
+#test_that("rlasso learns reasonable m_hat on simple data", {
+#  set.seed(1)
+#  easy_sim_data = easy_toy_data_simulation(5*n) # draw a sample
+#  rlasso_fit = rlasso(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
+#  #print(max(rlasso_fit$m_hat))
+#  #print(max(easy_sim_data$y))
+#  #print(min(rlasso_fit$m_hat))
+#  #print(min(easy_sim_data$y))
+#  expect_equal((abs(max(rlasso_fit$m_hat) - max(easy_sim_data$y)))/ max(easy_sim_data$y) < max_tol, TRUE)
+#  expect_equal((abs(min(rlasso_fit$m_hat) - min(easy_sim_data$y)))/ min(easy_sim_data$y) < min_tol, TRUE)
+#})
 
-test_that("r,s,u,x boosting-based learners product the correct output format and predict well when the problem is easy", {
-  set.seed(1)
-  easy_sim_data = easy_toy_data_simulation(50*n) # draw a sample
-  list(
-    rboost,
-    sboost,
-    uboost,
-    xboost) %>%
-    map(function(meta_learner) {
-      meta_learner(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y) %>%
-        predict(easy_sim_data$x) %>%
-        meta_learner_tests(easy_sim_data, mse=0.1)
-    })
-})
-
-test_that("t boosting-based learners product the correct output format and predict well when the problem is easy", {
-  set.seed(1)
-  easy_sim_data = t_toy_data_simulation(50*n) # draw a sample
-  list(tboost) %>%
-    map(function(meta_learner) {
-      meta_learner(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y) %>%
-        predict(easy_sim_data$x) %>%
-        meta_learner_tests(easy_sim_data, mse=0.1)
-    })
-})
+#test_that("r,s,u,x boosting-based learners product the correct output format and predict well when the problem is easy", {
+#  set.seed(1)
+#  easy_sim_data = easy_toy_data_simulation(50*n) # draw a sample
+#  list(
+#    rboost,
+#    sboost,
+#    uboost,
+#    xboost) %>%
+#    map(function(meta_learner) {
+#      meta_learner(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y) %>%
+#        predict(easy_sim_data$x) %>%
+#        meta_learner_tests(easy_sim_data, mse=0.1)
+#    })
+#})
+#
+#test_that("t boosting-based learners product the correct output format and predict well when the problem is easy", {
+#  set.seed(1)
+#  easy_sim_data = t_toy_data_simulation(50*n) # draw a sample
+#  list(tboost) %>%
+#    map(function(meta_learner) {
+#      meta_learner(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y) %>%
+#        predict(easy_sim_data$x) %>%
+#        meta_learner_tests(easy_sim_data, mse=0.1)
+#    })
+#})
+#

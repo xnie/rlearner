@@ -73,15 +73,15 @@ rlasso = function(x, w, y,
 
     # penalty factor for nuisance and tau estimators
     if (is.null(penalty_factor) || (length(penalty_factor) != pobs)) {
+      if (!is.null(penalty_factor) && length(penalty_factor) != pobs) {
+        warning("penalty_factor supplied is not of the same length as the number of columns in x after removing NA columns. Using all ones instead.")
+      }
       penalty_factor_nuisance = rep(1, pobs)
       if (rs) {
         penalty_factor_tau = c(0, rep(1, 2 * pobs))
       }
       else {
         penalty_factor_tau = c(0, rep(1, pobs))
-      }
-      if (!is.null(penalty_factor) && length(penalty_factor) != pobs) {
-        warning("penalty_factor supplied is not of the same length as the number of columns in x after removing NA columns. Using all ones instead.")
       }
     }
     else {

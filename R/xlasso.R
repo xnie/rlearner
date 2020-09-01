@@ -99,13 +99,12 @@ xlasso = function(x, w, y,
   tau_0_pred = predict(x_0_fit, newx = x, s = lambda_choice)
 
     w_fit = glmnet::cv.glmnet(x, w,
-                             foldid = foldid,
+                             foldid = foldid_w,
                              family="binomial",
                              type.measure="deviance",
                              lambda = lambda_w,
                              keep = TRUE,
-                             alpha = alpha,
-                             penalty.factor = penalty_factor_nuisance)
+                             alpha = alpha)
 
     w_lambda_min = w_fit$lambda[which.min(w_fit$cvm[!is.na(colSums(w_fit$fit.preval))])]
     theta_hat = w_fit$fit.preval[,!is.na(colSums(w_fit$fit.preval))][, w_fit$lambda[!is.na(colSums(w_fit$fit.preval))] == w_lambda_min]

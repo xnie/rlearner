@@ -63,10 +63,10 @@ slasso = function(x, w, y,
   x_scl_pred = cbind(1, x_scl, 0 * x_scl)
 
   if (is.null(penalty_factor) || (length(penalty_factor) != pobs)) {
-    penalty_factor = c(0, rep(1, 2 * pobs))
-    if (!is.null(penalty_factor) && length(penalty_factor) != pobs) {
-      warning("penalty_factor supplied is not of the same length as the number of columns in x. Using all ones instead.")
+    if (!is.null(penalty_factor) && length(penalty_factor) != 2 * pobs + 1) {
+      warning("penalty_factor supplied is not 1 plus 2 times the number of columns in x. Using all ones instead.")
     }
+    penalty_factor = c(0, rep(1, 2 * pobs))
   }
 
   s_fit = glmnet::cv.glmnet(x_scl_tilde, y, foldid = foldid, lambda = lambda,
