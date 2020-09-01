@@ -32,7 +32,7 @@ install_github("xnie/rlearner")
 
 ### Example usage:
 
-Below is an example of using the function `rlasso` and `rboost`.
+Below is an example of using the function `rlasso`, `rboost`, and `rkern`.
 
 ```R
 library(rlearner)
