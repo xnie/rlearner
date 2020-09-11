@@ -14,9 +14,9 @@ start_time <- Sys.time()
 #NREP = as.numeric(args[7])
 
 
-alg = "R"
+alg = "S"
 learner = "kernel"
-setup = "A"
+setup = "B"
 n = 500
 p = 6
 sigma =0.5

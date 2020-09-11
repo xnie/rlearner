@@ -92,7 +92,7 @@ data_simulation = function(n) {
   tau = x[,1] + log(1 + exp(x[,2]))
 	mu1 = m + tau/2
 	mu0 = m - tau/2
-	y = w*mu1 + (1-w) * mu0 + rnorm(n)
+	y = w*mu1 + (1-w) * mu0 + 0.5*rnorm(n)
 	list(x=x, w=w, y=y, p=p, m=m, mu0=mu0, mu1=mu1, tau=tau)
 }
 

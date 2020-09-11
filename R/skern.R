@@ -87,7 +87,7 @@ predict.skern <- function(object,
     tau_hat = mu1_hat - mu0_hat
   }
   else {
-    tau_hat = object$tau_fit$fit
+    tau_hat = object$tau_hat
   }
   return(tau_hat)
 }
