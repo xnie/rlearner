@@ -34,8 +34,11 @@ xkern= function(x, w, y,
                 mu0_hat=NULL,
                 p_hat=NULL){
 
-  c(x, w, y) %<-% sanitize_input(x,w,y)
 
+  input = sanitize_input(x,w,y)
+  x = input$x
+  w = input$w
+  y = input$y
   w = as.numeric(w)
   x_1 = x[which(w==1),]
   x_0 = x[which(w==0),]

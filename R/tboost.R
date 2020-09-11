@@ -40,7 +40,10 @@ tboost = function(x, w, y,
                   nthread = NULL,
                   verbose = FALSE){
 
-  c(x, w, y) %<-% sanitize_input(x,w,y)
+  input = sanitize_input(x,w,y)
+  x = input$x
+  w = input$w
+  y = input$y
 
   x_1 = x[which(w==1),]
   x_0 = x[which(w==0),]
@@ -63,7 +66,7 @@ tboost = function(x, w, y,
 
   t_1_fit = cvboost(x_1,
                     y_1,
-                    objective="reg:linear",
+                    objective="reg:squarederror",
                     k_folds = k_folds_mu1,
                     ntrees_max = ntrees_max,
                     num_search_rounds = num_search_rounds,
@@ -74,7 +77,7 @@ tboost = function(x, w, y,
 
   t_0_fit = cvboost(x_0,
                     y_0,
-                    objective = "reg:linear",
+                    objective = "reg:squarederror",
                     k_folds = k_folds_mu0,
                     ntrees_max = ntrees_max,
                     num_search_rounds = num_search_rounds,

@@ -33,7 +33,11 @@ tlasso = function(x, w, y,
                   lambda_choice = c("lambda.min", "lambda.1se"),
                   penalty_factor= NULL) {
 
-  c(x, w, y) %<-% sanitize_input(x,w,y)
+
+  input = sanitize_input(x,w,y)
+  x = input$x
+  w = input$w
+  y = input$y
   if (!is.logical(w)) {
     stop("w should be a logical vector")
   }

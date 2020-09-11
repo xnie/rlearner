@@ -3,8 +3,8 @@ Title: R-learner for Heterogeneous Treatment Effect Estimation
 Version: 1.1.0
 Authors@R: c(person("Xinkun", "Nie", email = "xinkun@stanford.edu",role = c("aut", "cre")), person("Alejandro", "Schuler", email = "aschuler@stanford.edu", role = "aut"), person("Stefan", "Wager", email = "swager@stanford.edu", role = "aut"))
 Description: R-learner for quasi-oracle estimation of heterogeneous treatment effects
-Depends: R (>= 3.6.1), glmnet (>= 4.0-2)
-Imports: splines, stats, magrittr, zeallot, dplyr, tidyr, purrr, xgboost, parallel, stringr
+Depends: R (>= 4.0.2) 
+Imports: splines, stats, xgboost, stringr, glmnet (>= 4.0-2), caret
 Suggests: testthat, KRLS2, causalLearning
 License: none
 RoxygenNote: 6.1.1

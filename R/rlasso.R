@@ -45,7 +45,10 @@ rlasso = function(x, w, y,
                   m_hat = NULL,
                   penalty_factor = NULL){
 
-    c(x, w, y) %<-% sanitize_input(x,w,y)
+    input = sanitize_input(x,w,y)
+    x = input$x
+    w = input$w
+    y = input$y
 
     standardization = caret::preProcess(x, method=c("center", "scale")) # get the standardization params
     x_scl = predict(standardization, x)							 # standardize the input
@@ -83,8 +86,7 @@ rlasso = function(x, w, y,
       else {
         penalty_factor_tau = c(0, rep(1, pobs))
       }
-    }
-    else {
+    } else {
       penalty_factor_nuisance = penalty_factor
       if (rs) {
         penalty_factor_tau = c(0, penalty_factor, penalty_factor)

@@ -35,7 +35,11 @@ sboost = function(x, w, y,
                   early_stopping_rounds = 10,
                   nthread = NULL,
                   verbose = FALSE){
-  c(x, w, y) %<-% sanitize_input(x,w,y)
+
+  input = sanitize_input(x,w,y)
+  x = input$x
+  w = input$w
+  y = input$y
 
   nobs = nrow(x)
   pobs = ncol(x)
@@ -46,7 +50,7 @@ sboost = function(x, w, y,
 
   s_fit = cvboost(cbind(x, (w-0.5)*x, (w-0.5)),
                   y,
-                  objective = "reg:linear",
+                  objective = "reg:squarederror",
                   k_folds = k_folds,
                   ntrees_max = ntrees_max,
                   num_search_rounds = num_search_rounds,

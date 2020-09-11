@@ -40,7 +40,10 @@ ulasso = function(x, w, y,
                   m_hat = NULL,
                   cutoff = 0.05){
 
-  c(x, w, y) %<-% sanitize_input(x,w,y)
+  input = sanitize_input(x,w,y)
+  x = input$x
+  w = input$w
+  y = input$y
   if (!is.logical(w)) {
     stop("w should be a logical vector")
   }

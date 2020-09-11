@@ -43,7 +43,10 @@ xlasso = function(x, w, y,
                   mu1_hat = NULL,
                   mu0_hat = NULL){
 
-  c(x, w, y) %<-% sanitize_input(x,w,y)
+  input = sanitize_input(x,w,y)
+  x = input$x
+  w = input$w
+  y = input$y
   if (!is.logical(w)) {
     stop("w should be a logical vector")
   }

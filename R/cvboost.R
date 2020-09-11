@@ -4,7 +4,7 @@
 #' @param y the observed response (real valued)
 #' @param weights weights for input if doing weighted regression/classification. If set to NULL, no weights are used
 #' @param k_folds number of folds used in cross validation
-#' @param objective choose from either "reg:linear" for regression or "binary:logistic" for logistic regression
+#' @param objective choose from either "reg:squarederror" for regression or "binary:logistic" for logistic regression
 #' @param ntrees_max the maximum number of trees to grow for xgboost
 #' @param num_search_rounds the number of random sampling of hyperparameter combinations for cross validating on xgboost trees
 #' @param print_every_n the number of iterations (in each iteration, a tree is grown) by which the code prints out information
@@ -21,7 +21,7 @@
 #' x = matrix(rnorm(n*p), n, p)
 #' y = pmax(x[,1], 0) + x[,2] + pmin(x[,3], 0) + rnorm(n)
 #'
-#' fit = cvboost(x, y, objective="reg:linear")
+#' fit = cvboost(x, y, objective="reg:squarederror")
 #' est = predict(fit, x)
 #' }
 #'
@@ -31,7 +31,7 @@ cvboost = function(x,
                    weights=NULL,
                    folds=NULL,
                    k_folds=NULL,
-                   objective=c("reg:linear", "binary:logistic"),
+                   objective=c("reg:squarederror", "binary:logistic"),
                    ntrees_max=1000,
                    num_search_rounds=10,
                    print_every_n=100,
@@ -40,7 +40,7 @@ cvboost = function(x,
                    verbose=FALSE){
 
   objective = match.arg(objective)
-  if (objective == "reg:linear") {
+  if (objective == "reg:squarederror") {
     eval = "rmse"
   }
   else if (objective == "binary:logistic") {
@@ -141,7 +141,7 @@ cvboost = function(x,
 #' x = matrix(rnorm(n*p), n, p)
 #' y = pmax(x[,1], 0) + x[,2] + pmin(x[,3], 0) + rnorm(n)
 #'
-#' fit = cvboost(x, y, objective="reg:linear")
+#' fit = cvboost(x, y, objective="reg:squarederror")
 #' est = predict(fit, x)
 #' }
 #'

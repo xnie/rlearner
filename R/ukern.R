@@ -33,7 +33,11 @@ ukern = function(x, w, y,
                  lambda_range = 10^(seq(-3,3,0.5)),
                  cutoff = 0.05){
 
-  c(x, w, y) %<-% sanitize_input(x,w,y)
+  input = sanitize_input(x,w,y)
+  x = input$x
+  w = input$w
+  y = input$y
+
   w = as.numeric(w)
 
   if (is.null(k_folds)) {

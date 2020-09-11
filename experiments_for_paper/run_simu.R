@@ -1,26 +1,26 @@
 rm(list = ls())
 
 library(rlearner)
-library(magrittr)
 
 start_time <- Sys.time()
 
-args=(commandArgs(TRUE))
-alg = as.character(args[1])
-learner = as.character(args[2])
-setup = as.character(args[3])
-n = as.numeric(args[4])
-p = as.numeric(args[5])
-sigma = as.numeric(args[6])
-NREP = as.numeric(args[7])
+#args=(commandArgs(TRUE))
+#alg = as.character(args[1])
+#learner = as.character(args[2])
+#setup = as.character(args[3])
+#n = as.numeric(args[4])
+#p = as.numeric(args[5])
+#sigma = as.numeric(args[6])
+#NREP = as.numeric(args[7])
 
-#alg = "R"
-#learner = "kernel"
-#setup = "A"
-#n = 500
-#p = 6
-#sigma = 2
-#NREP = 20
+
+alg = "R"
+learner = "kernel"
+setup = "A"
+n = 500
+p = 6
+sigma =0.5
+NREP = 1
 
 if (setup == 'A') {
   get.params = function() {
@@ -88,11 +88,11 @@ results_list = lapply(1:NREP, function(iter) {
       X_ns = stats::model.matrix(~.*.-1, data.frame(X_ns)) # pairwise interaction (not including squared term for each column)
       X_ns_sq = do.call(cbind, lapply(1:dim_ns, function(col){matrix(X_ns[,col]^2)})) # squared term for each column
       X_ns = cbind(X_ns, X_ns_sq)
-      X_train = data.frame(X_ns[1:n,]) %>% make_matrix
-      X_test = data.frame(X_ns[(n+1):(2*n),]) %>% make_matrix
+      X_train = make_matrix(data.frame(X_ns[1:n,]))
+      X_test = make_matrix(data.frame(X_ns[(n+1):(2*n),]))
     } else if (learner == "boost" | learner == "kernel") {
-      X_train = data.frame(params_train$X) %>% make_matrix
-      X_test = data.frame(params_test$X) %>% make_matrix
+      X_train = make_matrix(data.frame(params_train$X))
+      X_test = make_matrix(data.frame(params_test$X))
     }
     else {
       stop("learner needs to be lasso, boost, or kernel.")
@@ -270,6 +270,7 @@ results_list = lapply(1:NREP, function(iter) {
         next()
       }
     } else {
+      browser()
       print("moving on. error occured")
       next()
     }
@@ -281,5 +282,5 @@ end_time <- Sys.time()
 time_taken <- end_time - start_time
 print(time_taken)
 
-fnm = paste("results/output", alg, learner, setup, n, p, sigma, NREP, "full.csv", sep="-")
-write.csv(results, file=fnm)
+#fnm = paste("results/output", alg, learner, setup, n, p, sigma, NREP, "full.csv", sep="-")
+#write.csv(results, file=fnm)

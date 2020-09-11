@@ -42,8 +42,11 @@ rboost= function(x, w, y,
                  nthread = NULL,
                  verbose = FALSE){
 
-  c(x, w, y) %<-% sanitize_input(x,w,y)
 
+  input = sanitize_input(x,w,y)
+  x = input$x
+  w = input$w
+  y = input$y
   nobs = nrow(x)
   pobs = ncol(x)
 
@@ -55,7 +58,7 @@ rboost= function(x, w, y,
   if (is.null(m_hat)){
     y_fit = cvboost(x,
                     y,
-                    objective = "reg:linear",
+                    objective = "reg:squarederror",
                     k_folds = k_folds,
                     folds = folds,
                     ntrees_max = ntrees_max,
@@ -97,7 +100,7 @@ rboost= function(x, w, y,
 
   tau_fit = cvboost(x,
                     pseudo_outcome,
-                    objective = "reg:linear",
+                    objective = "reg:squarederror",
                     weights = weights,
                     k_folds = k_folds,
                     folds = folds,
@@ -115,7 +118,7 @@ rboost= function(x, w, y,
              y_fit = y_fit,
              p_hat = p_hat,
              m_hat = m_hat)
-  class(ret) <- "rboost"
+  class(ret) = "rboost"
   ret
 }
 

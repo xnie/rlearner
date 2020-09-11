@@ -43,7 +43,11 @@ uboost= function(x, w, y,
                  nthread = NULL,
                  verbose = FALSE){
 
-  c(x, w, y) %<-% sanitize_input(x,w,y)
+
+  input = sanitize_input(x,w,y)
+  x = input$x
+  w = input$w
+  y = input$y
 
   nobs = nrow(x)
   pobs = ncol(x)
@@ -55,7 +59,7 @@ uboost= function(x, w, y,
   if (is.null(m_hat)){
     y_fit = cvboost(x,
                     y,
-                    objective = "reg:linear",
+                    objective = "reg:squarederror",
                     k_folds = k_folds,
                     ntrees_max = ntrees_max,
                     num_search_rounds = num_search_rounds,
@@ -95,7 +99,7 @@ uboost= function(x, w, y,
 
   tau_fit = cvboost(x,
                     pseudo_outcome,
-                    objective = "reg:linear",
+                    objective = "reg:squarederror",
                     k_folds = k_folds,
                     ntrees_max = ntrees_max,
                     num_search_rounds = num_search_rounds,

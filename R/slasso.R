@@ -32,7 +32,10 @@ slasso = function(x, w, y,
                   lambda_choice = c("lambda.min", "lambda.1se"),
                   penalty_factor = NULL){
 
-  c(x, w, y) %<-% sanitize_input(x,w,y)
+  input = sanitize_input(x,w,y)
+  x = input$x
+  w = input$w
+  y = input$y
 
   standardization = caret::preProcess(x, method=c("center", "scale")) # get the standardization params
   x_scl = predict(standardization, x)							 # standardize the input

@@ -33,7 +33,11 @@ rkern = function(x, w, y,
                   b_range = 10^(seq(-3,3,0.5)),
                   lambda_range = 10^(seq(-3,3,0.5))){
 
-  c(x, w, y) %<-% sanitize_input(x,w,y)
+
+  input = sanitize_input(x,w,y)
+  x = input$x
+  w = input$w
+  y = input$y
 
   if (is.null(k_folds)) {
     k_folds = floor(max(3, min(10,length(w)/4)))
@@ -96,7 +100,7 @@ predict.rkern <- function(object,
     tau_hat = predict(object$tau_fit$model,newx)$fit
   }
   else {
-    tau_hat = object$fit
+    tau_hat = object$tau_fit$fit
   }
   return(tau_hat)
 }

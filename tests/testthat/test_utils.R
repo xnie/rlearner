@@ -1,30 +1,13 @@
 context("Toy simulation")
 library(rlearner)
-library(zeallot)
-library(purrr)
 
 n = 100
 
-sim_tests = function(sim_data) {
-	c(x, w, y, p, m, mu0, mu1, tau) %<-% sim_data
-
-	# everything is the right size
-	expect_equal(
-		all(map_int(sim_data[-1], length)==n), # exclude the covariate matrix
-		TRUE)
-	expect_equal(nrow(x), n)
-	expect_equal(
-		all(map_lgl(sim_data[-2], is.numeric)), # exclude the treatment vector
-		TRUE)
-}
-
-test_that("toy simulation returns data that are the right size, shape, and type", {
-	sim_tests(toy_data_simulation(n))
-	sim_tests(easy_toy_data_simulation(n))
-})
-
 sanitization_tests = function(x, w, y){
-	c(x, w, y) %<-% sanitize_input(x, w, y)
+	input =  sanitize_input(x, w, y)
+	x = input$x
+	w = input$w
+	y = input$y
 	expect_equal(is.numeric(x), TRUE)
 	expect_equal(is.matrix(x), TRUE)
 	expect_equal(length(colnames(x)), ncol(x))
@@ -33,7 +16,16 @@ sanitization_tests = function(x, w, y){
 }
 
 test_that("input sanitization correctly accepts good data and rejects malformed or wrong-type data", {
-	c(x, w, y, p, m, mu0, mu1, tau) %<-% toy_data_simulation(n)
+	sim = toy_data_simulation(n)
+	x = sim$x
+	w = sim$w
+	y = sim$y
+	p = sim$p
+	m = sim$m
+	mu0 = sim$mu0
+	mu1 = sim$mu1
+	tau = sim$tau
+
 
 	sanitization_tests(x, w, y)
 	sanitization_tests(x, ifelse(w, 1, 0), y)
