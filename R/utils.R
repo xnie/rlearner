@@ -246,6 +246,7 @@ simple_meta_learner_tests = function(tau_hat, sim_data, mse=0.01) {
 #' @export
 invariate_add_tests = function(tau_hat, tau_hat_1, sd_err=0.05, mean_err=0.15) {
   #expect_equal(sd(tau_hat - tau_hat_1) < sd_err, TRUE)
+  print(abs(mean(tau_hat - tau_hat_1)))
   expect_equal(abs(mean(tau_hat - tau_hat_1)) < mean_err, TRUE)
 }
 
@@ -257,5 +258,6 @@ invariate_add_tests = function(tau_hat, tau_hat_1, sd_err=0.05, mean_err=0.15) {
 #' @export
 invariate_mult_tests = function(tau_hat, tau_hat_2, mean_err = 0.1) {
   #expect_equal(sd(2*tau_hat - tau_hat_2) < sd_err, TRUE)
+  print(abs(mean(2*tau_hat - tau_hat_2)) )
   expect_equal(abs(mean(2*tau_hat - tau_hat_2)) < mean_err, TRUE)
 }

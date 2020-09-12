@@ -71,3 +71,30 @@ test_that("boosting based learners return the correct output format and predict 
 })
 
 
+
+test_that("boosting based learners predict well in setup B in the paper", {
+  set.seed(1)
+  easy_sim_data = data_simulation(500) # draw a sample
+  r.fit = rboost(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
+  r.pred = predict(r.fit)
+  meta_learner_tests(r.pred, easy_sim_data, 0.35)
+
+  s.fit = sboost(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
+  s.pred = predict(s.fit)
+  meta_learner_tests(s.pred, easy_sim_data, 0.35)
+
+  t.fit = tboost(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
+  t.pred = predict(t.fit)
+  meta_learner_tests(t.pred, easy_sim_data, 0.35)
+
+  u.fit = uboost(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
+  u.pred = predict(u.fit)
+  meta_learner_tests(u.pred, easy_sim_data, 0.35)
+
+  x.fit = xboost(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
+  x.pred = predict(x.fit)
+  meta_learner_tests(x.pred, easy_sim_data, 0.35)
+
+})
+
+

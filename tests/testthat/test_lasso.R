@@ -98,5 +98,34 @@ test_that("lasso based learners return the correct output format and predict wel
   invariate_mult_tests(rs.pred, rs2.pred)
 })
 
+test_that("lasso based learners predict well in setup B in the paper", {
+  set.seed(1)
+  easy_sim_data = data_simulation(500) # draw a sample
+  r.fit = rlasso(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y, rs=F)
+  r.pred = predict(r.fit)
+  meta_learner_tests(r.pred, easy_sim_data, 0.5)
+
+  s.fit = slasso(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
+  s.pred = predict(s.fit)
+  meta_learner_tests(s.pred, easy_sim_data, 0.5)
+
+  t.fit = tlasso(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
+  t.pred = predict(t.fit)
+  meta_learner_tests(t.pred, easy_sim_data, 0.5)
+
+  u.fit = ulasso(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
+  u.pred = predict(u.fit)
+  meta_learner_tests(u.pred, easy_sim_data, 0.5)
+
+  x.fit = xlasso(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
+  x.pred = predict(x.fit)
+  meta_learner_tests(x.pred, easy_sim_data, 0.5)
+
+  rs.fit = rlasso(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y, rs=TRUE)
+  rs.pred = predict(rs.fit)
+  meta_learner_tests(rs.pred, easy_sim_data, 0.5)
+
+})
+
 
 
