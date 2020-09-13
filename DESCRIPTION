@@ -1,5 +1,5 @@
 Package: rlearner
-Title: R-learner for Heterogeneous Treatment Effect Estimation
+Title: R-Learner for Heterogeneous Treatment Effect Estimation
 Version: 1.1.0
 Authors@R: c(person("Xinkun", "Nie", email = "xinkun@stanford.edu",role = c("aut", "cre")), person("Alejandro", "Schuler", email = "aschuler@stanford.edu", role = "aut"), person("Stefan", "Wager", email = "swager@stanford.edu", role = "aut"))
 Description: R-learner for quasi-oracle estimation of heterogeneous treatment effects
@@ -11,20 +11,14 @@ RoxygenNote: 7.1.1
 Encoding: UTF-8
 Collate:
     'cvboost.R'
-    'cvkern.R'
     'utils.R'
     'rboost.R'
-    'rkern.R'
     'rlasso.R'
     'sboost.R'
-    'skern.R'
     'slasso.R'
     'tboost.R'
-    'tkern.R'
     'tlasso.R'
     'uboost.R'
-    'ukern.R'
     'ulasso.R'
     'xboost.R'
-    'xkern.R'
     'xlasso.R'

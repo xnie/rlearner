@@ -4,12 +4,14 @@
 \alias{invariate_add_tests}
 \title{helper function for testing treatment effect is invariant when outcome adds 1}
 \usage{
-invariate_add_tests(tau_hat, tau_hat_1, sd_err = 0.05, mean_err = 0.15)
+invariate_add_tests(tau_hat, tau_hat_1, mean_err = 0.15)
 }
 \arguments{
 \item{tau_hat}{user-supplied treatment effect estimate}
 
 \item{tau_hat_1}{user-supplied treatment effect estimate for the setting with outcome added 1}
+
+\item{mean_err}{error tolerance on the mean difference bewteen tau_hat and tau_hat_1}
 }
 \description{
 helper function to test treatment effect is invariant when outcome adds 1
