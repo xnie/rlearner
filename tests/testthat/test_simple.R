@@ -54,23 +54,43 @@ test_that("lasso based learners return the correct output format", {
 test_that("boost based learners return the correct output format", {
   set.seed(1)
   easy_sim_data = easy_toy_data_simulation(n) # draw a sample
-  r.fit = rboost(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
+  r.fit = rboost(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y,
+                 ntrees_max = 10,
+                 num_search_rounds = 1,
+                 print_every_n = 100,
+                 early_stopping_rounds = 1)
   r.pred = predict(r.fit)
   simple_meta_learner_tests(r.pred, easy_sim_data)
 
-  s.fit = sboost(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
+  s.fit = sboost(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y,
+                 ntrees_max = 10,
+                 num_search_rounds = 1,
+                 print_every_n = 100,
+                 early_stopping_rounds = 1)
   s.pred = predict(s.fit)
   simple_meta_learner_tests(s.pred, easy_sim_data)
 
-  t.fit = tboost(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
+  t.fit = tboost(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y,
+                 ntrees_max = 10,
+                 num_search_rounds = 1,
+                 print_every_n = 100,
+                 early_stopping_rounds = 1)
   t.pred = predict(t.fit)
   simple_meta_learner_tests(t.pred, easy_sim_data)
 
-  u.fit = uboost(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
+  u.fit = uboost(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y,
+                 ntrees_max = 10,
+                 num_search_rounds = 1,
+                 print_every_n = 100,
+                 early_stopping_rounds = 1)
   u.pred = predict(u.fit)
   simple_meta_learner_tests(u.pred, easy_sim_data)
 
-  x.fit = xboost(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
+  x.fit = xboost(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y,
+                 ntrees_max = 10,
+                 num_search_rounds = 1,
+                 print_every_n = 100,
+                 early_stopping_rounds = 1)
   x.pred = predict(x.fit)
   simple_meta_learner_tests(x.pred, easy_sim_data)
 

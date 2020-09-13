@@ -4,9 +4,19 @@
 \alias{tboost}
 \title{T-learner, implemented via xgboost (gradient boosting)}
 \usage{
-tboost(x, w, y, k_folds_mu1 = NULL, k_folds_mu0 = NULL,
-  ntrees_max = 1000, num_search_rounds = 10, print_every_n = 100,
-  early_stopping_rounds = 10, nthread = NULL, verbose = FALSE)
+tboost(
+  x,
+  w,
+  y,
+  k_folds_mu1 = NULL,
+  k_folds_mu0 = NULL,
+  ntrees_max = 1000,
+  num_search_rounds = 10,
+  print_every_n = 100,
+  early_stopping_rounds = 10,
+  nthread = NULL,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{x}{the input features}

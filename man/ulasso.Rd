@@ -4,9 +4,20 @@
 \alias{ulasso}
 \title{U-learner implemented via glmnet (lasso)}
 \usage{
-ulasso(x, w, y, alpha = 1, k_folds = NULL, lambda_y = NULL,
-  lambda_w = NULL, lambda_tau = NULL, lambda_choice = c("lambda.1se",
-  "lambda.min"), p_hat = NULL, m_hat = NULL, cutoff = 0.05)
+ulasso(
+  x,
+  w,
+  y,
+  alpha = 1,
+  k_folds = NULL,
+  lambda_y = NULL,
+  lambda_w = NULL,
+  lambda_tau = NULL,
+  lambda_choice = c("lambda.1se", "lambda.min"),
+  p_hat = NULL,
+  m_hat = NULL,
+  cutoff = 0.05
+)
 }
 \arguments{
 \item{x}{the input features}

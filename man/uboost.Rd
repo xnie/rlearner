@@ -4,10 +4,21 @@
 \alias{uboost}
 \title{U-learner implemented via xgboost (boosting)}
 \usage{
-uboost(x, w, y, k_folds = NULL, p_hat = NULL, m_hat = NULL,
-  cutoff = 0.05, ntrees_max = 1000, num_search_rounds = 10,
-  print_every_n = 100, early_stopping_rounds = 10, nthread = NULL,
-  verbose = FALSE)
+uboost(
+  x,
+  w,
+  y,
+  k_folds = NULL,
+  p_hat = NULL,
+  m_hat = NULL,
+  cutoff = 0.05,
+  ntrees_max = 1000,
+  num_search_rounds = 10,
+  print_every_n = 100,
+  early_stopping_rounds = 10,
+  nthread = NULL,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{x}{the input features}

@@ -4,8 +4,7 @@
 \alias{predict.tlasso}
 \title{predict for tlasso}
 \usage{
-\method{predict}{tlasso}(object, newx = NULL, s = c("lambda.min",
-  "lambda.1se"), ...)
+\method{predict}{tlasso}(object, newx = NULL, s = c("lambda.min", "lambda.1se"), ...)
 }
 \arguments{
 \item{object}{a tlasso object}

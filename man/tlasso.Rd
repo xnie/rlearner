@@ -4,9 +4,17 @@
 \alias{tlasso}
 \title{T-learner, implemented via glmnet (lasso)}
 \usage{
-tlasso(x, w, y, alpha = 1, k_folds_mu1 = NULL, k_folds_mu0 = NULL,
-  lambda = NULL, lambda_choice = c("lambda.min", "lambda.1se"),
-  penalty_factor = NULL)
+tlasso(
+  x,
+  w,
+  y,
+  alpha = 1,
+  k_folds_mu1 = NULL,
+  k_folds_mu0 = NULL,
+  lambda = NULL,
+  lambda_choice = c("lambda.min", "lambda.1se"),
+  penalty_factor = NULL
+)
 }
 \arguments{
 \item{x}{the input features}

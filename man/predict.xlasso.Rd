@@ -4,8 +4,7 @@
 \alias{predict.xlasso}
 \title{predict for xlasso}
 \usage{
-\method{predict}{xlasso}(object, newx = NULL, s = c("lambda.min",
-  "lambda.1se"), ...)
+\method{predict}{xlasso}(object, newx = NULL, s = c("lambda.min", "lambda.1se"), ...)
 }
 \arguments{
 \item{object}{a xlasso object}

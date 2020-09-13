@@ -4,9 +4,17 @@
 \alias{xkern}
 \title{X-learner implemented via kernel ridge regression (with a Gaussian kernel)}
 \usage{
-xkern(x, w, y, k_folds = NULL, b_range = 10^(seq(-3, 3, 0.5)),
-  lambda_range = 10^(seq(-3, 3, 0.5)), mu1_hat = NULL,
-  mu0_hat = NULL, p_hat = NULL)
+xkern(
+  x,
+  w,
+  y,
+  k_folds = NULL,
+  b_range = 10^(seq(-3, 3, 0.5)),
+  lambda_range = 10^(seq(-3, 3, 0.5)),
+  mu1_hat = NULL,
+  mu0_hat = NULL,
+  p_hat = NULL
+)
 }
 \arguments{
 \item{x}{the input features}

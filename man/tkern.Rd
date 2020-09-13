@@ -4,8 +4,14 @@
 \alias{tkern}
 \title{T-learner, implemented via kernel ridge regression with Gaussian kernels}
 \usage{
-tkern(x, w, y, b_range = 10^(seq(-3, 3, 0.5)),
-  lambda_range = 10^(seq(-3, 3, 0.5)), k_folds = NULL)
+tkern(
+  x,
+  w,
+  y,
+  b_range = 10^(seq(-3, 3, 0.5)),
+  lambda_range = 10^(seq(-3, 3, 0.5)),
+  k_folds = NULL
+)
 }
 \arguments{
 \item{x}{the input features}

@@ -4,9 +4,17 @@
 \alias{ukern}
 \title{U-learner implemented via kernel ridge regression with a Gaussian kernel}
 \usage{
-ukern(x, w, y, k_folds = NULL, p_hat = NULL, m_hat = NULL,
-  b_range = 10^(seq(-3, 3, 0.5)), lambda_range = 10^(seq(-3, 3, 0.5)),
-  cutoff = 0.05)
+ukern(
+  x,
+  w,
+  y,
+  k_folds = NULL,
+  p_hat = NULL,
+  m_hat = NULL,
+  b_range = 10^(seq(-3, 3, 0.5)),
+  lambda_range = 10^(seq(-3, 3, 0.5)),
+  cutoff = 0.05
+)
 }
 \arguments{
 \item{x}{the input features}

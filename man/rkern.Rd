@@ -4,8 +4,16 @@
 \alias{rkern}
 \title{R-learner, implemented via kernel ridge regression with a Gaussian kernel}
 \usage{
-rkern(x, w, y, k_folds = NULL, p_hat = NULL, m_hat = NULL,
-  b_range = 10^(seq(-3, 3, 0.5)), lambda_range = 10^(seq(-3, 3, 0.5)))
+rkern(
+  x,
+  w,
+  y,
+  k_folds = NULL,
+  p_hat = NULL,
+  m_hat = NULL,
+  b_range = 10^(seq(-3, 3, 0.5)),
+  lambda_range = 10^(seq(-3, 3, 0.5))
+)
 }
 \arguments{
 \item{x}{the input features}

@@ -4,8 +4,7 @@
 \alias{predict.ulasso}
 \title{predict for ulasso}
 \usage{
-\method{predict}{ulasso}(object, newx = NULL, s = c("lambda.1se",
-  "lambda.min"), ...)
+\method{predict}{ulasso}(object, newx = NULL, s = c("lambda.1se", "lambda.min"), ...)
 }
 \arguments{
 \item{object}{a ulasso object}

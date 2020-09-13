@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{easy_toy_data_simulation}
 \alias{easy_toy_data_simulation}
-\title{Toy data simulation (easy mode)}
+\title{Toy data simulation}
 \usage{
 easy_toy_data_simulation(n)
 }
@@ -18,9 +18,9 @@ Generates a toy dataset of size \eqn{n} that can be used to experiment with the 
 in this package. The generative process should be easy to learn with linear methods.
 }
 \examples{
-toy_data_simulation # show the code- you can modify it to make your own simulations
+easy_toy_data_simulation # show the code- you can modify it to make your own simulations
 library(zeallot) # imports the \%<-\% operator, which is syntactic sugar that performs multiple assignment out of a list
-c(x, w, y, ...) \%<-\% toy_data_simulation(500) # draw a sample
+c(x, w, y, ...) \%<-\% easy_toy_data_simulation(500) # draw a sample
 # see what kind of objects these are
 str(x)
 str(w)

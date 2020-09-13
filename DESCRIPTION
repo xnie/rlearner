@@ -7,7 +7,7 @@ Depends: R (>= 4.0.2)
 Imports: splines, stats, xgboost, stringr, glmnet (>= 4.0-2), caret
 Suggests: testthat, KRLS2, causalLearning
 License: none
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1
 Encoding: UTF-8
 Collate:
     'cvboost.R'

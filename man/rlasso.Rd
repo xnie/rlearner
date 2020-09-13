@@ -4,10 +4,22 @@
 \alias{rlasso}
 \title{R-learner, implemented via glmnet (lasso)}
 \usage{
-rlasso(x, w, y, alpha = 1, k_folds = NULL, foldid = NULL,
-  lambda_y = NULL, lambda_w = NULL, lambda_tau = NULL,
-  lambda_choice = c("lambda.min", "lambda.1se"), rs = FALSE,
-  p_hat = NULL, m_hat = NULL, penalty_factor = NULL)
+rlasso(
+  x,
+  w,
+  y,
+  alpha = 1,
+  k_folds = NULL,
+  foldid = NULL,
+  lambda_y = NULL,
+  lambda_w = NULL,
+  lambda_tau = NULL,
+  lambda_choice = c("lambda.min", "lambda.1se"),
+  rs = FALSE,
+  p_hat = NULL,
+  m_hat = NULL,
+  penalty_factor = NULL
+)
 }
 \arguments{
 \item{x}{the input features}

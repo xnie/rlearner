@@ -4,10 +4,21 @@
 \alias{xlasso}
 \title{X-learner implemented via glmnet (lasso)}
 \usage{
-xlasso(x, w, y, alpha = 1, k_folds_mu1 = NULL, k_folds_mu0 = NULL,
-  k_folds_p = NULL, lambda_t = NULL, lambda_x = NULL,
-  lambda_w = NULL, lambda_choice = c("lambda.min", "lambda.1se"),
-  mu1_hat = NULL, mu0_hat = NULL)
+xlasso(
+  x,
+  w,
+  y,
+  alpha = 1,
+  k_folds_mu1 = NULL,
+  k_folds_mu0 = NULL,
+  k_folds_p = NULL,
+  lambda_t = NULL,
+  lambda_x = NULL,
+  lambda_w = NULL,
+  lambda_choice = c("lambda.min", "lambda.1se"),
+  mu1_hat = NULL,
+  mu0_hat = NULL
+)
 }
 \arguments{
 \item{x}{the input features}

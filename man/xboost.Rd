@@ -4,10 +4,23 @@
 \alias{xboost}
 \title{X-learner implemented via xgboost (boosting)}
 \usage{
-xboost(x, w, y, k_folds_mu1 = NULL, k_folds_mu0 = NULL,
-  k_folds_p = NULL, mu1_hat = NULL, mu0_hat = NULL, p_hat = NULL,
-  ntrees_max = 1000, num_search_rounds = 10, print_every_n = 100,
-  early_stopping_rounds = 10, nthread = NULL, verbose = FALSE)
+xboost(
+  x,
+  w,
+  y,
+  k_folds_mu1 = NULL,
+  k_folds_mu0 = NULL,
+  k_folds_p = NULL,
+  mu1_hat = NULL,
+  mu0_hat = NULL,
+  p_hat = NULL,
+  ntrees_max = 1000,
+  num_search_rounds = 10,
+  print_every_n = 100,
+  early_stopping_rounds = 10,
+  nthread = NULL,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{x}{the input features}

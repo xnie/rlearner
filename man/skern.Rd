@@ -4,8 +4,14 @@
 \alias{skern}
 \title{S-learner, implemented via kernel ridge regression with a Gaussian kernel}
 \usage{
-skern(x, w, y, k_folds = NULL, b_range = 10^(seq(-3, 3, 0.5)),
-  lambda_range = 10^(seq(-3, 3, 0.5)))
+skern(
+  x,
+  w,
+  y,
+  k_folds = NULL,
+  b_range = 10^(seq(-3, 3, 0.5)),
+  lambda_range = 10^(seq(-3, 3, 0.5))
+)
 }
 \arguments{
 \item{x}{the input features}

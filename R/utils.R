@@ -48,9 +48,9 @@ sanitize_input = function(x,w,y) {
 #' @return a list containing the covariate matrix, treatment vector, outcome vector, true propensity vector, true marginal outcome vector,
 #' true control potential outcome vector, true treated potential outcome vector, and true treatment effect vector, in that order.
 #' @examples
-#' toy_data_simulation # show the code- you can modify it to make your own simulations
+#' data_simulation # show the code- you can modify it to make your own simulations
 #' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
-#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample
+#' c(x, w, y, ...) %<-% data_simulation(500) # draw a sample
 #' # see what kind of objects these are
 #' str(x)
 #' str(w)
@@ -68,7 +68,7 @@ data_simulation = function(n) {
 	list(x=x, w=w, y=y, p=p, m=m, mu0=mu0, mu1=mu1, tau=tau)
 }
 
-#' @title Toy data simulation (easy mode)
+#' @title Toy data simulation
 #'
 #' @description Generates a toy dataset of size \eqn{n} that can be used to experiment with the learners and meta-learners
 #' in this package. The generative process should be easy to learn with linear methods.
@@ -77,9 +77,9 @@ data_simulation = function(n) {
 #' @return a list containing the covariate matrix, treatment vector, outcome vector, true propensity vector, true marginal outcome vector,
 #' true control potential outcome vector, true treated potential outcome vector, and true treatment effect vector, in that order.
 #' @examples
-#' toy_data_simulation # show the code- you can modify it to make your own simulations
+#' easy_toy_data_simulation # show the code- you can modify it to make your own simulations
 #' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
-#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample
+#' c(x, w, y, ...) %<-% easy_toy_data_simulation(500) # draw a sample
 #' # see what kind of objects these are
 #' str(x)
 #' str(w)
@@ -96,7 +96,7 @@ easy_toy_data_simulation = function(n) {
 	y = (m + tau/2*(2*w-1))[,1]
 	list(x=x, w=w, y=y, p=p, m=m, mu0=mu0, mu1=mu1, tau=tau)
 }
-#' @title Toy data simulation (easy mode) with continuous treatments
+#' @title Toy data simulation with continuous treatments
 #'
 #' @description Generates a toy dataset of size \eqn{n} that can be used to experiment with the learners and meta-learners
 #' in this package. The generative process should be easy to learn with linear methods.
@@ -105,9 +105,9 @@ easy_toy_data_simulation = function(n) {
 #' @return a list containing the covariate matrix, treatment vector, outcome vector, true propensity vector, true marginal outcome vector,
 #' true control potential outcome vector, true treated potential outcome vector, and true treatment effect vector, in that order.
 #' @examples
-#' toy_data_simulation # show the code- you can modify it to make your own simulations
+#' continuous_toy_data_simulation # show the code- you can modify it to make your own simulations
 #' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
-#' c(x, w, y, ...) %<-% toy_data_simulation(500) # draw a sample
+#' c(x, w, y, ...) %<-% continuous_toy_data_simulation(500) # draw a sample
 #' # see what kind of objects these are
 #' str(x)
 #' str(w)
@@ -133,7 +133,7 @@ continuous_toy_data_simulation = function(n) {
 #' @return a list containing the covariate matrix, treatment vector, outcome vector, true propensity vector, true marginal outcome vector,
 #' true control potential outcome vector, true treated potential outcome vector, and true treatment effect vector, in that order.
 #' @examples
-#' toy_data_simulation # show the code- you can modify it to make your own simulations
+#' t_toy_data_simulation # show the code- you can modify it to make your own simulations
 #' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
 #' c(x, w, y, ...) %<-% t_toy_data_simulation(500) # draw a sample
 #' # see what kind of objects these are
@@ -161,9 +161,9 @@ t_toy_data_simulation = function(n) {
 #' @return a list containing the covariate matrix, treatment vector, outcome vector, true propensity vector, true marginal outcome vector,
 #' true control potential outcome vector, true treated potential outcome vector, and true treatment effect vector, in that order.
 #' @examples
-#' toy_data_simulation # show the code- you can modify it to make your own simulations
+#' t_data_simulation # show the code- you can modify it to make your own simulations
 #' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
-#' c(x, w, y, ...) %<-% t_toy_data_simulation(500) # draw a sample
+#' c(x, w, y, ...) %<-% t_data_simulation(500) # draw a sample
 #' # see what kind of objects these are
 #' str(x)
 #' str(w)

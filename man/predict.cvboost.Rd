@@ -26,7 +26,7 @@ n = 100; p = 10
 x = matrix(rnorm(n*p), n, p)
 y = pmax(x[,1], 0) + x[,2] + pmin(x[,3], 0) + rnorm(n)
 
-fit = cvboost(x, y, objective="reg:linear")
+fit = cvboost(x, y, objective="reg:squarederror")
 est = predict(fit, x)
 }
 

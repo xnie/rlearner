@@ -4,8 +4,14 @@
 \alias{cv_klrs}
 \title{Kernel ridge regression with Gaussian kernels with cross validation to search for hyper-parameters (implemented with th eKLRS package)}
 \usage{
-cv_klrs(x, y, weights = NULL, k_folds = NULL, b_range = 10^(seq(-3,
-  3, 0.5)), lambda_range = 10^(seq(-3, 3, 0.5)))
+cv_klrs(
+  x,
+  y,
+  weights = NULL,
+  k_folds = NULL,
+  b_range = 10^(seq(-3, 3, 0.5)),
+  lambda_range = 10^(seq(-3, 3, 0.5))
+)
 }
 \arguments{
 \item{x}{the input features}

@@ -4,10 +4,19 @@
 \alias{cvboost}
 \title{Gradient boosting for regression and classification with cross validation to search for hyper-parameters (implemented with xgboost)}
 \usage{
-cvboost(x, y, weights = NULL, folds = NULL, k_folds = NULL,
-  objective = c("reg:linear", "binary:logistic"), ntrees_max = 1000,
-  num_search_rounds = 10, print_every_n = 100,
-  early_stopping_rounds = 10, nthread = NULL, verbose = FALSE)
+cvboost(
+  x,
+  y,
+  weights = NULL,
+  k_folds = NULL,
+  objective = c("reg:squarederror", "binary:logistic"),
+  ntrees_max = 1000,
+  num_search_rounds = 10,
+  print_every_n = 100,
+  early_stopping_rounds = 10,
+  nthread = NULL,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{x}{the input features}
@@ -18,7 +27,7 @@ cvboost(x, y, weights = NULL, folds = NULL, k_folds = NULL,
 
 \item{k_folds}{number of folds used in cross validation}
 
-\item{objective}{choose from either "reg:linear" for regression or "binary:logistic" for logistic regression}
+\item{objective}{choose from either "reg:squarederror" for regression or "binary:logistic" for logistic regression}
 
 \item{ntrees_max}{the maximum number of trees to grow for xgboost}
 
@@ -45,7 +54,7 @@ n = 100; p = 10
 x = matrix(rnorm(n*p), n, p)
 y = pmax(x[,1], 0) + x[,2] + pmin(x[,3], 0) + rnorm(n)
 
-fit = cvboost(x, y, objective="reg:linear")
+fit = cvboost(x, y, objective="reg:squarederror")
 est = predict(fit, x)
 }
 
