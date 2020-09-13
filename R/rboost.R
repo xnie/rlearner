@@ -123,6 +123,7 @@ rboost= function(x, w, y,
 #'
 #' @param object a rboost object
 #' @param newx covariate matrix to make predictions on. If null, return the tau(x) predictions on the training data
+#' @param tau_only if set to TRUE, onlly return prediction on tau. Otherwise, return a list including prediction on tau, propensity score, and baseline main effect.
 #' @param ... additional arguments (currently not used)
 #'
 #' @examples

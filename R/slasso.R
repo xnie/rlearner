@@ -9,6 +9,7 @@
 #' @param y the observed response (real valued)
 #' @param alpha tuning parameter for the elastic net
 #' @param k_folds number of folds for cross validation
+#' @param foldid user-supplied foldid. Must have length equal to length(w). If provided, it overrides the k_folds option.
 #' @param lambda user-supplied lambda sequence for cross validation
 #' @param lambda_choice how to cross-validate; choose from "lambda.min" or "lambda.1se"
 #' @param penalty_factor user-supplied penalty factor, must be of length the same as number of features in x

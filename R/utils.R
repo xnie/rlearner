@@ -48,13 +48,7 @@ sanitize_input = function(x,w,y) {
 #' @return a list containing the covariate matrix, treatment vector, outcome vector, true propensity vector, true marginal outcome vector,
 #' true control potential outcome vector, true treated potential outcome vector, and true treatment effect vector, in that order.
 #' @examples
-#' data_simulation # show the code- you can modify it to make your own simulations
-#' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
-#' c(x, w, y, ...) %<-% data_simulation(500) # draw a sample
-#' # see what kind of objects these are
-#' str(x)
-#' str(w)
-#' str(y)
+#' data = data_simulation(500) # draw a sample
 #' @export
 data_simulation = function(n) {
   x = stats::model.matrix(~.-1, data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n), "covariate_3" = rnorm(n), "covariate_4" = rnorm(n), "covariate_5" = rnorm(n), "covariate_6" = rnorm(n)))
@@ -77,13 +71,7 @@ data_simulation = function(n) {
 #' @return a list containing the covariate matrix, treatment vector, outcome vector, true propensity vector, true marginal outcome vector,
 #' true control potential outcome vector, true treated potential outcome vector, and true treatment effect vector, in that order.
 #' @examples
-#' easy_toy_data_simulation # show the code- you can modify it to make your own simulations
-#' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
-#' c(x, w, y, ...) %<-% easy_toy_data_simulation(500) # draw a sample
-#' # see what kind of objects these are
-#' str(x)
-#' str(w)
-#' str(y)
+#' data = easy_toy_data_simulation(500) # draw a sample
 #' @export
 easy_toy_data_simulation = function(n) {
 	x = stats::model.matrix(~.-1, data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n)))
@@ -105,13 +93,7 @@ easy_toy_data_simulation = function(n) {
 #' @return a list containing the covariate matrix, treatment vector, outcome vector, true propensity vector, true marginal outcome vector,
 #' true control potential outcome vector, true treated potential outcome vector, and true treatment effect vector, in that order.
 #' @examples
-#' continuous_toy_data_simulation # show the code- you can modify it to make your own simulations
-#' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
-#' c(x, w, y, ...) %<-% continuous_toy_data_simulation(500) # draw a sample
-#' # see what kind of objects these are
-#' str(x)
-#' str(w)
-#' str(y)
+#' data = continuous_toy_data_simulation(500) # draw a sample
 #' @export
 continuous_toy_data_simulation = function(n) {
 	x = stats::model.matrix(~.-1, data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n)))
@@ -133,13 +115,7 @@ continuous_toy_data_simulation = function(n) {
 #' @return a list containing the covariate matrix, treatment vector, outcome vector, true propensity vector, true marginal outcome vector,
 #' true control potential outcome vector, true treated potential outcome vector, and true treatment effect vector, in that order.
 #' @examples
-#' t_toy_data_simulation # show the code- you can modify it to make your own simulations
-#' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
-#' c(x, w, y, ...) %<-% t_toy_data_simulation(500) # draw a sample
-#' # see what kind of objects these are
-#' str(x)
-#' str(w)
-#' str(y)
+#' data = t_toy_data_simulation(500) # draw a sample
 #' @export
 t_toy_data_simulation = function(n) {
 	x = stats::model.matrix(~.-1, data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n)))
@@ -161,13 +137,7 @@ t_toy_data_simulation = function(n) {
 #' @return a list containing the covariate matrix, treatment vector, outcome vector, true propensity vector, true marginal outcome vector,
 #' true control potential outcome vector, true treated potential outcome vector, and true treatment effect vector, in that order.
 #' @examples
-#' t_data_simulation # show the code- you can modify it to make your own simulations
-#' library(zeallot) # imports the %<-% operator, which is syntactic sugar that performs multiple assignment out of a list
-#' c(x, w, y, ...) %<-% t_data_simulation(500) # draw a sample
-#' # see what kind of objects these are
-#' str(x)
-#' str(w)
-#' str(y)
+#' data = t_data_simulation(500) # draw a sample
 #' @export
 t_data_simulation = function(n) {
 	x = stats::model.matrix(~.-1, data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n), "covariate_3" = rnorm(n), "covariate_4" = rnorm(n), "covariate_5" = rnorm(n), "covariate_6" = rnorm(n)))
@@ -214,10 +184,10 @@ simple_meta_learner_tests = function(tau_hat, sim_data, mse=0.01) {
 #' @description helper function to test treatment effect is invariant when outcome adds 1
 #' @param tau_hat user-supplied treatment effect estimate
 #' @param tau_hat_1 user-supplied treatment effect estimate for the setting with outcome added 1
+#' @param mean_err error tolerance on the mean difference bewteen tau_hat and tau_hat_1
 #'
 #' @export
-invariate_add_tests = function(tau_hat, tau_hat_1, sd_err=0.05, mean_err=0.15) {
-  #expect_equal(sd(tau_hat - tau_hat_1) < sd_err, TRUE)
+invariate_add_tests = function(tau_hat, tau_hat_1, mean_err=0.15) {
   print(abs(mean(tau_hat - tau_hat_1)))
   expect_equal(abs(mean(tau_hat - tau_hat_1)) < mean_err, TRUE)
 }
@@ -226,10 +196,10 @@ invariate_add_tests = function(tau_hat, tau_hat_1, sd_err=0.05, mean_err=0.15) {
 #' @description helper function to test treatment effect is invariant with a factor of 2 when outcome is multiplied with 2
 #' @param tau_hat user-supplied treatment effect estimate
 #' @param tau_hat_2 user-supplied treatment effect estimate for the setting with outcome is multiplied with 2
+#' @param mean_err error tolerance on the mean between 2x tau_hat and tau_hat_2
 #'
 #' @export
 invariate_mult_tests = function(tau_hat, tau_hat_2, mean_err = 0.1) {
-  #expect_equal(sd(2*tau_hat - tau_hat_2) < sd_err, TRUE)
   print(abs(mean(2*tau_hat - tau_hat_2)) )
   expect_equal(abs(mean(2*tau_hat - tau_hat_2)) < mean_err, TRUE)
 }
