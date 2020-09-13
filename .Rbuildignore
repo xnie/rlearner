@@ -1,2 +1,11 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^.*kern\.R$
+^.*klrs\.R$
+^.*kern\.Rd$
+^.*klrs\.Rd$
+^experiments_for_paper.*$
+^.*test_lasso\.R$
+^.*test_boost\.R$
+^.*test_kernel\.R$
+^.test_utils\.R$
