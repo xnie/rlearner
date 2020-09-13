@@ -29,7 +29,6 @@
 cvboost = function(x,
                    y,
                    weights=NULL,
-                   folds=NULL,
                    k_folds=NULL,
                    objective=c("reg:squarederror", "binary:logistic"),
                    ntrees_max=1000,
@@ -50,7 +49,7 @@ cvboost = function(x,
     stop("objective not defined.")
   }
 
-  if (is.null(folds) & is.null(k_folds)) {
+  if (is.null(k_folds)) {
     k_folds = floor(max(3, min(10,length(y)/4)))
   }
   if (is.null(weights)) {
@@ -84,7 +83,6 @@ cvboost = function(x,
                          param = param,
                          missing = NA,
                          nfold = k_folds,
-                         folds = folds,
                          prediction = TRUE,
                          early_stopping_rounds = early_stopping_rounds,
                          maximize = FALSE,

@@ -31,7 +31,6 @@
 #'
 #' @export
 rboost= function(x, w, y,
-                 folds = NULL,
                  k_folds = NULL,
                  p_hat = NULL,
                  m_hat = NULL,
@@ -50,10 +49,9 @@ rboost= function(x, w, y,
   nobs = nrow(x)
   pobs = ncol(x)
 
-  if (is.null(folds) & is.null(k_folds)) {
+  if (is.null(k_folds)) {
     k_folds = floor(max(3, min(10,length(y)/4)))
   }
-
 
   if (is.null(m_hat)){
     y_fit = cvboost(x,

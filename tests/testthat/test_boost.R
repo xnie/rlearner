@@ -85,7 +85,7 @@ test_that("boosting based learners predict well in setup B in the paper", {
 
   t.fit = tboost(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
   t.pred = predict(t.fit)
-  meta_learner_tests(t.pred, easy_sim_data, 0.35)
+  meta_learner_tests(t.pred, easy_sim_data, 0.4)
 
   u.fit = uboost(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
   u.pred = predict(u.fit)

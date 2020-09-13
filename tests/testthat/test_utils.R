@@ -16,7 +16,7 @@ sanitization_tests = function(x, w, y){
 }
 
 test_that("input sanitization correctly accepts good data and rejects malformed or wrong-type data", {
-	sim = toy_data_simulation(n)
+	sim = easy_toy_data_simulation(n)
 	x = sim$x
 	w = sim$w
 	y = sim$y
