@@ -4,23 +4,23 @@ library(rlearner)
 
 start_time <- Sys.time()
 
-#args=(commandArgs(TRUE))
-#alg = as.character(args[1])
-#learner = as.character(args[2])
-#setup = as.character(args[3])
-#n = as.numeric(args[4])
-#p = as.numeric(args[5])
-#sigma = as.numeric(args[6])
-#NREP = as.numeric(args[7])
+args=(commandArgs(TRUE))
+alg = as.character(args[1])
+learner = as.character(args[2])
+setup = as.character(args[3])
+n = as.numeric(args[4])
+p = as.numeric(args[5])
+sigma = as.numeric(args[6])
+NREP = as.numeric(args[7])
 
 
-alg = "S"
-learner = "kernel"
-setup = "B"
-n = 500
-p = 6
-sigma =0.5
-NREP = 1
+#alg = "S"
+#learner = "kernel"
+#setup = "B"
+#n = 500
+#p = 6
+#sigma =0.5
+#NREP = 1
 
 if (setup == 'A') {
   get.params = function() {
@@ -282,5 +282,5 @@ end_time <- Sys.time()
 time_taken <- end_time - start_time
 print(time_taken)
 
-#fnm = paste("results/output", alg, learner, setup, n, p, sigma, NREP, "full.csv", sep="-")
-#write.csv(results, file=fnm)
+fnm = paste("results/output", alg, learner, setup, n, p, sigma, NREP, "full.csv", sep="-")
+write.csv(results, file=fnm)
