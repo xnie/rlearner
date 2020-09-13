@@ -6,6 +6,7 @@ max_tol = 1
 min_tol = 1
 
 test_that("r,s,u,x kernel-based learners produce expected performance in setup B in the paper", {
+  skip_on_cran()
   set.seed(1)
 
   easy_sim_data = data_simulation(n) # draw a sample

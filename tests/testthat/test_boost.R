@@ -6,6 +6,7 @@ max_tol = 1
 min_tol = 1
 
 test_that("boosting based learners return the correct output format and predict well when the problem is easy", {
+  skip_on_cran()
   set.seed(1)
   easy_sim_data = easy_toy_data_simulation(10*n) # draw a sample
   r.fit = rboost(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)
@@ -73,6 +74,7 @@ test_that("boosting based learners return the correct output format and predict 
 
 
 test_that("boosting based learners predict well in setup B in the paper", {
+  skip_on_cran()
   set.seed(1)
   easy_sim_data = data_simulation(500) # draw a sample
   r.fit = rboost(easy_sim_data$x, easy_sim_data$w, easy_sim_data$y)

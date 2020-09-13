@@ -5,7 +5,7 @@ Authors@R: c(person("Xinkun", "Nie", email = "xinkun@stanford.edu",role = c("aut
 Description: R-learner for quasi-oracle estimation of heterogeneous treatment effects
 Depends: R (>= 4.0.2) 
 Imports: splines, stats, xgboost, stringr, glmnet (>= 4.0-2), caret
-Suggests: testthat, KRLS2, causalLearning
+Suggests: testthat
 License: none
 RoxygenNote: 7.1.1
 Encoding: UTF-8
