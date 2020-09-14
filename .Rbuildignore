@@ -5,3 +5,4 @@
 ^.*test_boost\.R$
 ^.*test_kernel\.R$
 ^.test_utils\.R$
+README.md

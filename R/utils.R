@@ -51,14 +51,14 @@ sanitize_input = function(x,w,y) {
 #' data = data_simulation(500) # draw a sample
 #' @export
 data_simulation = function(n) {
-  x = stats::model.matrix(~.-1, data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n), "covariate_3" = rnorm(n), "covariate_4" = rnorm(n), "covariate_5" = rnorm(n), "covariate_6" = rnorm(n)))
+  x = stats::model.matrix(~.-1, data.frame("covariate_1" = stats::rnorm(n), "covariate_2"= stats::rnorm(n), "covariate_3" = stats::rnorm(n), "covariate_4" = stats::rnorm(n), "covariate_5" = stats::rnorm(n), "covariate_6" = stats::rnorm(n)))
 	p = 0.5
-	w = as.numeric(rbinom(n,1,p)==1)
+	w = as.numeric(stats::rbinom(n,1,p)==1)
   m = pmax(0, x[,1] + x[,2], x[,3]) + pmax(0, x[,4] + x[,5])
   tau = x[,1] + log(1 + exp(x[,2]))
 	mu1 = m + tau/2
 	mu0 = m - tau/2
-	y = w*mu1 + (1-w) * mu0 + 0.5*rnorm(n)
+	y = w*mu1 + (1-w) * mu0 + 0.5*stats::rnorm(n)
 	list(x=x, w=w, y=y, p=p, m=m, mu0=mu0, mu1=mu1, tau=tau)
 }
 
@@ -74,9 +74,9 @@ data_simulation = function(n) {
 #' data = easy_toy_data_simulation(500) # draw a sample
 #' @export
 easy_toy_data_simulation = function(n) {
-	x = stats::model.matrix(~.-1, data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n)))
+	x = stats::model.matrix(~.-1, data.frame("covariate_1" = stats::rnorm(n), "covariate_2"= stats::rnorm(n)))
 	p = rep(0.5, n)
-	w = as.numeric(rbinom(n,1,p)==1)
+	w = as.numeric(stats::rbinom(n,1,p)==1)
 	tau = x %*% c(1,1)
 	m = x %*% c(0.5,-0.5)
 	mu1 = m + tau/2
@@ -96,8 +96,8 @@ easy_toy_data_simulation = function(n) {
 #' data = continuous_toy_data_simulation(500) # draw a sample
 #' @export
 continuous_toy_data_simulation = function(n) {
-	x = stats::model.matrix(~.-1, data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n)))
-	w = runif(n, 0, 1)
+	x = stats::model.matrix(~.-1, data.frame("covariate_1" = stats::rnorm(n), "covariate_2"= stats::rnorm(n)))
+	w = stats::runif(n, 0, 1)
 	tau = x %*% c(1,1)
 	m = x %*% c(0.5,-0.5)
 	mu1 = m + tau/2
@@ -118,9 +118,9 @@ continuous_toy_data_simulation = function(n) {
 #' data = t_toy_data_simulation(500) # draw a sample
 #' @export
 t_toy_data_simulation = function(n) {
-	x = stats::model.matrix(~.-1, data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n)))
+	x = stats::model.matrix(~.-1, data.frame("covariate_1" = stats::rnorm(n), "covariate_2"= stats::rnorm(n)))
 	p = rep(0.5, n)
-	w = as.numeric(rbinom(n,1,p)==1)
+	w = as.numeric(stats::rbinom(n,1,p)==1)
 	mu1 = sin(x[,1] * 2)
 	mu0 = x[,2] * 3 + 10
 	y = w * mu1 + (1-w) * mu0
@@ -140,16 +140,16 @@ t_toy_data_simulation = function(n) {
 #' data = t_data_simulation(500) # draw a sample
 #' @export
 t_data_simulation = function(n) {
-	x = stats::model.matrix(~.-1, data.frame("covariate_1" = rnorm(n), "covariate_2"= rnorm(n), "covariate_3" = rnorm(n), "covariate_4" = rnorm(n), "covariate_5" = rnorm(n), "covariate_6" = rnorm(n)))
+	x = stats::model.matrix(~.-1, data.frame("covariate_1" = stats::rnorm(n), "covariate_2"= stats::rnorm(n), "covariate_3" = stats::rnorm(n), "covariate_4" = stats::rnorm(n), "covariate_5" = stats::rnorm(n), "covariate_6" = stats::rnorm(n)))
   p = 1/(1 + exp(-x[,1]) + exp(-x[,2]))
-	w = as.numeric(rbinom(n,1,p)==1)
+	w = as.numeric(stats::rbinom(n,1,p)==1)
   b = (pmax(x[,1] + x[,2] + x[,3], 0) + pmax(x[,4] + x[,5], 0)) / 2
   tau = pmax(x[,1] + x[,2] + x[,3], 0) - pmax(x[,4] + x[,5], 0)
 
   mu1 = b + 0.5 * tau
   mu0 = b - 0.5 * tau
 
-	y = w * mu1 + (1-w) * mu0 + rnorm(n)
+	y = w * mu1 + (1-w) * mu0 + stats::rnorm(n)
 	m = p * mu1 + (1-p) * mu0
 	list(x=x, w=w, y=y, p=p, m=m, mu0=mu0, mu1=mu1, tau=tau)
 }
@@ -161,11 +161,11 @@ t_data_simulation = function(n) {
 #'
 #' @export
 meta_learner_tests = function(tau_hat, sim_data, mse=0.01) {
-  expect_equal(length(tau_hat), length(sim_data$tau))
-  expect_equal(is.numeric(tau_hat), TRUE)
+  testthat::expect_equal(length(tau_hat), length(sim_data$tau))
+  testthat::expect_equal(is.numeric(tau_hat), TRUE)
   learner_mse = mean((tau_hat - sim_data$tau)^2)
   print(learner_mse)
-  expect_equal(learner_mse<mse, TRUE)
+  testthat::expect_equal(learner_mse<mse, TRUE)
 }
 
 #' @title helper function for testing the code runs
@@ -176,8 +176,8 @@ meta_learner_tests = function(tau_hat, sim_data, mse=0.01) {
 #'
 #' @export
 simple_meta_learner_tests = function(tau_hat, sim_data, mse=0.01) {
-  expect_equal(length(tau_hat), length(sim_data$tau))
-  expect_equal(is.numeric(tau_hat), TRUE)
+  testthat::expect_equal(length(tau_hat), length(sim_data$tau))
+  testthat::expect_equal(is.numeric(tau_hat), TRUE)
 }
 
 #' @title helper function for testing treatment effect is invariant when outcome adds 1
@@ -189,7 +189,7 @@ simple_meta_learner_tests = function(tau_hat, sim_data, mse=0.01) {
 #' @export
 invariate_add_tests = function(tau_hat, tau_hat_1, mean_err=0.15) {
   print(abs(mean(tau_hat - tau_hat_1)))
-  expect_equal(abs(mean(tau_hat - tau_hat_1)) < mean_err, TRUE)
+  testthat::expect_equal(abs(mean(tau_hat - tau_hat_1)) < mean_err, TRUE)
 }
 
 #' @title helper function for testing treatment effect is invariant with a factor of 2 when outcome is multiplied with 2
@@ -201,5 +201,5 @@ invariate_add_tests = function(tau_hat, tau_hat_1, mean_err=0.15) {
 #' @export
 invariate_mult_tests = function(tau_hat, tau_hat_2, mean_err = 0.1) {
   print(abs(mean(2*tau_hat - tau_hat_2)) )
-  expect_equal(abs(mean(2*tau_hat - tau_hat_2)) < mean_err, TRUE)
+  testthat::expect_equal(abs(mean(2*tau_hat - tau_hat_2)) < mean_err, TRUE)
 }

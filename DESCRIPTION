@@ -2,11 +2,11 @@ Package: rlearner
 Title: R-Learner for Heterogeneous Treatment Effect Estimation
 Version: 1.1.0
 Authors@R: c(person("Xinkun", "Nie", email = "xinkun@stanford.edu",role = c("aut", "cre")), person("Alejandro", "Schuler", email = "aschuler@stanford.edu", role = "aut"), person("Stefan", "Wager", email = "swager@stanford.edu", role = "aut"))
-Description: R-learner for quasi-oracle estimation of heterogeneous treatment effects
-Depends: R (>= 4.0.2) 
+Description: R-learner for quasi-oracle estimation of heterogeneous treatment effects.
+Depends: R (>= 4.0) 
 Imports: splines, stats, xgboost, stringr, glmnet (>= 4.0-2), caret
 Suggests: testthat
-License: none
+License: GPL-3
 RoxygenNote: 7.1.1
 Encoding: UTF-8
 Collate:
