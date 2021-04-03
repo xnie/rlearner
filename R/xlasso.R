@@ -85,11 +85,15 @@ xlasso = function(x, w, y,
   if (is.null(mu1_hat)){
     t_1_fit = glmnet::cv.glmnet(x_1, y_1, foldid = foldid_1, lambda = lambda_t, alpha = alpha)
     mu1_hat = predict(t_1_fit, newx = x, s = lambda_choice)
+  } else {
+    t_1_fit = NULL
   }
 
   if (is.null(mu0_hat)){
     t_0_fit = glmnet::cv.glmnet(x_0, y_0, foldid = foldid_0, lambda = lambda_t, alpha = alpha)
     mu0_hat = predict(t_0_fit, newx = x, s = lambda_choice)
+  } else {
+    t_0_fit = NULL
   }
 
   d_1 = y_1 - mu0_hat[w==1]
