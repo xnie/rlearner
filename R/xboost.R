@@ -88,6 +88,8 @@ xboost = function(x, w, y,
                       nthread = nthread,
                       verbose = verbose)
     mu1_hat = predict(t_1_fit, newx = x)
+  } else {
+    t_1_fit = NULL
   }
 
   if (is.null(mu0_hat)){
@@ -102,6 +104,8 @@ xboost = function(x, w, y,
                       nthread = nthread,
                       verbose = verbose)
     mu0_hat = predict(t_0_fit, newx = x)
+  } else {
+    t_0_fit = NULL
   }
 
   d_1 = y_1 - mu0_hat[w==1]
@@ -133,6 +137,8 @@ xboost = function(x, w, y,
   tau_0_pred = predict(x_0_fit, newx = x)
 
 
+  if (is.null(p_hat)){
+
   w_fit = cvboost(x,
                   w,
                   objective = "binary:logistic",
@@ -145,6 +151,9 @@ xboost = function(x, w, y,
                   verbose = verbose)
 
   p_hat = predict(w_fit)
+  } else {
+    w_fit = NULL
+  }
 
   tau_hat = tau_1_pred * (1 - p_hat) + tau_0_pred * p_hat
 

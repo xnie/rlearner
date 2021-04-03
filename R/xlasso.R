@@ -17,6 +17,7 @@
 #' @param lambda_choice how to cross-validate; choose from "lambda.min" or "lambda.1se"
 #' @param mu1_hat pre-computed estimates on E[Y|X,W=1] corresponding to the input x. xlasso will compute it internally if not provided.
 #' @param mu0_hat pre-computed estimates on E[Y|X,W=0] corresponding to the input x. xlasso will compute it internally if not provided.
+#' @param p_hat pre-computed estimates on E[W|X] corresponding to the input x. xlasso will compute it internally if not provided.
 #' @examples
 #' \dontrun{
 #' n = 100; p = 10
@@ -41,7 +42,8 @@ xlasso = function(x, w, y,
                   lambda_w = NULL,
                   lambda_choice = c("lambda.min", "lambda.1se"),
                   mu1_hat = NULL,
-                  mu0_hat = NULL){
+                  mu0_hat = NULL,
+                  p_hat = NULL){
 
   input = sanitize_input(x,w,y)
   x = input$x
@@ -105,6 +107,7 @@ xlasso = function(x, w, y,
   tau_1_pred = predict(x_1_fit, newx = x, s = lambda_choice)
   tau_0_pred = predict(x_0_fit, newx = x, s = lambda_choice)
 
+  if (is.null(p_hat)) {
     w_fit = glmnet::cv.glmnet(x, w,
                              foldid = foldid_w,
                              family="binomial",
@@ -116,6 +119,9 @@ xlasso = function(x, w, y,
     w_lambda_min = w_fit$lambda[which.min(w_fit$cvm[!is.na(colSums(w_fit$fit.preval))])]
     theta_hat = w_fit$fit.preval[,!is.na(colSums(w_fit$fit.preval))][, w_fit$lambda[!is.na(colSums(w_fit$fit.preval))] == w_lambda_min]
     p_hat = 1/(1 + exp(-theta_hat))
+} else {
+w_fit = NULL
+}
 
   tau_hat = tau_1_pred * (1 - p_hat) + tau_0_pred * p_hat
 

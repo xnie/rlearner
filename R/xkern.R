@@ -53,10 +53,14 @@ xkern= function(x, w, y,
   if (is.null(mu1_hat)){
     t_1_fit = cv_klrs(x_1, y_1, k_folds=k_folds, b_range=b_range, lambda_range=lambda_range)
     mu1_hat = predict(t_1_fit$model, x)$fit
+  } else{
+    t_1_fit = NULL
   }
   if (is.null(mu0_hat)){
     t_0_fit = cv_klrs(x_0, y_0, k_folds=k_folds, b_range=b_range, lambda_range=lambda_range)
     mu0_hat = predict(t_0_fit$model, x)$fit
+  } else {
+    t_0_fit = NULL
   }
 
   d_1 = y_1 - mu0_hat[w==1]
