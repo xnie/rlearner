@@ -4,12 +4,14 @@
 \alias{predict.xkern}
 \title{predict for xkern}
 \usage{
-\method{predict}{xkern}(object, newx = NULL, ...)
+\method{predict}{xkern}(object, newx = NULL, new_p_hat = NULL, ...)
 }
 \arguments{
 \item{object}{an xkern object}
 
 \item{newx}{covariate matrix to make predictions on. If null, return the tau(x) predictions on the training data}
+
+\item{new_p_hat}{propensity score on newx provided by the user. Default to NULL. If the user provided their own propensity p_hat in training, new_p_hat must be provided here.}
 
 \item{...}{additional arguments (currently not used)}
 }

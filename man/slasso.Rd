@@ -27,6 +27,8 @@ slasso(
 
 \item{k_folds}{number of folds for cross validation}
 
+\item{foldid}{user-supplied foldid. Must have length equal to length(w). If provided, it overrides the k_folds option.}
+
 \item{lambda}{user-supplied lambda sequence for cross validation}
 
 \item{lambda_choice}{how to cross-validate; choose from "lambda.min" or "lambda.1se"}

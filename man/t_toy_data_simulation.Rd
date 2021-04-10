@@ -18,11 +18,5 @@ Generates a toy dataset of size \eqn{n} that can be used to experiment with T-le
 in this package. The generative process should be easy to learn with linear methods.
 }
 \examples{
-t_toy_data_simulation # show the code- you can modify it to make your own simulations
-library(zeallot) # imports the \%<-\% operator, which is syntactic sugar that performs multiple assignment out of a list
-c(x, w, y, ...) \%<-\% t_toy_data_simulation(500) # draw a sample
-# see what kind of objects these are
-str(x)
-str(w)
-str(y)
+data = t_toy_data_simulation(500) # draw a sample
 }

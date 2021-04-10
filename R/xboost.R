@@ -179,6 +179,7 @@ xboost = function(x, w, y,
 #'
 #' @param object a xboost object
 #' @param newx covariate matrix to make predictions on. If null, return the tau(x) predictions on the training data
+#' @param new_p_hat propensity score on newx provided by the user. Default to NULL. If the user provided their own propensity p_hat in training, new_p_hat must be provided here.
 #' @param ... additional arguments (currently not used)
 #'
 #' @examples
@@ -198,13 +199,20 @@ xboost = function(x, w, y,
 #' @export
 predict.xboost <- function(object,
                            newx = NULL,
+                           new_p_hat = NULL,
                            ...) {
   if (!is.null(newx)) {
     newx = sanitize_x(newx)
     tau_1_pred = predict(object$x_1_fit, newx = newx)
     tau_0_pred = predict(object$x_0_fit, newx = newx)
-    p_hat = predict(object$w_fit, newx = newx)
-    tau_hat = tau_1_pred * (1 - p_hat) + tau_0_pred * p_hat
+    if (is.null(new_p_hat)) {
+      if (is.null(object$w_fit)) {
+  	    stop("Must provide new_p_hat since propensity has not been learned by the xlasso. Alternatively, do not supply p_hat when calling xlasso so the function learns a propenity model.")
+    	} else {
+  	    new_p_hat = predict(object$w_fit, newx=newx)
+  		}
+    }
+    tau_hat = tau_1_pred * (1 - new_p_hat) + tau_0_pred * new_p_hat
   }
   else {
     tau_hat = object$tau_hat

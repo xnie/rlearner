@@ -17,7 +17,8 @@ xlasso(
   lambda_w = NULL,
   lambda_choice = c("lambda.min", "lambda.1se"),
   mu1_hat = NULL,
-  mu0_hat = NULL
+  mu0_hat = NULL,
+  p_hat = NULL
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ xlasso(
 \item{mu1_hat}{pre-computed estimates on E[Y|X,W=1] corresponding to the input x. xlasso will compute it internally if not provided.}
 
 \item{mu0_hat}{pre-computed estimates on E[Y|X,W=0] corresponding to the input x. xlasso will compute it internally if not provided.}
+
+\item{p_hat}{pre-computed estimates on E[W|X] corresponding to the input x. xlasso will compute it internally if not provided.}
 }
 \description{
 X-learner as proposed by Kunzel, Sekhon, Bickel, and Yu (2017), implemented via glmnet (lasso)

@@ -18,11 +18,5 @@ Generates a dataset of size \eqn{n} that can be used to experiment with the lear
 in this package.
 }
 \examples{
-data_simulation # show the code- you can modify it to make your own simulations
-library(zeallot) # imports the \%<-\% operator, which is syntactic sugar that performs multiple assignment out of a list
-c(x, w, y, ...) \%<-\% data_simulation(500) # draw a sample
-# see what kind of objects these are
-str(x)
-str(w)
-str(y)
+data = data_simulation(500) # draw a sample
 }

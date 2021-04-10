@@ -147,6 +147,7 @@ w_fit = NULL
 #'
 #' @param object a xlasso object
 #' @param newx covariate matrix to make predictions on. If null, return the tau(x) predictions on the training data
+#' @param new_p_hat propensity score on newx provided by the user. Default to NULL. If the user provided their own propensity p_hat in training, new_p_hat must be provided here.
 #' @param s choose from "lambda.min" or "lambda.1se
 #' @param ... additional arguments (currently not used)
 #'
@@ -167,6 +168,7 @@ w_fit = NULL
 #' @export
 predict.xlasso <- function(object,
                            newx = NULL,
+            		           new_p_hat = NULL,
                            s = c("lambda.min", "lambda.1se"),
                            ...) {
   s = match.arg(s)
@@ -174,8 +176,14 @@ predict.xlasso <- function(object,
     newx = sanitize_x(newx)
     tau_1_pred = predict(object$x_1_fit, newx = newx, s = s)
     tau_0_pred = predict(object$x_0_fit, newx = newx, s = s)
-    p_hat = predict(object$w_fit, newx=newx, s = s, type = "response")
-    tau_hat = tau_1_pred * (1 - p_hat) + tau_0_pred * p_hat
+    if (is.null(new_p_hat)) {
+      if (is.null(object$w_fit)) {
+  	    stop("Must provide new_p_hat since propensity has not been learned by the xlasso. Alternatively, do not supply p_hat when calling xlasso so the function learns a propenity model.")
+    	} else {
+  	    new_p_hat = predict(object$w_fit, newx=newx, s = s, type = "response")
+  		}
+    }
+    tau_hat = tau_1_pred * (1 - new_p_hat) + tau_0_pred * new_p_hat
   }
   else {
     tau_hat = object$tau_hat
