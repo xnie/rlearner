@@ -47,6 +47,8 @@ cv_klrs = function(x,
     for (lambda in lambda_range) {
       fit = rep(0, length(y))
       for (f in 1:k_folds) {
+        w_fold = if (is.null(weights)) NULL else weights[foldid != f]
+        
         model_f = suppressMessages(KRLS2::krls(X=x[foldid != f,], y=y[foldid != f], w=weights[foldid != f], loss="leastsquares", b=b, lambda=lambda, truncate = truncate))# lambda is the same as var from kernlab. 1/b is the same as sigma in kernlab
         fit[foldid == f] = predict(model_f, x[foldid == f,])$fit
       }
@@ -68,6 +70,7 @@ cv_klrs = function(x,
       }
     }
   }
+  w_fold = if (is.null(weights)) NULL else weights[foldid != f]
   model = suppressMessages(KRLS2::krls(X=x, y=y, w= weights, loss="leastsquares", b=best_b, lambda=best_lambda, truncate = truncate))# lambda is the same as var from kernlab. 1/b is the same as sigma in kernlab
   return(list(b=best_b,
               lambda = best_lambda,
